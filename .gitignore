@@ -1,0 +1,10 @@
+*
+!*/
+!*.cpp
+!*.hpp
+!CMakeLists.txt
+!.clang-format
+!.gitignore
+!compile_flags.txt
+!LICENSE
+build/**
