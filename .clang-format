@@ -1,0 +1,113 @@
+AccessModifierOffset: -2
+AlignAfterOpenBracket: Align # Questionable
+AlignConsecutiveMacros: true
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignEscapedNewlines: DontAlign
+AlignOperands: true # Questionable
+AlignTrailingComments: true
+AllowAllArgumentsOnNextLine: false # Questionable
+AllowAllConstructorInitializersOnNextLine: false # Questionable
+AllowAllParametersOfDeclarationOnNextLine: false # Questionable
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false # Questionable
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: None # Questionable
+AllowShortLoopsOnASingleLine: false
+# AlwaysBreakAfterDefinitionReturnType: None # Deprecated
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: true # Questionable
+AlwaysBreakTemplateDeclarations: Yes
+BinPackArguments: false
+BinPackParameters: false
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterClass: false
+  AfterControlStatement: false
+  AfterEnum: false
+  AfterFunction: false # Questionable
+  AfterNamespace: false
+  AfterObjCDeclaration: false # No idea
+  AfterStruct: false
+  AfterUnion: false
+  AfterExternBlock: false
+  BeforeCatch: false
+  BeforeElse: false
+  IndentBraces: false # No idea
+  SplitEmptyFunction: false # No idea
+  SplitEmptyRecord: false # No idea
+  SplitEmptyNamespace: false # No idea
+BreakAfterJavaFieldAnnotations: true # Questionable
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeBraces: Custom
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeColon
+BreakInheritanceList: BeforeColon
+BreakStringLiterals: false # Questionable
+ColumnLimit: 480
+# CommentPragmas: # No idea
+CompactNamespaces: false
+ConstructorInitializerAllOnOneLineOrOnePerLine: true # Questionable
+ConstructorInitializerIndentWidth: 2
+ContinuationIndentWidth: 0
+Cpp11BracedListStyle: true
+DerivePointerAlignment: false
+DisableFormat: false
+FixNamespaceComments: false
+# TypenameMacros: [] # Questionable
+IncludeBlocks: Regroup
+# IncludeCategories: [] # Questionable
+# IncludeIsMainRegex: ""
+IndentCaseLabels: true
+IndentPPDirectives: None
+IndentWidth: 2
+IndentWrappedFunctionNames: true # Questionable
+# JavaImportGroups: []
+JavaScriptQuotes: Double
+JavaScriptWrapImports: true # Questionable
+KeepEmptyLinesAtTheStartOfBlocks: false
+# Language: Cpp
+# MacroBlockBegin: ""
+# MacroBlockEnd: ""
+MaxEmptyLinesToKeep: 1
+NamespaceIndentation: All
+# NamespaceMacros: []
+ObjCBinPackProtocolList: Auto # Questionable
+ObjCBlockIndentWidth: 2
+ObjCSpaceAfterProperty: false
+ObjCSpaceBeforeProtocolList: false
+PenaltyBreakAssignment: 0
+PenaltyBreakBeforeFirstCallParameter: 0
+PenaltyBreakComment: 0
+PenaltyBreakFirstLessLess: 0
+PenaltyBreakString: 0
+PenaltyBreakTemplateDeclaration: 0
+PenaltyExcessCharacter: 0
+PenaltyReturnTypeOnItsOwnLine: 0
+PointerAlignment: Right
+# RawStringFormats: []
+ReflowComments: true
+SortIncludes: false # Questionable
+SortUsingDeclarations: false # Questionable
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: true # Unsure
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: ControlStatements
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceInEmptyParentheses: false
+SpacesBeforeTrailingComments: 2 # Unsure
+SpacesInAngles: false
+SpacesInCStyleCastParentheses: false
+SpacesInContainerLiterals: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+Standard: Cpp11
+# StatementMacros: []
+TabWidth: 2
+UseTab: Never
+ForEachMacros: ['using', 'profile', 'benchmark']
