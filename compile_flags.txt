@@ -1,0 +1,12 @@
+-TP
+-I.\\source
+-Weverything
+-Wno-unknown-argument
+-Wno-c++98-compat
+-Wno-c++17-extensions
+-Wno-c++98-compat-pedantic
+-Wno-global-constructors
+-Wno-exit-time-destructors
+-Wno-c99-extensions
+-std=c++2a
+-MDd
