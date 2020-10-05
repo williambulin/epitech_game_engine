@@ -1,3 +1,5 @@
+#pragma once
+
 class Vec3 final {
 public:
   float x{0.0f};
@@ -6,16 +8,16 @@ public:
 
 public:
   explicit Vec3(float x, float y, float z) noexcept
-      : x(x),
-        y(y),
-        z(z)
+    : x{x},
+      y{y},
+      z{z}
   {
   }
 
   explicit Vec3(const Vec3 &second) noexcept
-    : x(second.x),
-      y(second.y),
-      z(second.z)
+    : x{second.x},
+      y{second.y},
+      z{second.z}
   {
   }
 
