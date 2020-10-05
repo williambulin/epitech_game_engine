@@ -1,4 +1,6 @@
 
+#pragma once
+
 #include "Maths/Vec3.hpp"
 #include "Physics/ICollisionSystem.hpp"
 
