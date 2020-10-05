@@ -3,6 +3,7 @@
 
 #include "ApplicationBase.hpp"
 #include "Extension/Language/Keywords.hpp"
+#include "Extension/Language/Platform.hpp"
 
 #if defined(OS_WINDOWS)
 #include <Windows.h>
