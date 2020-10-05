@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "Maths/Vec3.hpp"
