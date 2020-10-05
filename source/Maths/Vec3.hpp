@@ -1,29 +1,29 @@
-class Vec3 {
+class Vec3 final {
 public:
+  float x;
+  float y;
+  float z;  
 
-  Vec3(float x, float y, float z) noexcept
+public:
+  explicit Vec3(float x, float y, float z) noexcept
       : x(x),
         y(y),
         z(z)
   {
   }
 
-  Vec3(const Vec3 &second) noexcept
+  explicit Vec3(const Vec3 &second) noexcept
     : x(second.x),
       y(second.y),
       z(second.z)
   {
   }
 
-  bool operator==(const Vec3 &second) {
+  [[nodiscard]] bool operator==(const Vec3 &second) noexcept {
     return(
       x == second.x &&
       y == second.y &&
       z == second.z
     );
   }
-
-  float x;
-  float y;
-  float z;
 };

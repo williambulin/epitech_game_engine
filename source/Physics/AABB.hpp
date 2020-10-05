@@ -1,25 +1,37 @@
 
-#include <Maths/Vec3.hpp>
-#include <Physics/ICollisionSystem.hpp>
+#include "Maths/Vec3.hpp"
+#include "Physics/ICollisionSystem.hpp"
 
-class AABB : IColisionSystem<AABB> {
+class AABB final : public ICollisionSystem<AABB> {
 public:
-  bool Overlap(const AABB &second) noexcept
+  Vec3 topRight;
+  Vec3 bottomLeft;
+
+public:
+  explicit AABB(Vec3 topRight, Vec3 bottomLeft) noexcept
+    : topRight(topRight),
+      bottomLeft(bottomLeft)
   {
-    return(top_right.x > second.bottom_left.x &&
-    bottom_left.x < second.top_right.x &&
-    top_right.y > second.bottom_left.y &&
-    bottom_left.y < second.top_right.y &&
-    top_right.z > second.bottom_left.z &&
-    bottom_left.z < second.top_right.z);
   }
 
-  bool operator==(const AABB &second)
+  explicit AABB(const AABB &second) noexcept
+  : topRight(second.topRight),
+    bottomLeft(second.bottomLeft)
   {
-    return (bottom_left == second.bottom_left && top_right == second.top_right);
   }
 
-  Vec3 top_right;
-  Vec3 bottom_left;
+  [[nodiscard]] bool Overlap(const AABB &second) noexcept
+  {
+    return(topRight.x > second.bottomLeft.x &&
+    bottomLeft.x < second.topRight.x &&
+    topRight.y > second.bottomLeft.y &&
+    bottomLeft.y < second.topRight.y &&
+    topRight.z > second.bottomLeft.z &&
+    bottomLeft.z < second.topRight.z);
+  }
 
+  [[nodiscard]] bool operator==(const AABB &second) noexcept
+  {
+    return (bottomLeft == second.bottomLeft && topRight == second.topRight);
+  }
 };
