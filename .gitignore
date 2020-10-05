@@ -7,4 +7,5 @@
 !.gitignore
 !compile_flags.txt
 !LICENSE
+!Guidelines.md
 build/**
