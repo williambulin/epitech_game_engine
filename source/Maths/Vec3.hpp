@@ -19,7 +19,7 @@ public:
   {
   }
 
-  [[nodiscard]] bool operator==(const Vec3 &second) noexcept {
+  [[nodiscard]] bool operator==(const Vec3 &second) const noexcept {
     return(
       x == second.x &&
       y == second.y &&
