@@ -1,8 +1,8 @@
 class Vec3 final {
 public:
-  float x;
-  float y;
-  float z;  
+  float x{0.0f};
+  float y{0.0f};
+  float z{0.0f};
 
 public:
   explicit Vec3(float x, float y, float z) noexcept
