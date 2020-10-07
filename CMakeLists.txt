@@ -14,14 +14,18 @@ endif ()
 add_executable(
   epitech_game_engine
 
-  ${CMAKE_CURRENT_LIST_DIR}/source/Extension/Language/Keywords.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/source/Extension/Language/Platform.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/source/main.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/source/Global/ApplicationBase.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/source/Global/ApplicationBase.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Core.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Core.hpp
-
+  ${CMAKE_CURRENT_LIST_DIR}/source/main.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Extension/Language/Keywords.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Extension/Language/Platform.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Global/ApplicationBase.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Global/ApplicationBase.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Model/IModel.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Model/Model.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Model/Model.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Model/OBJ.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Model/OBJ.hpp
 )
 
 target_include_directories(

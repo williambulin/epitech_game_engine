@@ -1,12 +1,4 @@
--TP
--I.\\source
--Weverything
--Wno-unknown-argument
--Wno-c++98-compat
--Wno-c++17-extensions
--Wno-c++98-compat-pedantic
--Wno-global-constructors
--Wno-exit-time-destructors
--Wno-c99-extensions
--std=c++2a
+"command":
+"C:\\PROGRA~2\\MICROS~1\\2019\\COMMUN~1\\VC\\Tools\\MSVC\\1427~1.291\\bin\\Hostx64\\x64\\cl.exe
+-I.\\..\\..\\source
 -MDd
