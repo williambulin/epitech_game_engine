@@ -51,23 +51,21 @@ OBJ::OBJ(const std::string &path) {
   }
   file.close();
 
-  //parse faces to extract the indexes
-  for (std::vector<std::string> face : faces) {
-    for (std::string faceElement : face) {
+  //sort the data based on face indexes
+  for (std::vector<std::string> &face : faces) {
+    for (std::string &faceElement : face) {
       auto start = 0U;
       auto end   = faceElement.find("/");
       for (auto i = 0U; i < 3 && end != std::string::npos; i++) {
         int faceIndex = std::stoi(faceElement.substr(start, end - start)) - 1;
-        start = end + 1;
-        end   = faceElement.find("/");
-
-        //sort the data based on face indexes
         if (i == 0)
           m_vertices.push_back(vertices[faceIndex]);
         else if (i == 1)
           m_texcoords.push_back(texcoords[faceIndex]);
         else
           m_normals.push_back(normals[faceIndex]);
+        start = end + 1;
+        end   = faceElement.find("/");
       }
     }
   }
