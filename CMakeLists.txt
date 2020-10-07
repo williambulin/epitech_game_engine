@@ -21,7 +21,8 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/source/Global/ApplicationBase.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Core.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Core.hpp
-
+  ${CMAKE_CURRENT_LIST_DIR}/source/Inputs/Input.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Inputs/Input.hpp
 )
 
 target_include_directories(
