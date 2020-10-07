@@ -1,16 +1,16 @@
 
 #pragma once
 
-#include "Maths/Point3.hpp"
+#include "Maths/Vec3.hpp"
 #include "Physics/ICollisionShape.hpp"
 
 class Sphere final : public ICollisionShape<Sphere> {
 public:
-  Point3 m_center{0.0f, 0.0f, 0.0f};
+  Vec3 m_center{0.0f, 0.0f, 0.0f};
   float radius{0.0f};
 
 public:
-  explicit Sphere(Point3 center, float radius) noexcept
+  explicit Sphere(Vec3 center, float radius) noexcept
     : m_center{center},
       radius{radius}
   {
