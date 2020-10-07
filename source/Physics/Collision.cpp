@@ -1,3 +1,5 @@
+#include <math.h>       /* fabs */
+
 #include "Collision.hpp"
 
 float Collision::SqDistPointAABB(const Vec3 &p, const AABB &b ) noexcept {
@@ -17,24 +19,55 @@ float Collision::SqDistPointAABB(const Vec3 &p, const AABB &b ) noexcept {
   return sqDist;
 }
 
-bool Collision::collide(const AABB &first_collider, const AABB &second_collider) noexcept {
-  return(first_collider.m_topRight.x > second_collider.m_bottomLeft.x &&
-    first_collider.m_bottomLeft.x < second_collider.m_topRight.x &&
-    first_collider.m_topRight.y > second_collider.m_bottomLeft.y &&
-    first_collider.m_bottomLeft.y < second_collider.m_topRight.y &&
-    first_collider.m_topRight.z > second_collider.m_bottomLeft.z &&
-    first_collider.m_bottomLeft.z < second_collider.m_topRight.z);
+bool Collision::getSeparatingPlane(const Vec3 &rPos, const Vec3 &plane, const OBB& box1, const OBB& box2) {
+return (fabs(rPos*plane) > 
+        (fabs((box1.m_axisX*box1.m_halfSize.x)*plane) +
+        fabs((box1.m_axisY*box1.m_halfSize.y)*plane) +
+        fabs((box1.m_axisZ*box1.m_halfSize.z)*plane) +
+        fabs((box2.m_axisX*box2.m_halfSize.x)*plane) + 
+        fabs((box2.m_axisY*box2.m_halfSize.y)*plane) +
+        fabs((box2.m_axisZ*box2.m_halfSize.z)*plane)));
 }
 
-bool Collision::collide(const Sphere &first_collider, const Sphere &second_collider) noexcept {
-  float distance = (first_collider.m_center.x - second_collider.m_center.x) * (first_collider.m_center.x - second_collider.m_center.x) +
-                   (first_collider.m_center.y - second_collider.m_center.y) * (first_collider.m_center.y - second_collider.m_center.y) +
-                   (first_collider.m_center.z - second_collider.m_center.z) * (first_collider.m_center.z - second_collider.m_center.z);
-  return distance < (first_collider.radius + second_collider.radius) * (first_collider.radius + second_collider.radius);
+bool Collision::collide(const AABB &firstCollider, const AABB &secondCollider) noexcept {
+  return(firstCollider.m_topRight.x > secondCollider.m_bottomLeft.x &&
+    firstCollider.m_bottomLeft.x < secondCollider.m_topRight.x &&
+    firstCollider.m_topRight.y > secondCollider.m_bottomLeft.y &&
+    firstCollider.m_bottomLeft.y < secondCollider.m_topRight.y &&
+    firstCollider.m_topRight.z > secondCollider.m_bottomLeft.z &&
+    firstCollider.m_bottomLeft.z < secondCollider.m_topRight.z);
+}
+
+bool Collision::collide(const Sphere &firstCollider, const Sphere &secondCollider) noexcept {
+  float distance = (firstCollider.m_center.x - secondCollider.m_center.x) * (firstCollider.m_center.x - secondCollider.m_center.x) +
+                   (firstCollider.m_center.y - secondCollider.m_center.y) * (firstCollider.m_center.y - secondCollider.m_center.y) +
+                   (firstCollider.m_center.z - secondCollider.m_center.z) * (firstCollider.m_center.z - secondCollider.m_center.z);
+  return distance < (firstCollider.radius + secondCollider.radius) * (firstCollider.radius + secondCollider.radius);
 }
 
 //https://gamedev.stackexchange.com/questions/156870/how-do-i-implement-a-aabb-sphere-collision
-bool Collision::collide(const Sphere &first_collider, const AABB &second_collider) noexcept {
-  float sqDist = Collision::SqDistPointAABB( first_collider.m_center, second_collider );
-  return sqDist <= first_collider.radius * first_collider.radius;
+bool Collision::collide(const Sphere &firstCollider, const AABB &secondCollider) noexcept {
+  float sqDist = Collision::SqDistPointAABB( firstCollider.m_center, secondCollider );
+  return sqDist <= firstCollider.radius * firstCollider.radius;
+}
+
+bool Collision::collide(const OBB &firstCollider, const OBB &secondCollider) noexcept {
+  Vec3 RPos = secondCollider.m_pos - firstCollider.m_pos;
+
+  return !(Collision::getSeparatingPlane(RPos, firstCollider.m_axisX, firstCollider, secondCollider) ||
+        Collision::getSeparatingPlane(RPos, firstCollider.m_axisY, firstCollider, secondCollider) ||
+        Collision::getSeparatingPlane(RPos, firstCollider.m_axisZ, firstCollider, secondCollider) ||
+        Collision::getSeparatingPlane(RPos, secondCollider.m_axisX, firstCollider, secondCollider) ||
+        Collision::getSeparatingPlane(RPos, secondCollider.m_axisY, firstCollider, secondCollider) ||
+        Collision::getSeparatingPlane(RPos, secondCollider.m_axisZ, firstCollider, secondCollider) ||
+        Collision::getSeparatingPlane(RPos, firstCollider.m_axisX^secondCollider.m_axisX, firstCollider, secondCollider) ||
+        Collision::getSeparatingPlane(RPos, firstCollider.m_axisX^secondCollider.m_axisY, firstCollider, secondCollider) ||
+        Collision::getSeparatingPlane(RPos, firstCollider.m_axisX^secondCollider.m_axisZ, firstCollider, secondCollider) ||
+        Collision::getSeparatingPlane(RPos, firstCollider.m_axisY^secondCollider.m_axisX, firstCollider, secondCollider) ||
+        Collision::getSeparatingPlane(RPos, firstCollider.m_axisY^secondCollider.m_axisY, firstCollider, secondCollider) ||
+        Collision::getSeparatingPlane(RPos, firstCollider.m_axisY^secondCollider.m_axisZ, firstCollider, secondCollider) ||
+        Collision::getSeparatingPlane(RPos, firstCollider.m_axisZ^secondCollider.m_axisX, firstCollider, secondCollider) ||
+        Collision::getSeparatingPlane(RPos, firstCollider.m_axisZ^secondCollider.m_axisY, firstCollider, secondCollider) ||
+        Collision::getSeparatingPlane(RPos, firstCollider.m_axisZ^secondCollider.m_axisZ, firstCollider, secondCollider));
+
 }
