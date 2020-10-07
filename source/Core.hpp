@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include "Inputs/Input.hpp"
+
 #include "Global/ApplicationBase.hpp"
 
 class Core final : public ApplicationBase {
