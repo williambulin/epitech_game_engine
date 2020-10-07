@@ -280,7 +280,7 @@ inline Vector3<T> Vector3<T>::operator/=(const Vector3<T> &v) {
 using Vector3i = Vector3<int>;
 using Vector3f = Vector3<float>;
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 class Vector final {
 private:
   std::array<T, size> m_array;
@@ -314,33 +314,33 @@ public:
   Vector<T, size>               operator/=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
 };
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline Vector<T, size>::Vector() : m_array{} {}
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline Vector<T, size>::Vector(std::array<T, size> array) : m_array{array} {}
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline Vector<T, size>::Vector(std::vector<T> array) : m_array{} {
   std::copy_n(array.begin(), size, m_array.begin());
 }
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline void Vector<T, size>::operator=(const Vector<T, size> &v) {
   std::copy_n(v.m_array.begin(), size, m_array.begin());
 }
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline bool Vector<T, size>::operator!=(const Vector<T, size> &v) {
   return m_array != v.m_array; // will probably replace by SIMD
 }
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline bool Vector<T, size>::operator==(const Vector<T, size> &v) {
   return m_array == v.m_array;  // will probably replace by SIMD
 }
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline bool Vector<T, size>::operator>(const Vector<T, size> &v) {
   for (auto p : m_array, q : v.m_array) {
     if (p <= q)
@@ -349,7 +349,7 @@ inline bool Vector<T, size>::operator>(const Vector<T, size> &v) {
     return true;
 }
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline bool Vector<T, size>::operator<(const Vector<T, size> &v) {
   for (auto p : m_array, q : v.m_array) {
     if (p >= q)
@@ -358,7 +358,7 @@ inline bool Vector<T, size>::operator<(const Vector<T, size> &v) {
   return true;
 }
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline bool Vector<T, size>::operator>=(const Vector<T, size> &v) {
   for (auto p : m_array, q : v.m_array) {
     if (p < q)
@@ -367,7 +367,7 @@ inline bool Vector<T, size>::operator>=(const Vector<T, size> &v) {
   return true;
 }
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline bool Vector<T, size>::operator<=(const Vector<T, size> &v) {
   for (auto p : m_array, q : v.m_array) {
     if (p > q)
@@ -376,17 +376,17 @@ inline bool Vector<T, size>::operator<=(const Vector<T, size> &v) {
   return true;
 }
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline T &Vector<T, size>::operator[](uint32_t i) {
   return m_array[i];
 }
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline T &Vector<T, size>::operator()(uint32_t) {
   return m_array[i];
 }
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline Vector<T, size> Vector<T, size>::operator+(const Vector<T, size> &v) {
   auto ret = Vector<T, size>();
   for (auto p : m_array, q : v.m_array, r : ret)
@@ -394,7 +394,7 @@ inline Vector<T, size> Vector<T, size>::operator+(const Vector<T, size> &v) {
   return ret;
 }
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline Vector<T, size> Vector<T, size>::operator-(const Vector<T, size> &v) {
   auto ret = Vector<T, size>();
   for (auto p : m_array, q : v.m_array, r : ret)
@@ -402,7 +402,7 @@ inline Vector<T, size> Vector<T, size>::operator-(const Vector<T, size> &v) {
   return ret;
 }
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline Vector<T, size> Vector<T, size>::operator*(const Vector<T, size> &v) {
   auto ret = Vector<T, size>();
   for (auto p : m_array, q : v.m_array, r : ret)
@@ -410,7 +410,7 @@ inline Vector<T, size> Vector<T, size>::operator*(const Vector<T, size> &v) {
   return ret;
 }
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline Vector<T, size> Vector<T, size>::operator/(const Vector<T, size> &v) {
   auto ret = Vector<T, size>();
   for (auto p : m_array, q : v.m_array, r : ret) {
@@ -421,7 +421,7 @@ inline Vector<T, size> Vector<T, size>::operator/(const Vector<T, size> &v) {
   return ret;
 }
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline Vector<T, size> Vector<T, size>::operator^(const Vector<T, size> &v) {
   auto ret = Vector<T, size>();
   for (auto p : m_array, q : v.m_array, r : ret)
@@ -429,28 +429,28 @@ inline Vector<T, size> Vector<T, size>::operator^(const Vector<T, size> &v) {
   return ret;
 }
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline Vector<T, size> Vector<T, size>::operator+=(const Vector<T, size> &v) {
   for (auto p : m_array, q : v.m_array)
     p += q;
   return *this;
 }
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline Vector<T, size> Vector<T, size>::operator-=(const Vector<T, size> &v) {
   for (auto p : m_array, q : v.m_array)
     p -= q;
   return *this;
 }
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline Vector<T, size> Vector<T, size>::operator*=(const Vector<T, size> &v) {
   for (auto p : m_array, q : v.m_array)
     p *= q;
   return *this;
 }
 
-template <class T, uint_32t size>
+template <class T, uint32_t size>
 inline Vector<T, size> Vector<T, size>::operator/=(const Vector<T, size> &v) {
   for (auto p : m_array, q : v.m_array) {
     if (p == 0.0f)
