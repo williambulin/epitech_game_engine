@@ -3,10 +3,9 @@
 #include <memory>
 
 template<typename T>
-class ICollisionSystem
+class ICollisionShape
 {
     public:
-        virtual ~ICollisionSystem() = default;
-        [[nodiscard]] virtual bool overlap(const T&) const = 0;
+        virtual ~ICollisionShape() = default;
         [[nodiscard]] virtual bool operator==(const T&) const = 0;
 };
