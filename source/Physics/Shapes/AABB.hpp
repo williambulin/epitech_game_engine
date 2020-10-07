@@ -1,15 +1,15 @@
 #pragma once
 
-#include "Maths/Point3.hpp"
+#include "Maths/Vec3.hpp"
 #include "Physics/ICollisionShape.hpp"
 
 class AABB final : public ICollisionShape<AABB> {
 public:
-  Point3 m_topRight{0.0f, 0.0f, 0.0f};
-  Point3 m_bottomLeft{0.0f, 0.0f, 0.0f};
+  Vec3 m_topRight{0.0f, 0.0f, 0.0f};
+  Vec3 m_bottomLeft{0.0f, 0.0f, 0.0f};
 
 public:
-  explicit AABB(Point3 topRight, Point3 bottomLeft) noexcept
+  explicit AABB(Vec3 topRight, Vec3 bottomLeft) noexcept
     : m_topRight{topRight},
       m_bottomLeft{bottomLeft}
   {

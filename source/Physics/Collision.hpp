@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include "Maths/Point3.hpp"
+#include "Maths/Vec3.hpp"
 #include "Shapes/AABB.hpp"
 #include "Shapes/Sphere.hpp"
 
@@ -10,7 +10,7 @@ class Collision {
 public:
   Collision() {}
 
-  [[nodiscard]] static float SqDistPointAABB(const Point3 &p, const AABB &b ) noexcept {
+  [[nodiscard]] static float SqDistPointAABB(const Vec3 &p, const AABB &b ) noexcept {
     float sqDist = 0.0f;
 
     if( p.x < b.m_bottomLeft.x ) sqDist += (b.m_bottomLeft.x - p.x) * (b.m_bottomLeft.x - p.x);
