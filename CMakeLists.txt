@@ -10,7 +10,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a")
 endif ()
 
-
 add_executable(
   epitech_game_engine
 
@@ -32,6 +31,16 @@ target_include_directories(
   epitech_game_engine PRIVATE
 
   ${CMAKE_CURRENT_LIST_DIR}/source
+)
+
+find_package(
+  Assimp CONFIG REQUIRED
+)
+
+target_link_libraries(
+  epitech_game_engine PRIVATE
+	
+  assimp::assimp
 )
 
 if(EXISTS "${CMAKE_BINARY_DIR}/compile_commands.json")

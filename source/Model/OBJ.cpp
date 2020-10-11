@@ -26,10 +26,10 @@ OBJ::OBJ(const std::string &path) {
       //extract the data from the file
       std::istringstream line(lineString);
       std::string        index;
-      std::vector<std::string> data;
       line >> index;
       if (std::find(supportedIndexes.begin(), supportedIndexes.end(), index) == supportedIndexes.end())
         continue;
+      std::vector<std::string> data;
       for (std::string dataPart; line >> dataPart;)
         data.push_back(dataPart);
 
@@ -38,7 +38,7 @@ OBJ::OBJ(const std::string &path) {
         faces.push_back(data);
       } else {
         std::vector<float> dataFloat;
-        for (std::string dataPart : data)
+        for (std::string &dataPart : data)
           dataFloat.push_back(std::stof(dataPart));
         if (index == "v" && dataFloat.size() == 3)
           vertices.push_back(Vec3(dataFloat));
@@ -57,7 +57,7 @@ OBJ::OBJ(const std::string &path) {
       auto start = 0U;
       auto end   = faceElement.find("/");
       for (auto i = 0U; i < 3 && end != std::string::npos; i++) {
-        int faceIndex = std::stoi(faceElement.substr(start, end - start)) - 1;
+        auto faceIndex = std::stoi(faceElement.substr(start, end - start)) - 1;
         if (i == 0)
           m_vertices.push_back(vertices[faceIndex]);
         else if (i == 1)
@@ -69,10 +69,4 @@ OBJ::OBJ(const std::string &path) {
       }
     }
   }
-}
-
-OBJ::OBJ(const OBJ &copy) {
-  m_vertices  = copy.getVertices();
-  m_normals   = copy.getNormals();
-  m_texcoords = copy.getTexcoords();
 }
