@@ -2,14 +2,13 @@
 
 #include <vector>
 
-#include "../Maths/Vec2.hpp"
-#include "../Maths/Vec3.hpp"
+#include "../Maths/Vectors.hpp"
 
 class IModel {
 public:
-  using Vertices  = std::vector<Vec3>;
-  using Normals   = std::vector<Vec3>;
-  using Texcoords = std::vector<Vec2>;
+  using Vertices  = std::vector<Vector<float, 3>>;
+  using Normals   = std::vector<Vector<float, 3>>;
+  using Texcoords = std::vector<Vector<float, 2>>;
 
 public:
   virtual ~IModel() = default;

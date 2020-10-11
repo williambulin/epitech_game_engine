@@ -1,14 +1,20 @@
+#include "Model.hpp"
+
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
+#include <assimp/scene.h>
 #include <string>
+#include <vector>
 
-#include "Model.hpp"
+#include "../Maths/Vectors.hpp"
+#include "Converter/Assimp.hpp"
 
 static const unsigned int modelProcessing = aiPostProcessSteps::aiProcess_CalcTangentSpace | aiPostProcessSteps::aiProcess_GenSmoothNormals | aiPostProcessSteps::aiProcess_GenUVCoords | aiPostProcessSteps::aiProcess_Triangulate;
 
 Model::Model(const std::string &path) {
   Assimp::Importer importer;
-  auto             pScene = importer.ReadFile(path.c_str(), modelProcessing);
+  auto             scene = importer.ReadFile(path.c_str(), modelProcessing);
+  loadMesh(scene->mMeshes[0]);
 }
 
 Model::Model(const Model &copy) {
@@ -31,8 +37,8 @@ auto Model::getTexcoords() const -> const Texcoords & {
 
 void Model::loadMesh(const aiMesh *mesh) {
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-    //m_vertices.push_back(nullptr);
-    //m_normals.push_back(nullptr);
-    //m_texcoords.push_back(nullptr);
+    m_vertices.push_back(FromAssimp::Vector3<float>(mesh->mVertices[i]));
+    m_normals.push_back(FromAssimp::Vector3<float>(mesh->mNormals[i]));
+    m_texcoords.push_back(FromAssimp::Vector2<float>(mesh->mNormals[i]));
   }
 }
