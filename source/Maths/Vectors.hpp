@@ -287,8 +287,8 @@ private:
 
 public:
   explicit Vector();
-  explicit Vector(std::array<T, size> array);
-  explicit Vector(std::vector<T> array);
+  explicit Vector(const std::array<T, size>& array);
+  explicit Vector(const std::vector<T>& array);
 
   ~Vector()                 = default;
   void               operator=(const Vector<T, size> &v);
@@ -318,10 +318,10 @@ template <class T, uint32_t size>
 inline Vector<T, size>::Vector() : m_array{} {}
 
 template <class T, uint32_t size>
-inline Vector<T, size>::Vector(std::array<T, size> array) : m_array{array} {}
+inline Vector<T, size>::Vector(const std::array<T, size>& array) : m_array{array} {}
 
 template <class T, uint32_t size>
-inline Vector<T, size>::Vector(std::vector<T> array) : m_array{} {
+inline Vector<T, size>::Vector(const std::vector<T>& array) : m_array{} {
   std::copy_n(array.begin(), size, m_array.begin());
 }
 
