@@ -4,8 +4,6 @@
 #include <string>
 #include <vector>
 
-#include "../Maths/Vec2.hpp"
-#include "../Maths/Vec3.hpp"
 #include "IModel.hpp"
 
 class Model : public IModel {
