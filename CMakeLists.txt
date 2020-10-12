@@ -21,7 +21,13 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/source/Global/ApplicationBase.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Core.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Core.hpp
-
+  ${CMAKE_CURRENT_LIST_DIR}/source/Audio/AudioGroup.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Audio/AudioManager.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Audio/AudioManager.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Audio/AudioListener.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Audio/AudioListener.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Audio/AudioSource.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Audio/AudioSource.cpp
 )
 
 target_include_directories(

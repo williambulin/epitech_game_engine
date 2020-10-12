@@ -1,12 +1,4 @@
--TP
--I.\\source
--Weverything
--Wno-unknown-argument
--Wno-c++98-compat
--Wno-c++17-extensions
--Wno-c++98-compat-pedantic
--Wno-global-constructors
--Wno-exit-time-destructors
--Wno-c99-extensions
--std=c++2a
+"command":
+"C:\\PROGRA~2\\MICROS~3\\2019\\COMMUN~1\\VC\\Tools\\MSVC\\1424~1.283\\bin\\Hostx86\\x86\\cl.exe
+-IC:\\Users\\aFranchon\\source\\repos\\williambulin\\epitech_game_engine\\source
 -MDd
