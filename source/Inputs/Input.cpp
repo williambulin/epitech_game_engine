@@ -8,9 +8,6 @@ Input::Input() {
   _it        = _keypressed.begin();
   _dummyHWND = ::CreateWindowA("STATIC", "dummy", WS_VISIBLE, 0, 0, 100, 100, NULL, NULL, NULL, NULL);
   ::SetWindowTextA(_dummyHWND, "Dummy Window!");
-
-  _mouseDevice    = new Emergence::Client::Input::Device(Emergence::Client::Input::Device::DeviceType::Mouse);
-  _keyboardDevice = new Emergence::Client::Input::Device(Emergence::Client::Input::Device::DeviceType::Keyboard);
 }
 
 auto Input::getKeypressed() {
@@ -33,7 +30,7 @@ void Input::releasedKeys(int key) {
   for (auto it = _keypressed.begin(); it != _keypressed.end(); it++)
     if (*it == key)
       *it = 0;
-  _keyboardDevice->getKey(key);
+
   for (auto it = _keypressed.begin(); it != _keypressed.end(); it++)
     if (*it == 0) {
       _it = it;
