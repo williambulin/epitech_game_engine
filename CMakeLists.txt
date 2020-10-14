@@ -23,6 +23,9 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Vectors.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Model/Converter/Assimp.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Model/Converter/Assimp.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Model/AnimatedModel.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Model/AnimatedModel.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Model/IAnimatedModel.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Model/IModel.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Model/Model.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Model/Model.hpp
