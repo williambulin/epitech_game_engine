@@ -3,70 +3,70 @@
 #include <iostream>
 #include <conio.h>
 
-#if defined(_WIN32) || defined(WIN32)
-#include <Windows.h>
-#endif
+Input::Input() {
+  _keypressed.fill(0);
+  _it        = _keypressed.begin();
+  _dummyHWND = ::CreateWindowA("STATIC", "dummy", WS_VISIBLE, 0, 0, 100, 100, NULL, NULL, NULL, NULL);
+  ::SetWindowTextA(_dummyHWND, "Dummy Window!");
 
-Input::Input()
-{
-  _combo.alt = false;
-  _combo.ctrl = false;
-  _combo.shift = false;
-  _combo.dir   = IDLE;
-  _combo.key   = -1;
+  _mouseDevice    = new Emergence::Client::Input::Device(Emergence::Client::Input::Device::DeviceType::Mouse);
+  _keyboardDevice = new Emergence::Client::Input::Device(Emergence::Client::Input::Device::DeviceType::Keyboard);
 }
 
-auto Input::getKeypressed()
-{
-  return _combo;
+auto Input::getKeypressed() {
+  return _keypressed;
 }
 
-
-void Input::setMetaCombination() 
-{
-  _combo.shift = false;
-  _combo.alt = false;
-  _combo.ctrl = false;
-
-  if (GetKeyState(VK_SHIFT) & 0x8000)
-    _combo.shift = true;
-  
-  if (GetKeyState(VK_MENU) & 0x8000)
-    _combo.alt = true;
-  
-  if (GetKeyState(VK_CONTROL) & 0x8000)
-    _combo.ctrl = true;
-
+void Input::addKeypressed(int key) {
+  for (auto it = _keypressed.begin(); it != _keypressed.end(); it++)
+    if (*it == key)
+      return;
+  *_it = key;
+  for (auto it = _keypressed.begin(); it != _keypressed.end(); it++)
+    if (*it == 0) {
+      _it = it;
+      break;
+    }
 }
 
-
-void Input::setArrows()
-{
-  _combo.dir = IDLE;
-  if (GetAsyncKeyState(VK_UP))
-    _combo.dir = UP;
-  else if (GetAsyncKeyState(VK_DOWN))
-    _combo.dir = DOWN;
-  else if (GetAsyncKeyState(VK_LEFT))
-    _combo.dir = LEFT;
-  else if (GetAsyncKeyState(VK_RIGHT))
-    _combo.dir = RIGHT;
+void Input::releasedKeys(int key) {
+  for (auto it = _keypressed.begin(); it != _keypressed.end(); it++)
+    if (*it == key)
+      *it = 0;
+  _keyboardDevice->getKey(key);
+  for (auto it = _keypressed.begin(); it != _keypressed.end(); it++)
+    if (*it == 0) {
+      _it = it;
+      return;
+    }
 }
 
-
-void Input::startTriggeringInput()
-{
-  int key = 0;
-
+void Input::startTriggeringInput() {
   while (1) {
-    setMetaCombination();
-    setArrows();
-    if (kbhit())
-      if (key = getch() != 27)
-        _combo.key = key;
-      else
-        break;
-    else
-      _combo.key = -1;
+    while (GetMessage(&_msg, _dummyHWND, 0, 0)) {
+      TranslateMessage(&_msg);
+      DispatchMessage(&_msg);
+      switch (_msg.message) {
+        case WM_KEYUP:
+          releasedKeys(_msg.wParam);
+          break;
+
+        case WM_KEYDOWN:
+          switch (_msg.wParam) {
+            case 0x1B:
+              std::cout << "ESCAPE" << std::endl;
+              break;
+
+            case 0x09:
+              std::cout << "Tab" << std::endl;
+
+              exit(0);
+            default:
+              addKeypressed(_msg.wParam);
+              break;
+          }
+          break;
+      }
+    }
   }
 }

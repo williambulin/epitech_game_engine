@@ -1,33 +1,30 @@
 #pragma once
 
-#include <vector>
+#include "Inputs/lib/Device.hpp"
+
+#include <array>
+#include <iterator>
+
+#if defined(_WIN32) || defined(WIN32)
+#include <Windows.h>
+#endif
 
 class Input {
 public:
-  typedef enum {
-      IDLE,
-      UP,
-      DOWN,
-      LEFT,
-      RIGHT
-  } _arrows_t;
-  
-  typedef struct {
-    bool ctrl;
-    bool alt;
-    bool shift;
-    _arrows_t dir;
-    int  key;
-  } _combination_t; 
 
 private:
-  _combination_t _combo;
-	
+  MSG                               _msg;
+  HWND                              _dummyHWND;
+  std::array<int, 6>                _keypressed;
+  std::array<int, 6>::iterator      _it;
+  Emergence::Client::Input::Device *_mouseDevice;
+  Emergence::Client::Input::Device *_keyboardDevice;
+
 public:
-  explicit      Input();
-  virtual       ~Input() = default;
-  auto          getKeypressed();
-  void          startTriggeringInput();
-  void          setMetaCombination();
-  void          setArrows();
+  explicit Input();
+  virtual ~Input() = default;
+  auto getKeypressed();
+  void addKeypressed(int);
+  void startTriggeringInput();
+  void releasedKeys(int);
 };
