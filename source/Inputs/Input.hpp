@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Inputs/lib/Device.hpp"
+#include "Key.hpp"
 
 #include <array>
 #include <iterator>
@@ -11,14 +11,12 @@
 
 class Input {
 public:
-
 private:
-  MSG                               _msg;
-  HWND                              _dummyHWND;
-  std::array<int, 6>                _keypressed;
-  std::array<int, 6>::iterator      _it;
-  Emergence::Client::Input::Device *_mouseDevice;
-  Emergence::Client::Input::Device *_keyboardDevice;
+  MSG                          _msg;
+  HWND                         _dummyHWND;
+  std::array<int, 6>           _keypressed;
+  std::array<int, 6>::iterator _it;
+  Key                         *_keys;
 
 public:
   explicit Input();
