@@ -11,7 +11,7 @@ public:
   explicit Matrix();
   explicit Matrix(std::array<std::array<T, height>, width> array);
   explicit Matrix(std::vector<std::vector<T>> array);
-  explicit Matrix(Vector<Vector<T, width>, height> array);
+  explicit Matrix(Vector<Vector<T, height>, width> array);
 
   ~Matrix()                         = default;
   Matrix<T, width, height> &operator=(const Matrix<T, width, height> &v);
@@ -24,13 +24,14 @@ public:
   // this < v will be true if this = {0, 0} and v = {1, 1} but if this = {1, 0} and v = {0, 1} this will be false
   [[nodiscard]] bool                     operator>=(const Matrix<T, width, height> &v);
   [[nodiscard]] bool                     operator<=(const Matrix<T, width, height> &v);
-  [[nodiscard]] Vector<T, width> &       operator[](std::size_t);
-  [[nodiscard]] Vector<T, width> &       operator()(std::size_t);
+  [[nodiscard]] Vector<T, height> &       operator[](std::size_t);
+  [[nodiscard]] Vector<T, height> &       operator()(std::size_t);
   [[nodiscard]] Matrix<T, width, height> operator+(const Matrix<T, width, height> &v);
   [[nodiscard]] Matrix<T, width, height> operator-(const Matrix<T, width, height> &v);
   [[nodiscard]] Matrix<T, width, height> operator*(const Matrix<T, width, height> &v);
-  template <std::size_t other_height>
-  [[nodiscard]] Matrix<T, width, height> operator*(const Matrix<T, height, other_height> &v);
+  [[nodiscard]] Matrix<T, width, height> operator*(const int &v);
+  [[nodiscard]] Matrix<T, width, height> operator*(const float &v);
+  [[nodiscard]] Matrix<T, height, width> transpose();
   [[nodiscard]] Matrix<T, width, height> operator/(const Matrix<T, width, height> &v);
   [[nodiscard]] Matrix<T, width, height> operator^(const Matrix<T, width, height> &v);
   Matrix<T, width, height>               operator+=(const Matrix<T, width, height> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
@@ -89,12 +90,12 @@ inline bool Matrix<T, width, height>::operator<=(const Matrix<T, width, height> 
 }
 
 template <class T, std::size_t width, std::size_t height>
-inline Vector<T, width> &Matrix<T, width, height>::operator[](std::size_t i) {
+inline Vector<T, height> &Matrix<T, width, height>::operator[](std::size_t i) {
   return m_matrix[i];
 }
 
 template <class T, std::size_t width, std::size_t height>
-inline Vector<T, width> &Matrix<T, width, height>::operator()(std::size_t i) {
+inline Vector<T, height> &Matrix<T, width, height>::operator()(std::size_t i) {
   return m_matrix[i];
 }
 
@@ -147,4 +148,21 @@ inline Matrix<T, width, height> Matrix<T, width, height>::operator/=(const Matri
   return *this;
 }
 template <class T, std::size_t width, std::size_t height>
-Matrix<T, width, height>::Matrix(Vector<Vector<T, width>, height> array) : m_matrix{array} {}
+Matrix<T, width, height>::Matrix(Vector<Vector<T, height>, width> array) : m_matrix{array} {}
+template <class T, std::size_t width, std::size_t height>
+Matrix<T, width, height> Matrix<T, width, height>::operator*(const int &v) {
+  return Matrix<T, width, height>{m_matrix * v};
+}
+template <class T, std::size_t width, std::size_t height>
+Matrix<T, width, height> Matrix<T, width, height>::operator*(const float &v) {
+  Vector<Vector<T, height>, width> tmp = m_matrix * v;
+  return Matrix<T, width, height>{tmp};
+}
+template <class T, std::size_t width, std::size_t height>
+Matrix<T, height, width> Matrix<T, width, height>::transpose() {
+  Matrix<T, height, width> ret{};
+  for (int i = 0; i < height; ++i)
+    for (int j = 0; j < width; ++j)
+      ret[i][j] = m_matrix[j][i];
+  return ret;
+}
