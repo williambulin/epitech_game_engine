@@ -307,6 +307,7 @@ public:
   [[nodiscard]] bool            operator>=(const Vector<T, size> &v) const;
   [[nodiscard]] bool            operator<=(const Vector<T, size> &v) const;
   [[nodiscard]] T &             operator[](uint32_t);
+  [[nodiscard]] T               operator[](uint32_t) const;
   [[nodiscard]] T &             operator()(uint32_t);
   [[nodiscard]] Vector<T, size> operator+(const Vector<T, size> &v);
   [[nodiscard]] Vector<T, size> operator-(const Vector<T, size> &v);
@@ -326,7 +327,7 @@ public:
 template <class T, uint32_t size>
 Vector<T, size> &Vector<T, size>::operator*=(const int &v) {
   T *this_data = m_array.data();
-  for (auto& data : m_array)
+  for (auto &data : m_array)
     data *= v;
   return *this;
 }
@@ -334,7 +335,7 @@ Vector<T, size> &Vector<T, size>::operator*=(const int &v) {
 template <class T, uint32_t size>
 Vector<T, size> &Vector<T, size>::operator*=(const float &v) {
   T *this_data = m_array.data();
-  for (auto& data : m_array)
+  for (auto &data : m_array)
     data *= v;
   return *this;
 }
@@ -475,7 +476,7 @@ inline Vector<T, size> Vector<T, size>::operator^(const Vector<T, size> &v) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size>& Vector<T, size>::operator+=(const Vector<T, size> &v) {
+inline Vector<T, size> &Vector<T, size>::operator+=(const Vector<T, size> &v) {
   T *      this_data  = m_array.data();
   const T *other_data = v.m_array.data();
   for (int i = 0; i < size; ++i, ++this_data, ++other_data)
@@ -484,7 +485,7 @@ inline Vector<T, size>& Vector<T, size>::operator+=(const Vector<T, size> &v) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size>& Vector<T, size>::operator-=(const Vector<T, size> &v) {
+inline Vector<T, size> &Vector<T, size>::operator-=(const Vector<T, size> &v) {
   T *      this_data  = m_array.data();
   const T *other_data = v.m_array.data();
   for (int i = 0; i < size; ++i, ++this_data, ++other_data)
@@ -493,7 +494,7 @@ inline Vector<T, size>& Vector<T, size>::operator-=(const Vector<T, size> &v) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size>& Vector<T, size>::operator*=(const Vector<T, size> &v) {
+inline Vector<T, size> &Vector<T, size>::operator*=(const Vector<T, size> &v) {
   T *      this_data  = m_array.data();
   const T *other_data = v.m_array.data();
   for (int i = 0; i < size; ++i, ++this_data, ++other_data)
@@ -502,7 +503,7 @@ inline Vector<T, size>& Vector<T, size>::operator*=(const Vector<T, size> &v) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size>& Vector<T, size>::operator/=(const Vector<T, size> &v) {
+inline Vector<T, size> &Vector<T, size>::operator/=(const Vector<T, size> &v) {
   T *      this_data  = m_array.data();
   const T *other_data = v.m_array.data();
   for (int i = 0; i < size; ++i, ++this_data, ++other_data) {
@@ -519,14 +520,18 @@ bool Vector<T, size>::operator==(const float &v) const {
 template <class T, uint32_t size>
 Vector<T, size> Vector<T, size>::operator*(const int &v) {
   Vector<T, size> ret{m_array};
-  for (auto& data : ret.m_array)
+  for (auto &data : ret.m_array)
     data *= v;
   return ret;
 }
 template <class T, uint32_t size>
 Vector<T, size> Vector<T, size>::operator*(const float &v) {
   Vector<T, size> ret{m_array};
-  for (auto& data : ret.m_array)
+  for (auto &data : ret.m_array)
     data *= v;
   return ret;
+}
+template <class T, uint32_t size>
+T Vector<T, size>::operator[](uint32_t i) const {
+  return m_array[i];
 }
