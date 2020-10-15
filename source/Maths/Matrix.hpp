@@ -24,20 +24,19 @@ public:
   // this < v will be true if this = {0, 0} and v = {1, 1} but if this = {1, 0} and v = {0, 1} this will be false
   [[nodiscard]] bool                     operator>=(const Matrix<T, width, height> &v);
   [[nodiscard]] bool                     operator<=(const Matrix<T, width, height> &v);
-  [[nodiscard]] Vector<T, height> &       operator[](std::size_t);
-  [[nodiscard]] Vector<T, height> &       operator()(std::size_t);
+  [[nodiscard]] Vector<T, height> &      operator[](std::size_t);
+  [[nodiscard]] Vector<T, height>        operator[](std::size_t) const;
+  [[nodiscard]] Vector<T, height> &      operator()(std::size_t);
   [[nodiscard]] Matrix<T, width, height> operator+(const Matrix<T, width, height> &v);
   [[nodiscard]] Matrix<T, width, height> operator-(const Matrix<T, width, height> &v);
   [[nodiscard]] Matrix<T, width, height> operator*(const Matrix<T, width, height> &v);
   [[nodiscard]] Matrix<T, width, height> operator*(const int &v);
   [[nodiscard]] Matrix<T, width, height> operator*(const float &v);
   [[nodiscard]] Matrix<T, height, width> transpose();
-  [[nodiscard]] Matrix<T, width, height> operator/(const Matrix<T, width, height> &v);
   [[nodiscard]] Matrix<T, width, height> operator^(const Matrix<T, width, height> &v);
   Matrix<T, width, height>               operator+=(const Matrix<T, width, height> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   Matrix<T, width, height>               operator-=(const Matrix<T, width, height> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   Matrix<T, width, height>               operator*=(const Matrix<T, width, height> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
-  Matrix<T, width, height>               operator/=(const Matrix<T, width, height> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
 };
 
 template <class T, std::size_t width, std::size_t height>
@@ -55,8 +54,9 @@ inline Matrix<T, width, height>::Matrix(std::vector<std::vector<T>> array) : m_m
 template <class T, std::size_t width, std::size_t height>
 inline Matrix<T, width, height> &Matrix<T, width, height>::operator=(const Matrix<T, width, height> &v) {
   for (int i = 0; i < width; ++i) {
-    std::copy_n(v.m_matrix[i].begin(), height, m_matrix[i].begin());
+    std::copy_n((&(v.m_matrix[i])[0]), height, (&(m_matrix[i])[0]));
   }
+  return *this;
 }
 
 template <class T, std::size_t width, std::size_t height>
@@ -111,12 +111,17 @@ inline Matrix<T, width, height> Matrix<T, width, height>::operator-(const Matrix
 
 template <class T, std::size_t width, std::size_t height>
 inline Matrix<T, width, height> Matrix<T, width, height>::operator*(const Matrix<T, width, height> &v) {
-  return Matrix<T, width, height>{m_matrix * v.m_matrix};
-}
-
-template <class T, std::size_t width, std::size_t height>
-inline Matrix<T, width, height> Matrix<T, width, height>::operator/(const Matrix<T, width, height> &v) {
-  return Matrix<T, width, height>{m_matrix / v.m_matrix};
+  if (width != height)
+    throw std::runtime_error{"cannot multiply a n*m matrix by a n*m matrix only n*n matrices by n*n matrices"};
+  Matrix<T, width, width> ret{};  // width = height
+  for (size_t i = 0; i < width; ++i) {
+    for (size_t j = 0; j < width; ++j) {
+      ret[i][j] = 0;
+      for (size_t k = 0; k < width; ++k)
+        ret[i][j] += (m_matrix[i][k]) * (v[k][j]);
+    }
+  }
+  return ret;
 }
 
 template <class T, std::size_t width, std::size_t height>
@@ -138,17 +143,15 @@ inline Matrix<T, width, height> Matrix<T, width, height>::operator-=(const Matri
 
 template <class T, std::size_t width, std::size_t height>
 inline Matrix<T, width, height> Matrix<T, width, height>::operator*=(const Matrix<T, width, height> &v) {
-  m_matrix *= v.m_matrix;
+  if (width != height)
+    throw std::runtime_error{"cannot multiply a n*m matrix by a n*m matrix only n*n matrices by n*n matrices"};
+  *this = *this * v;  // we need to do a copy of *this to use it in the mul
   return *this;
 }
 
 template <class T, std::size_t width, std::size_t height>
-inline Matrix<T, width, height> Matrix<T, width, height>::operator/=(const Matrix<T, width, height> &v) {
-  m_matrix /= v.m_matrix;
-  return *this;
-}
-template <class T, std::size_t width, std::size_t height>
 Matrix<T, width, height>::Matrix(Vector<Vector<T, height>, width> array) : m_matrix{array} {}
+
 template <class T, std::size_t width, std::size_t height>
 Matrix<T, width, height> Matrix<T, width, height>::operator*(const int &v) {
   return Matrix<T, width, height>{m_matrix * v};
@@ -165,4 +168,8 @@ Matrix<T, height, width> Matrix<T, width, height>::transpose() {
     for (int j = 0; j < width; ++j)
       ret[i][j] = m_matrix[j][i];
   return ret;
+}
+template <class T, std::size_t width, std::size_t height>
+Vector<T, height> Matrix<T, width, height>::operator[](std::size_t i) const {
+  return m_matrix[i];
 }
