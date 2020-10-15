@@ -152,15 +152,15 @@ public:
 
   ~Vector3()                 = default;
   Vector3<T>&               operator=(const Vector3<T> &v);
-  [[nodiscard]] bool operator!=(const Vector3<T> &v);
-  [[nodiscard]] bool operator==(const Vector3<T> &v);
-  [[nodiscard]] bool operator>(const Vector3<T> &v);
-  [[nodiscard]] bool operator<(const Vector3<T> &v);
+  [[nodiscard]] bool operator!=(const Vector3<T> &v) const;
+  [[nodiscard]] bool operator==(const Vector3<T> &v) const;
+  [[nodiscard]] bool operator>(const Vector3<T> &v) const;
+  [[nodiscard]] bool operator<(const Vector3<T> &v) const;
   // the 2 functions above return true only if both members agree with the condition
   // Examples: this > v is true if this = {1, 1} and v = {0, 0} but if this = {1, 0} and v = {0, 1} this will be false
   // this < v will be true if this = {0, 0} and v = {1, 1} but if this = {1, 0} and v = {0, 1} this will be false
-  [[nodiscard]] bool       operator>=(const Vector3<T> &v);
-  [[nodiscard]] bool       operator<=(const Vector3<T> &v);
+  [[nodiscard]] bool       operator>=(const Vector3<T> &v) const;
+  [[nodiscard]] bool       operator<=(const Vector3<T> &v) const;
   [[nodiscard]] Vector3<T> operator+(const Vector3<T> &v);
   [[nodiscard]] Vector3<T> operator-(const Vector3<T> &v);
   [[nodiscard]] Vector3<T> operator*(const Vector3<T> &v);
@@ -191,32 +191,32 @@ inline Vector3<T> & Vector3<T>::operator=(const Vector3<T> &v) {
 }
 
 template <class T>
-inline bool Vector3<T>::operator!=(const Vector3<T> &v) {
+inline bool Vector3<T>::operator!=(const Vector3<T> &v) const {
   return x != v.x && y != v.y && z != v.z;
 }
 
 template <class T>
-inline bool Vector3<T>::operator==(const Vector3<T> &v) {
+inline bool Vector3<T>::operator==(const Vector3<T> &v) const {
   return x == v.x && y == v.y && z == v.z;
 }
 
 template <class T>
-inline bool Vector3<T>::operator>(const Vector3<T> &v) {
+inline bool Vector3<T>::operator>(const Vector3<T> &v) const {
   return x > v.x && y > v.y && z > v.z;
 }
 
 template <class T>
-inline bool Vector3<T>::operator<(const Vector3<T> &v) {
+inline bool Vector3<T>::operator<(const Vector3<T> &v) const {
   return x < v.x && y < v.y && z < v.z;
 }
 
 template <class T>
-inline bool Vector3<T>::operator>=(const Vector3<T> &v) {
+inline bool Vector3<T>::operator>=(const Vector3<T> &v) const {
   return x >= v.x && y >= v.y && z >= v.z;
 }
 
 template <class T>
-inline bool Vector3<T>::operator<=(const Vector3<T> &v) {
+inline bool Vector3<T>::operator<=(const Vector3<T> &v) const {
   return x <= v.x && y <= v.y && z <= v.z;
 }
 
@@ -296,15 +296,16 @@ public:
 
   ~Vector()                 = default;
   Vector<T, size>&               operator=(const Vector<T, size> &v);
-  [[nodiscard]] bool operator!=(const Vector<T, size> &v);
-  [[nodiscard]] bool operator==(const Vector<T, size> &v);
-  [[nodiscard]] bool operator>(const Vector<T, size> &v);
-  [[nodiscard]] bool operator<(const Vector<T, size> &v);
+  [[nodiscard]] bool operator!=(const Vector<T, size> &v) const;
+  [[nodiscard]] bool operator==(const Vector<T, size> &v) const;
+  [[nodiscard]] bool operator==(const float &v) const;
+  [[nodiscard]] bool operator>(const Vector<T, size> &v) const;
+  [[nodiscard]] bool operator<(const Vector<T, size> &v) const;
   // the 2 functions above return true only if both members agree with the condition
   // Examples: this > v is true if this = {1, 1} and v = {0, 0} but if this = {1, 0} and v = {0, 1} this will be false
   // this < v will be true if this = {0, 0} and v = {1, 1} but if this = {1, 0} and v = {0, 1} this will be false
-  [[nodiscard]] bool       operator>=(const Vector<T, size> &v);
-  [[nodiscard]] bool                          operator<=(const Vector<T, size> &v);
+  [[nodiscard]] bool       operator>=(const Vector<T, size> &v) const;
+  [[nodiscard]] bool                          operator<=(const Vector<T, size> &v) const;
   [[nodiscard]] T& operator[](uint32_t);
   [[nodiscard]] T &             operator()(uint32_t);
   [[nodiscard]] Vector<T, size> operator+(const Vector<T, size> &v);
@@ -336,17 +337,17 @@ inline Vector<T, size> & Vector<T, size>::operator=(const Vector<T, size> &v) {
 }
 
 template <class T, uint32_t size>
-inline bool Vector<T, size>::operator!=(const Vector<T, size> &v) {
+inline bool Vector<T, size>::operator!=(const Vector<T, size> &v) const {
   return m_array != v.m_array; // will probably replace by SIMD
 }
 
 template <class T, uint32_t size>
-inline bool Vector<T, size>::operator==(const Vector<T, size> &v) {
+inline bool Vector<T, size>::operator==(const Vector<T, size> &v) const {
   return m_array == v.m_array;  // will probably replace by SIMD
 }
 
 template <class T, uint32_t size>
-inline bool Vector<T, size>::operator>(const Vector<T, size> &v) {
+inline bool Vector<T, size>::operator>(const Vector<T, size> &v) const {
   T *this_data = m_array.data();
   T *other_data = v.m_array.data();
   for (int i = 0; i < size; ++i, ++this_data, ++other_data) {
@@ -357,7 +358,7 @@ inline bool Vector<T, size>::operator>(const Vector<T, size> &v) {
 }
 
 template <class T, uint32_t size>
-inline bool Vector<T, size>::operator<(const Vector<T, size> &v) {
+inline bool Vector<T, size>::operator<(const Vector<T, size> &v) const {
   T *this_data = m_array.data();
   T *other_data = v.m_array.data();
   for (int i = 0; i < size; ++i, ++this_data, ++other_data) {
@@ -368,7 +369,7 @@ inline bool Vector<T, size>::operator<(const Vector<T, size> &v) {
 }
 
 template <class T, uint32_t size>
-inline bool Vector<T, size>::operator>=(const Vector<T, size> &v) {
+inline bool Vector<T, size>::operator>=(const Vector<T, size> &v) const {
   T *this_data = m_array.data();
   T *other_data = v.m_array.data();
   for (int i = 0; i < size; ++i, ++this_data, ++other_data) {
@@ -379,7 +380,7 @@ inline bool Vector<T, size>::operator>=(const Vector<T, size> &v) {
 }
 
 template <class T, uint32_t size>
-inline bool Vector<T, size>::operator<=(const Vector<T, size> &v) {
+inline bool Vector<T, size>::operator<=(const Vector<T, size> &v) const {
   T *this_data = m_array.data();
   T *other_data = v.m_array;
   for (int i = 0; i < size; ++i, ++this_data, ++other_data) {
@@ -435,9 +436,8 @@ inline Vector<T, size> Vector<T, size>::operator/(const Vector<T, size> &v) {
   const T *other_data = v.m_array.data();
   T *this_data = ret.m_array.data();
   for (int i = 0; i < size; ++i, ++this_data, ++other_data) {
-//    if (*other_data == 0.0f) {
-//      throw std::runtime_error{"try to divide by 0"};
-//    }
+    if ((*other_data) == 0.0f)
+      throw std::runtime_error{"try to divide by 0"};
     *this_data /= *other_data;
   }
   return ret;
@@ -486,9 +486,13 @@ inline Vector<T, size> Vector<T, size>::operator/=(const Vector<T, size> &v) {
   T *this_data = m_array.data();
   const T *other_data = v.m_array.data();
   for (int i = 0; i < size; ++i, ++this_data, ++other_data) {
-//    if (*other_data == 0.0f)
-//      throw std::runtime_error{"try to divide by 0"};
+    if (*other_data == 0.0f)
+      throw std::runtime_error{"try to divide by 0"};
     *this_data /= *other_data;
   }
   return *this;
+}
+template <class T, uint32_t size>
+bool Vector<T, size>::operator==(const float &v) const {
+  return false;
 }
