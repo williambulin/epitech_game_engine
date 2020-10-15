@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdexcept>
+#include <vector>
 template <class T>
 class Vector2 final {
 public:
@@ -11,7 +13,7 @@ public:
   explicit Vector2(T a, T b);
 
   ~Vector2() = default;
-  void                     operator=(const Vector2<T> &v);
+  Vector2<T>&                     operator=(const Vector2<T> &v);
   [[nodiscard]] bool       operator!=(const Vector2<T> &v);
   [[nodiscard]] bool       operator==(const Vector2<T> &v);
   [[nodiscard]] bool       operator>(const Vector2<T> &v);
@@ -41,14 +43,15 @@ Vector2<T>::Vector2(T a, T b) : x{a},
                                 y{b} {}
 
 template <class T>
-inline void Vector2<T>::operator=(const Vector2<T> &v) {
+inline Vector2<T> & Vector2<T>::operator=(const Vector2<T> &v) {
   x = v.x;
-  y = V.y;
+  y = v.y;
+  return *this;
 }
 
 template <class T>
 inline bool Vector2<T>::operator!=(const Vector2<T> &v) {
-  return !(*this == v);
+  return x != v.x && y != v.y;
 }
 
 template <class T>
@@ -148,7 +151,7 @@ public:
   explicit Vector3(T a, T b, T c);
 
   ~Vector3()                 = default;
-  void               operator=(const Vector3<T> &v);
+  Vector3<T>&               operator=(const Vector3<T> &v);
   [[nodiscard]] bool operator!=(const Vector3<T> &v);
   [[nodiscard]] bool operator==(const Vector3<T> &v);
   [[nodiscard]] bool operator>(const Vector3<T> &v);
@@ -180,15 +183,16 @@ Vector3<T>::Vector3(T a, T b, T c) : x{a},
                                      z{c} {}
 
 template <class T>
-inline void Vector3<T>::operator=(const Vector3<T> &v) {
+inline Vector3<T> & Vector3<T>::operator=(const Vector3<T> &v) {
   x = v.x;
   y = v.y;
   z = v.z;
+  return *this;
 }
 
 template <class T>
 inline bool Vector3<T>::operator!=(const Vector3<T> &v) {
-  return !(*this == v);
+  return x != v.x && y != v.y && z != v.z;
 }
 
 template <class T>
@@ -291,7 +295,7 @@ public:
   explicit Vector(const std::vector<T>& array);
 
   ~Vector()                 = default;
-  void               operator=(const Vector<T, size> &v);
+  Vector<T, size>&               operator=(const Vector<T, size> &v);
   [[nodiscard]] bool operator!=(const Vector<T, size> &v);
   [[nodiscard]] bool operator==(const Vector<T, size> &v);
   [[nodiscard]] bool operator>(const Vector<T, size> &v);
@@ -326,8 +330,9 @@ inline Vector<T, size>::Vector(const std::vector<T>& array) : m_array{} {
 }
 
 template <class T, uint32_t size>
-inline void Vector<T, size>::operator=(const Vector<T, size> &v) {
+inline Vector<T, size> & Vector<T, size>::operator=(const Vector<T, size> &v) {
   std::copy_n(v.m_array.begin(), size, m_array.begin());
+  return *this;
 }
 
 template <class T, uint32_t size>
@@ -342,8 +347,10 @@ inline bool Vector<T, size>::operator==(const Vector<T, size> &v) {
 
 template <class T, uint32_t size>
 inline bool Vector<T, size>::operator>(const Vector<T, size> &v) {
-  for (auto p : m_array, q : v.m_array) {
-    if (p <= q)
+  T *this_data = m_array.data();
+  T *other_data = v.m_array.data();
+  for (int i = 0; i < size; ++i, ++this_data, ++other_data) {
+    if (*this_data <= *other_data)
       return false;
   }
     return true;
@@ -351,8 +358,10 @@ inline bool Vector<T, size>::operator>(const Vector<T, size> &v) {
 
 template <class T, uint32_t size>
 inline bool Vector<T, size>::operator<(const Vector<T, size> &v) {
-  for (auto p : m_array, q : v.m_array) {
-    if (p >= q)
+  T *this_data = m_array.data();
+  T *other_data = v.m_array.data();
+  for (int i = 0; i < size; ++i, ++this_data, ++other_data) {
+    if (*this_data >= *other_data)
       return false;
   }
   return true;
@@ -360,8 +369,10 @@ inline bool Vector<T, size>::operator<(const Vector<T, size> &v) {
 
 template <class T, uint32_t size>
 inline bool Vector<T, size>::operator>=(const Vector<T, size> &v) {
-  for (auto p : m_array, q : v.m_array) {
-    if (p < q)
+  T *this_data = m_array.data();
+  T *other_data = v.m_array.data();
+  for (int i = 0; i < size; ++i, ++this_data, ++other_data) {
+    if (*this_data < *other_data)
       return false;
   }
   return true;
@@ -369,8 +380,10 @@ inline bool Vector<T, size>::operator>=(const Vector<T, size> &v) {
 
 template <class T, uint32_t size>
 inline bool Vector<T, size>::operator<=(const Vector<T, size> &v) {
-  for (auto p : m_array, q : v.m_array) {
-    if (p > q)
+  T *this_data = m_array.data();
+  T *other_data = v.m_array;
+  for (int i = 0; i < size; ++i, ++this_data, ++other_data) {
+    if (*this_data > *other_data)
       return false;
   }
   return true;
@@ -382,80 +395,100 @@ inline T &Vector<T, size>::operator[](uint32_t i) {
 }
 
 template <class T, uint32_t size>
-inline T &Vector<T, size>::operator()(uint32_t) {
+inline T &Vector<T, size>::operator()(uint32_t i) {
   return m_array[i];
 }
 
 template <class T, uint32_t size>
 inline Vector<T, size> Vector<T, size>::operator+(const Vector<T, size> &v) {
-  auto ret = Vector<T, size>();
-  for (auto p : m_array, q : v.m_array, r : ret)
-    r = p + q;
+  Vector<T, size> ret{m_array};
+  const T *other_data = v.m_array.data();
+  T *this_data = ret.m_array.data();
+  for (int i = 0; i < size; ++i, ++this_data, ++other_data)
+    (*this_data) += (*other_data);
   return ret;
 }
 
 template <class T, uint32_t size>
 inline Vector<T, size> Vector<T, size>::operator-(const Vector<T, size> &v) {
-  auto ret = Vector<T, size>();
-  for (auto p : m_array, q : v.m_array, r : ret)
-    r = p - q;
+  Vector<T, size>ret {m_array};
+  const T *other_data = v.m_array.data();
+  T *this_data = ret.m_array.data();
+  for (int i = 0; i < size; ++i, ++this_data, ++other_data)
+    *this_data -= *other_data;
   return ret;
 }
 
 template <class T, uint32_t size>
 inline Vector<T, size> Vector<T, size>::operator*(const Vector<T, size> &v) {
-  auto ret = Vector<T, size>();
-  for (auto p : m_array, q : v.m_array, r : ret)
-    r = p * q;
+  Vector<T, size>ret {m_array};
+  const T * other_data = v.m_array.data();
+  T *this_data = ret.m_array.data();
+  for (int i = 0; i < size; ++i, ++this_data, ++other_data)
+    *this_data *= *other_data;
   return ret;
 }
 
 template <class T, uint32_t size>
 inline Vector<T, size> Vector<T, size>::operator/(const Vector<T, size> &v) {
-  auto ret = Vector<T, size>();
-  for (auto p : m_array, q : v.m_array, r : ret) {
-    if (p == 0.0f)
-      throw std::runtime_error{"try to divide by 0"};
-    r = p / q;
+  Vector<T, size>ret {m_array};
+  const T *other_data = v.m_array.data();
+  T *this_data = ret.m_array.data();
+  for (int i = 0; i < size; ++i, ++this_data, ++other_data) {
+//    if (*other_data == 0.0f) {
+//      throw std::runtime_error{"try to divide by 0"};
+//    }
+    *this_data /= *other_data;
   }
   return ret;
 }
 
 template <class T, uint32_t size>
 inline Vector<T, size> Vector<T, size>::operator^(const Vector<T, size> &v) {
-  auto ret = Vector<T, size>();
-  for (auto p : m_array, q : v.m_array, r : ret)
-    r = p ^ q;
+  Vector<T, size>ret {};
+  T *this_data = m_array.data();
+  T *other_data = v.m_array.data();
+  T *ret_data = ret.m_array.data();
+  for (int i = 0; i < size; ++i, ++this_data, ++other_data, ++ret_data)
+    *ret_data = *this_data ^ *other_data;
   return ret;
 }
 
 template <class T, uint32_t size>
 inline Vector<T, size> Vector<T, size>::operator+=(const Vector<T, size> &v) {
-  for (auto p : m_array, q : v.m_array)
-    p += q;
+  T *this_data = m_array.data();
+  const T *other_data = v.m_array.data();
+  for (int i = 0; i < size; ++i, ++this_data, ++other_data)
+    *this_data += *other_data;
   return *this;
 }
 
 template <class T, uint32_t size>
 inline Vector<T, size> Vector<T, size>::operator-=(const Vector<T, size> &v) {
-  for (auto p : m_array, q : v.m_array)
-    p -= q;
+  T *this_data = m_array.data();
+  const T *other_data = v.m_array.data();
+  for (int i = 0; i < size; ++i, ++this_data, ++other_data)
+    *this_data -= *other_data;
   return *this;
 }
 
 template <class T, uint32_t size>
 inline Vector<T, size> Vector<T, size>::operator*=(const Vector<T, size> &v) {
-  for (auto p : m_array, q : v.m_array)
-    p *= q;
+  T *this_data = m_array.data();
+  const T *other_data = v.m_array.data();
+  for (int i = 0; i < size; ++i, ++this_data, ++other_data)
+    *this_data *= *other_data;
   return *this;
 }
 
 template <class T, uint32_t size>
 inline Vector<T, size> Vector<T, size>::operator/=(const Vector<T, size> &v) {
-  for (auto p : m_array, q : v.m_array) {
-    if (p == 0.0f)
-      throw std::runtime_error{"try to divide by 0"};
-    p += q;
+  T *this_data = m_array.data();
+  const T *other_data = v.m_array.data();
+  for (int i = 0; i < size; ++i, ++this_data, ++other_data) {
+//    if (*other_data == 0.0f)
+//      throw std::runtime_error{"try to divide by 0"};
+    *this_data /= *other_data;
   }
   return *this;
 }
