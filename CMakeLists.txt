@@ -22,6 +22,7 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/source/Core.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Core.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Vectors.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Matrix.hpp
 
 )
 
