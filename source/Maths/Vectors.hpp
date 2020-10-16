@@ -322,6 +322,7 @@ public:
   Vector<T, size> &             operator*=(const float &v);
   Vector<T, size> &             operator*=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   Vector<T, size> &             operator/=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
+  Vector<T, size> &             lerp(const Vector<T, size> &_end, float percent);
 };
 
 template <class T, uint32_t size>
@@ -534,4 +535,9 @@ Vector<T, size> Vector<T, size>::operator*(const float &v) {
 template <class T, uint32_t size>
 T Vector<T, size>::operator[](uint32_t i) const {
   return m_array[i];
+}
+
+template <class T, uint32_t size>
+Vector<T, size> &Vector<T, size>::lerp(const Vector<T, size> &_end, float percent) {
+  return *this + percent*(_end - *this);
 }
