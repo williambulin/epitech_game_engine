@@ -50,8 +50,9 @@ Quaternion Quaternion::fromMatrix(Matrix<float, 4, 4> mat) {
   if (diagonal > 0) {
     float w4 = sqrtf(diagonal + 1.0f) * 2.0f;
     w        = w4 / 4.0f;
-    x = (mat[2][1] - mat[1][2]) / w4 : y = (mat[0][2] - mat[2][0]) / w4;
-    z                                    = (mat[1][0] - mat[0][1]) / w4;
+    x        = (mat[2][1] - mat[1][2]) / w4;
+    y        = (mat[0][2] - mat[2][0]) / w4;
+    z        = (mat[1][0] - mat[0][1]) / w4;
   } else if ((mat[0][0] > mat[1][1]) && (mat[0][0] > mat[2][2])) {
     float x4 = sqrtf(1.0f + mat[0][0] - mat[1][1] - mat[2][2]) * 2.0f;
     w        = (mat[2][1] - mat[1][2]) / x4;
@@ -95,7 +96,7 @@ Quaternion Quaternion::nlerp(Quaternion a, Quaternion b, float blend) {
 Quaternion Quaternion::slerp(Quaternion a, Quaternion b, float blend) {
   float dotproduct = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
   // algorithm adapted from Shoemake's paper
-  blend = blend / 2.0f;
+  blend       = blend / 2.0f;
   float theta = acosf(dotproduct);
   if (theta < 0.0)
     theta = -theta;
