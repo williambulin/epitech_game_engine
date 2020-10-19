@@ -1,29 +1,24 @@
 
 #pragma once
 
-#include "Maths/Vec3.hpp"
+#include "Maths/Vectors.hpp"
 #include "Physics/ICollisionShape.hpp"
+#include "Physics/Transform.hpp"
 
 class Sphere final : public ICollisionShape<Sphere> {
 public:
-  Vec3 m_center{0.0f, 0.0f, 0.0f};
-  float radius{0.0f};
+  explicit Sphere(Vector3f center, float radius) noexcept;
 
-public:
-  explicit Sphere(Vec3 center, float radius) noexcept
-    : m_center{center},
-      radius{radius}
-  {
-  }
+  explicit Sphere(const Sphere &second) noexcept;
 
-  explicit Sphere(const Sphere &second) noexcept
-  : m_center{second.m_center},
-    radius{second.radius}
-  {
-  }
+  void setCenter(const Vector3f &center) noexcept;
+  [[nodiscard]] auto getCenter() const noexcept -> Vector3f;
+  void setRadius(const float &radius) noexcept;
+  [[nodiscard]] float getRadius() const noexcept;
 
-  [[nodiscard]] bool operator==(const Sphere &second) const noexcept final
-  {
-    return (m_center == second.m_center && radius == second.radius);
-  }
+  [[nodiscard]] bool operator==(const Sphere &second) const noexcept final;
+private:
+  Vector3f m_center{0.0f, 0.0f, 0.0f};
+  float m_radius{0.0f};
+  Transform m_oldTransform{};
 };
