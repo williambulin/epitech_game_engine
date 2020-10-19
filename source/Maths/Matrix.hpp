@@ -179,7 +179,10 @@ Vector<T, height> Matrix<T, width, height>::operator[](std::size_t i) const {
 template <class T>
 class Matrix4 : public Matrix<T, 4, 4> {
 public:
-  static Matrix4<T> lookAt(const Vector<T, 3> &eye, const Vector<T, 3> &center, const Vector<T, 3> &up);
+  [[nodiscard]] static Matrix4<T> lookAt(const Vector<T, 3> &eye, const Vector<T, 3> &center, const Vector<T, 3> &up);
+  [[nodiscard]] static Matrix4<T> perspective(T angle, T ratio, T near, T far);
+//  [[nodiscard]] static Matrix4<T> rotate(T angle, T x, T y, T z);
+//  [[nodiscard]] static Matrix4<T> rotate(T angle, Vector3<T> vec);
 };
 
 template <class T>
@@ -191,4 +194,9 @@ Matrix4<T> Matrix4<T>::lookAt(const Vector<T, 3> &eye, const Vector<T, 3> &cente
   X.normalize();
   y.normalize();
   return Matrix4<T>({{{X[0], X[1], X[2], -X.dot(eye)},{y[0], y[1], y[2], -y.dot(eye)}, {z[0], z[1], z[2], -z.dot(eye)}, {0, 0, 0, 1.0f}}});
+}
+template <class T>
+Matrix4<T> Matrix4<T>::perspective(T angle, T ratio, T near, T far) {
+  float tan_half_angle= tanf(angle / 2);
+  return Matrix4<T>{{{1 / (ratio * tan_half_angle), 0, 0, 0}, {0, 1/ tan_half_angle, 0, 0}, {0, 0, -(far + near) / (far - near), -(2 * far * near) / (far - near)}, {0, 0, -1, 0}}};
 }
