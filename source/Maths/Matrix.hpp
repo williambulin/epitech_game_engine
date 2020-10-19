@@ -5,7 +5,7 @@
 #include "Vectors.hpp"
 
 template <class T, std::size_t width, std::size_t height>
-class Matrix final {
+class Matrix {
 private:
   Vector<Vector<T, height>, width> m_matrix;
 
@@ -174,4 +174,21 @@ Matrix<T, height, width> Matrix<T, width, height>::transpose() {
 template <class T, std::size_t width, std::size_t height>
 Vector<T, height> Matrix<T, width, height>::operator[](std::size_t i) const {
   return m_matrix[i];
+}
+
+template <class T>
+class Matrix4 : public Matrix<T, 4, 4> {
+public:
+  static Matrix4<T> lookAt(const Vector<T, 3> &eye, const Vector<T, 3> &center, const Vector<T, 3> &up);
+};
+
+template <class T>
+Matrix4<T> Matrix4<T>::lookAt(const Vector<T, 3> &eye, const Vector<T, 3> &center, const Vector<T, 3> &up) {
+  T X, y = up, z = eye - center, XDotEye, yDotEye, zDotEye;
+  z.normalize();
+  X = y.cross(z);
+  y = z.cross(X);
+  X.normalize();
+  y.normalize();
+  return Matrix4<T>({{{X[0], X[1], X[2], -X.dot(eye)},{y[0], y[1], y[2], -y.dot(eye)}, {z[0], z[1], z[2], -z.dot(eye)}, {0, 0, 0, 1.0f}}});
 }
