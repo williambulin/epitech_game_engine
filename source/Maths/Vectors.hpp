@@ -291,6 +291,7 @@ public:
   explicit Vector3(T a, T b, T c);
   explicit Vector3(const std::array<T, 3> &array);
   explicit Vector3(const std::vector<T> &array);
+  Vector3<T>& operator= (const Vector3<T> &v);
   T &                      x;
   T &                      y;
   T &                      z;
@@ -316,6 +317,13 @@ Vector3<T>::Vector3(const std::vector<T> &array) : Vector<T, 3>{array},
                                                    x{this->m_array[0]},
                                                    y{this->m_array[1]},
                                                    z{this->m_array[2]} {}
+template <class T>
+Vector3<T> &Vector3<T>::operator=(const Vector3<T> &v) {
+  x = v.x;
+  y = v.y;
+  z = v.z;
+  return *this;
+}
 
 using Vector3i = Vector3<int>;
 using Vector3f = Vector3<float>;
