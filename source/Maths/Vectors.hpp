@@ -294,6 +294,7 @@ public:
   T &                      x;
   T &                      y;
   T &                      z;
+  Vector3<T>& operator=(const Vector3<T> &v);
   [[nodiscard]] Vector3<T> cross(const Vector3<T> &b) const;
 };
 
@@ -302,6 +303,14 @@ Vector3<T>::Vector3(T a, T b, T c) : Vector<T, 3>{std::array<T,3>{a, b, c}},
                                            x{this->m_array[0]},
                                            y{this->m_array[1]},
                                            z{this->m_array[2]} {}
+template <class T>
+Vector3<T>& Vector3<T>::operator=(const Vector3<T> &v) {
+  x = v.x;
+  y = v.y;
+  z = v.z;
+  return *this;
+}
+
 template <class T>
 Vector3<T> Vector3<T>::cross(const Vector3<T> &b) const {
   return Vector<T, 3>(y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x);

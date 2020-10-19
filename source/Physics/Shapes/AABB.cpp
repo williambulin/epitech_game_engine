@@ -2,7 +2,7 @@
 
 #include "AABB.hpp"
 
-auto AABB::getPoints(Transform transform, bool forceInvalidate = false) -> std::vector<Vector3<float>> {
+auto AABB::getPoints(Transform transform, bool forceInvalidate) -> std::vector<Vector3<float>> {
   if (!forceInvalidate && transform == m_oldTransform) {
     return m_pointsCache;
   }
@@ -50,6 +50,8 @@ auto AABB::getPoints(Transform transform, bool forceInvalidate = false) -> std::
   points.push_back(Vector3<float> {min_x, min_y, max_z});
   points.push_back(Vector3<float> {max_x, min_y, max_z});
   points.push_back(Vector3<float> {max_x, max_y, max_z});
+  m_pointsCache = points;
+  m_oldTransform = transform;
   return points;
 }
 
