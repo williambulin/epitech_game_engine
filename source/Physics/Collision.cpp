@@ -29,7 +29,7 @@ return (fabs(rPos*plane) >
         fabs((box2.m_axisZ*box2.m_halfSize.z)*plane)));
 }
 
-bool Collision::collide(const AABB &firstCollider, const AABB &secondCollider) noexcept {
+bool Collision::collide(const AABB &firstCollider, /*Mat4 infosCollier1,*/ const AABB &secondCollider /*, Mat4 infosCollier2*/) noexcept {
   return(firstCollider.m_topRight.x > secondCollider.m_bottomLeft.x &&
     firstCollider.m_bottomLeft.x < secondCollider.m_topRight.x &&
     firstCollider.m_topRight.y > secondCollider.m_bottomLeft.y &&

@@ -3,10 +3,15 @@
 #include "Maths/Vec3.hpp"
 #include "Physics/ICollisionShape.hpp"
 
+
+// Deduire les deux autres points puis la hitbox
 class AABB final : public ICollisionShape<AABB> {
 public:
+//min
   Vec3 m_topRight{0.0f, 0.0f, 0.0f};
+  //max
   Vec3 m_bottomLeft{0.0f, 0.0f, 0.0f};
+  //Mat4 m_modelMatrix;
 
 public:
   explicit AABB(Vec3 topRight, Vec3 bottomLeft) noexcept
