@@ -4,39 +4,42 @@
 #include <conio.h>
 
 Input::Input() {
-  _keypressed.fill(0);
-  _it        = _keypressed.begin();
   _dummyHWND = ::CreateWindowA("STATIC", "dummy", WS_VISIBLE, 0, 0, 100, 100, NULL, NULL, NULL, NULL);
   ::SetWindowTextA(_dummyHWND, "Dummy Window!");
 }
 
 auto Input::getKeypressed() {
-  return _keypressed;
+  return _keys;
 }
 
 void Input::addKeypressed(int key) {
-  for (auto it = _keypressed.begin(); it != _keypressed.end(); it++)
-    if (*it == key)
+  for (auto it = _keys.begin(); it != _keys.end(); it++)
+    if ((*it)->getKey() == key) {
+      (*it)->isPressed();
       return;
-  *_it = key;
-  for (auto it = _keypressed.begin(); it != _keypressed.end(); it++)
-    if (*it == 0) {
-      _it = it;
+    }
+  _keys.push_back(new Key(key));
+}
+
+void Input::releasedKeys(int key) {
+  for (auto it = _keys.begin(); it != _keys.end(); it++)
+    if ((*it)->getKey() == key) {
+      (*it)->isReleased();
       break;
     }
 }
 
-void Input::releasedKeys(int key) {
-  for (auto it = _keypressed.begin(); it != _keypressed.end(); it++)
-    if (*it == key)
-      *it = 0;
 
-  for (auto it = _keypressed.begin(); it != _keypressed.end(); it++)
-    if (*it == 0) {
-      _it = it;
-      return;
-    }
+bool Input::keyIsPressed(int key, Key::state_e state) {
+  for (auto it = _keys.begin(); it != _keys.end(); it++) 
+    if ((*it)->getKey() == key && (*it)->getState() == state)
+      return true;
+  return false;
 }
+
+
+
+
 
 void Input::startTriggeringInput() {
   while (1) {
@@ -52,15 +55,19 @@ void Input::startTriggeringInput() {
           switch (_msg.wParam) {
             case 0x1B:
               std::cout << "ESCAPE" << std::endl;
-              break;
-
-            case 0x09:
-              std::cout << "Tab" << std::endl;
-
               exit(0);
             default:
+              std::cout << _msg.wParam << std::endl;
               addKeypressed(_msg.wParam);
               break;
+          }
+          break;
+        default:
+          for (auto it = _keys.begin(); it != _keys.end(); it++) {
+            if ((*it)->isDestroy() == true) {
+              _keys.erase(it);
+              break;
+            }
           }
           break;
       }
