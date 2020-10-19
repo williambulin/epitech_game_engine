@@ -1,19 +1,19 @@
 #pragma once
 
-#include "Maths/Vec3.hpp"
+#include "Maths/Vectors.hpp"
 #include "Physics/ICollisionShape.hpp"
 #include "Physics/Transform.hpp"
 
 // Deduire les deux autres points puis la hitbox
 class AABB final : public ICollisionShape<AABB> {
 private:
-  Vec3 m_min{0.0f, 0.0f, 0.0f};
-  Vec3 m_max{0.0f, 0.0f, 0.0f};
+  Vector3<float> m_min{0.0f, 0.0f, 0.0f};
+  Vector3<float> m_max{0.0f, 0.0f, 0.0f};
   Transform m_oldTransform{};
-  std::vector<Vec3> m_pointsCache{};
+  std::vector<Vector3<float>> m_pointsCache{};
 
 public:
-  explicit AABB(Vec3 min, Vec3 max) noexcept
+  explicit AABB(Vector3<float> min, Vector3<float> max) noexcept
     : m_min{min},
       m_max{max}
   {
@@ -25,12 +25,12 @@ public:
   {
   }
 
-  [[nodiscard]] auto getPoints(Transform transform, bool forceInvalidate = false) -> std::vector<Vec3>;  // Called by collide(...)
+  [[nodiscard]] auto getPoints(Transform transform, bool forceInvalidate = false) -> std::vector<Vector3<float>>;  // Called by collide(...)
 
-  void setMin(const Vec3 &min) noexcept;
-  [[nodiscard]] auto getMin() const noexcept -> Vec3;
-  void setMax(const Vec3 &max) noexcept;
-  [[nodiscard]] auto getMax() const noexcept -> Vec3;
+  void setMin(const Vector3<float> &min) noexcept;
+  [[nodiscard]] auto getMin() const noexcept -> Vector3<float>;
+  void setMax(const Vector3<float> &max) noexcept;
+  [[nodiscard]] auto getMax() const noexcept -> Vector3<float>;
 
   [[nodiscard]] bool operator==(const AABB &second) const noexcept final;
 };

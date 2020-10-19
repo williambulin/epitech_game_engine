@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include "Maths/Vec3.hpp"
+#include "Maths/Vectors.hpp"
 #include "Shapes/AABB.hpp"
 #include "Shapes/Sphere.hpp"
 #include "Shapes/OBB.hpp"
@@ -11,9 +11,9 @@ class Collision {
 public:
   Collision() {}
 
-  [[nodiscard]] static float SqDistPointAABB(const Vec3 &p, const AABB &b ) noexcept;
+  [[nodiscard]] static float SqDistPointAABB(const Vector3<float> &p, const AABB &b ) noexcept;
 
-  [[nodiscard]] static bool getSeparatingPlane(const Vec3 &rPos, const Vec3 &plane, const OBB& box1, const OBB& box2) noexcept;
+  [[nodiscard]] static bool getSeparatingPlane(const Vector3<float> &rPos, const Vector3<float> &plane, const OBB& box1, const OBB& box2) noexcept;
 
   [[nodiscard]] static bool collide(const AABB &firstCollider, const AABB &secondCollider) noexcept;
 

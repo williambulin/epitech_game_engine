@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <vector>
 #include <numeric>
+#include <array>
 
 template <class T, uint32_t size>
 class Vector {
@@ -65,7 +66,7 @@ Vector<T, size> &Vector<T, size>::operator*=(const float &v) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size>::Vector() : m_array{} {}
+inline Vector<T, size>::Vector() : m_array() {}
 
 template <class T, uint32_t size>
 inline Vector<T, size>::Vector(const std::array<T, size> &array) : m_array{array} {}
@@ -287,7 +288,7 @@ T Vector<T, size>::dot(const Vector<T, size> &b) const {
 template <class T>
 class Vector3 : public Vector<T, 3> {
 public:
-  explicit Vector3(int a, int b, int c);
+  explicit Vector3(T a, T b, T c);
   explicit Vector3(const std::array<T, 3> &array);
   explicit Vector3(const std::vector<T> &array);
   T &                      x;
@@ -297,9 +298,9 @@ public:
 };
 
 template <class T>
-Vector3<T>::Vector3(int a, int b, int c) : Vector<T, 3>{{a, b, c}},
+Vector3<T>::Vector3(T a, T b, T c) : Vector<T, 3>{std::array<T,3>{a, b, c}},
                                            x{this->m_array[0]},
-                                           y{this->m_marray[1]},
+                                           y{this->m_array[1]},
                                            z{this->m_array[2]} {}
 template <class T>
 Vector3<T> Vector3<T>::cross(const Vector3<T> &b) const {
@@ -308,12 +309,12 @@ Vector3<T> Vector3<T>::cross(const Vector3<T> &b) const {
 template <class T>
 Vector3<T>::Vector3(const std::array<T, 3> &array) : Vector<T, 3>{array},
                                                      x{this->m_array[0]},
-                                                     y{this->m_marray[1]},
+                                                     y{this->m_array[1]},
                                                      z{this->m_array[2]} {}
 template <class T>
 Vector3<T>::Vector3(const std::vector<T> &array) : Vector<T, 3>{array},
                                                    x{this->m_array[0]},
-                                                   y{this->m_marray[1]},
+                                                   y{this->m_array[1]},
                                                    z{this->m_array[2]} {}
 
 using Vector3i = Vector3<int>;
