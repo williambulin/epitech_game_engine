@@ -29,6 +29,7 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Shapes/AABB.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Vectors.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Matrix.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Quaternion.hpp
 
 )
 

@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <vector>
+#include <array>
 #include <numeric>
 #include <array>
 
@@ -66,7 +67,7 @@ Vector<T, size> &Vector<T, size>::operator*=(const float &v) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size>::Vector() : m_array() {}
+inline Vector<T, size>::Vector() : m_array() {} // fix for aurelien
 
 template <class T, uint32_t size>
 inline Vector<T, size>::Vector(const std::array<T, size> &array) : m_array{array} {}
@@ -291,26 +292,18 @@ public:
   explicit Vector3(T a, T b, T c);
   explicit Vector3(const std::array<T, 3> &array);
   explicit Vector3(const std::vector<T> &array);
+  Vector3<T>& operator=(const Vector3<T> &v);
   T &                      x;
   T &                      y;
   T &                      z;
-  Vector3<T>& operator=(const Vector3<T> &v);
   [[nodiscard]] Vector3<T> cross(const Vector3<T> &b) const;
 };
 
 template <class T>
-Vector3<T>::Vector3(T a, T b, T c) : Vector<T, 3>{std::array<T,3>{a, b, c}},
+Vector3<T>::Vector3(T a, T b, T c) : Vector<T, 3>{std::array<T, 3>{a, b, c}},
                                            x{this->m_array[0]},
                                            y{this->m_array[1]},
                                            z{this->m_array[2]} {}
-template <class T>
-Vector3<T>& Vector3<T>::operator=(const Vector3<T> &v) {
-  x = v.x;
-  y = v.y;
-  z = v.z;
-  return *this;
-}
-
 template <class T>
 Vector3<T> Vector3<T>::cross(const Vector3<T> &b) const {
   return Vector<T, 3>(y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x);
@@ -325,6 +318,13 @@ Vector3<T>::Vector3(const std::vector<T> &array) : Vector<T, 3>{array},
                                                    x{this->m_array[0]},
                                                    y{this->m_array[1]},
                                                    z{this->m_array[2]} {}
+template <class T>
+Vector3<T> &Vector3<T>::operator=(const Vector3<T> &v) {
+  x = v.x;
+  y = v.y;
+  z = v.z;
+  return *this;
+}
 
 using Vector3i = Vector3<int>;
 using Vector3f = Vector3<float>;
@@ -332,27 +332,34 @@ using Vector3f = Vector3<float>;
 template <class T>
 class Vector2 : public Vector<T, 2> {
 public:
-  explicit Vector2(int a, int b);
+  explicit Vector2(T a, T b);
   explicit Vector2(const std::array<T, 2> &array);
   explicit Vector2(const std::vector<T> &array);
+  Vector2<T>& operator= (const Vector3<T> &v);
   T &x;
   T &y;
 };
 
 template <class T>
-Vector2<T>::Vector2(int a, int b) : Vector<T, 2>{{a, b}},
+Vector2<T>::Vector2(T a, T b) : Vector<T, 2>{{a, b}},
                                     x{this->m_array[0]},
-                                    y{this->m_marray[1]} {}
+                                    y{this->m_array[1]} {}
 
 template <class T>
 Vector2<T>::Vector2(const std::array<T, 2> &array) : Vector<T, 2>{array},
                                                      x{this->m_array[0]},
-                                                     y{this->m_marray[1]} {}
+                                                     y{this->m_array[1]} {}
 
 template <class T>
 Vector2<T>::Vector2(const std::vector<T> &array) : Vector<T, 2>{array},
                                                    x{this->m_array[0]},
-                                                   y{this->m_marray[1]} {}
+                                                   y{this->m_array[1]} {}
+template <class T>
+Vector2<T> &Vector2<T>::operator=(const Vector3<T> &v) {
+  x =v.x;
+  y = v.y;
+  return *this;
+}
 
 using Vector2i = Vector2<int>;
 using Vector2f = Vector2<float>;
