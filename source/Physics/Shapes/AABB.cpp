@@ -2,74 +2,86 @@
 
 #include "AABB.hpp"
 
-auto AABB::getPoints(Transform transform, bool forceInvalidate) -> std::vector<Vector3<float>> {
+AABB::AABB(Vector3f min, Vector3f max) noexcept :
+  m_min{min},
+  m_max{max}
+{
+}
+
+AABB::AABB(const AABB &second) noexcept :
+  m_min{second.m_min},
+  m_max{second.m_max}
+{
+}
+
+auto AABB::getPoints(Transform transform, bool forceInvalidate) -> std::vector<Vector3f> {
   if (!forceInvalidate && transform == m_oldTransform) {
     return m_pointsCache;
   }
-  std::vector<Vector3<float>> points;
+  std::vector<Vector3f> points {};
   points.push_back(m_min);
-  points.push_back(Vector3<float> {m_max.x, m_min.y, m_min.z});
-  points.push_back(Vector3<float> {m_max.x, m_max.y, m_min.z});
-  points.push_back(Vector3<float> {m_min.x, m_max.y, m_min.z});
-  points.push_back(Vector3<float> {m_min.x, m_max.y, m_max.z});
-  points.push_back(Vector3<float> {m_min.x, m_min.y, m_max.z});
-  points.push_back(Vector3<float> {m_max.x, m_min.y, m_max.z});
+  points.push_back(Vector3f {m_max.x, m_min.y, m_min.z});
+  points.push_back(Vector3f {m_max.x, m_max.y, m_min.z});
+  points.push_back(Vector3f {m_min.x, m_max.y, m_min.z});
+  points.push_back(Vector3f {m_min.x, m_max.y, m_max.z});
+  points.push_back(Vector3f {m_min.x, m_min.y, m_max.z});
+  points.push_back(Vector3f {m_max.x, m_min.y, m_max.z});
   points.push_back(m_max);
   //apply transform
 
   float max_x = (*std::max_element( points.begin(), points.end(),
-              []( const Vector3<float> &a, const Vector3<float> &b ) {
+              []( const Vector3f &a, const Vector3f &b ) {
                 return a.x < b.x;
               })).x;
   float max_y = (*std::max_element( points.begin(), points.end(),
-              []( const Vector3<float> &a, const Vector3<float> &b ) {
+              []( const Vector3f &a, const Vector3f &b ) {
                 return a.y < b.y;
               })).y;
   float max_z = (*std::max_element( points.begin(), points.end(),
-              []( const Vector3<float> &a, const Vector3<float> &b ) {
+              []( const Vector3f &a, const Vector3f &b ) {
                 return a.z < b.z;
               })).z;
   float min_x = (*std::min_element( points.begin(), points.end(),
-              []( const Vector3<float> &a, const Vector3<float> &b ) {
+              []( const Vector3f &a, const Vector3f &b ) {
                 return a.x < b.x;
               })).x;
   float min_y = (*std::min_element( points.begin(), points.end(),
-              []( const Vector3<float> &a, const Vector3<float> &b ) {
+              []( const Vector3f &a, const Vector3f &b ) {
                 return a.y < b.y;
               })).y;
   float min_z = (*std::min_element( points.begin(), points.end(),
-              []( const Vector3<float> &a, const Vector3<float> &b ) {
+              []( const Vector3f &a, const Vector3f &b ) {
                 return a.z < b.z;
               })).z;
   points.clear();
-  points.push_back(Vector3<float> {min_x, min_y, min_z});
-  points.push_back(Vector3<float> {max_x, min_y, min_z});
-  points.push_back(Vector3<float> {max_x, max_y, min_z});
-  points.push_back(Vector3<float> {min_x, max_y, min_z});
-  points.push_back(Vector3<float> {min_x, max_y, max_z});
-  points.push_back(Vector3<float> {min_x, min_y, max_z});
-  points.push_back(Vector3<float> {max_x, min_y, max_z});
-  points.push_back(Vector3<float> {max_x, max_y, max_z});
+  points.push_back(Vector3f {min_x, min_y, min_z});
+  points.push_back(Vector3f {max_x, min_y, min_z});
+  points.push_back(Vector3f {max_x, max_y, min_z});
+  points.push_back(Vector3f {min_x, max_y, min_z});
+  points.push_back(Vector3f {min_x, max_y, max_z});
+  points.push_back(Vector3f {min_x, min_y, max_z});
+  points.push_back(Vector3f {max_x, min_y, max_z});
+  points.push_back(Vector3f {max_x, max_y, max_z});
   m_pointsCache = points;
   m_oldTransform = transform;
   return points;
 }
 
-void AABB::setMin(const Vector3<float> &min) noexcept {
+void AABB::setMin(const Vector3f &min) noexcept {
   m_min = min;
   m_pointsCache = getPoints(m_oldTransform, true);
 }
 
-void AABB::setMax(const Vector3<float> &max) noexcept {
+void AABB::setMax(const Vector3f &max) noexcept {
   m_max = max;
   m_pointsCache = getPoints(m_oldTransform, true);
 }
 
-auto AABB::getMin() const noexcept -> Vector3<float> {
+auto AABB::getMin() const noexcept -> Vector3f {
   return m_min;
 }
 
-auto AABB::getMax() const noexcept -> Vector3<float> {
+auto AABB::getMax() const noexcept -> Vector3f {
   return m_max;
 }
 
