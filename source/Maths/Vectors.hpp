@@ -29,22 +29,22 @@ public:
   [[nodiscard]] T &              operator[](uint32_t);
   [[nodiscard]] T                operator[](uint32_t) const;
   [[nodiscard]] T &              operator()(uint32_t);
-  [[nodiscard]] Vector<T, size>  operator+(const Vector<T, size> &v);
-  [[nodiscard]] Vector<T, size>  operator-(const Vector<T, size> &v);
-  [[nodiscard]] Vector<T, size>  operator*(const Vector<T, size> &v);
-  [[nodiscard]] Vector<T, size>  operator*(const int &v);
-  [[nodiscard]] Vector<T, size>  operator*(const float &v);
-  [[nodiscard]] Vector<T, size>  operator/(const Vector<T, size> &v);
-  [[nodiscard]] Vector<T, size>  operator^(const Vector<T, size> &v);
+  [[nodiscard]] Vector<T, size>  operator+(const Vector<T, size> &v) const;
+  [[nodiscard]] Vector<T, size>  operator-(const Vector<T, size> &v) const;
+  [[nodiscard]] Vector<T, size>  operator*(const Vector<T, size> &v) const;
+  [[nodiscard]] Vector<T, size>  operator*(const int &v) const;
+  [[nodiscard]] Vector<T, size>  operator*(const float &v) const;
+  [[nodiscard]] Vector<T, size>  operator/(const Vector<T, size> &v) const;
+  [[nodiscard]] Vector<T, size>  operator^(const Vector<T, size> &v) const;
   Vector<T, size> &              operator+=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   Vector<T, size> &              operator-=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   Vector<T, size> &              operator*=(const int &v);
   Vector<T, size> &              operator*=(const float &v);
   Vector<T, size> &              operator*=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   Vector<T, size> &              operator/=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
-  [[nodiscard]] Vector<T, size> &lerp(const Vector<T, size> &_end, float percent);
+  [[nodiscard]] Vector<T, size> &lerp(const Vector<T, size> &_end, float percent) const;
   [[nodiscard]] T                length() const;
-  [[nodiscard]] T                dot(const Vector<T, size> &b);
+  [[nodiscard]] T                dot(const Vector<T, size> &b) const;
   void                           normalize();
 };
 
@@ -146,7 +146,7 @@ inline T &Vector<T, size>::operator()(uint32_t i) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size> Vector<T, size>::operator+(const Vector<T, size> &v) {
+inline Vector<T, size> Vector<T, size>::operator+(const Vector<T, size> &v) const {
   Vector<T, size> ret{m_array};
   const T *       other_data = v.m_array.data();
   T *             this_data  = ret.m_array.data();
@@ -156,7 +156,7 @@ inline Vector<T, size> Vector<T, size>::operator+(const Vector<T, size> &v) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size> Vector<T, size>::operator-(const Vector<T, size> &v) {
+inline Vector<T, size> Vector<T, size>::operator-(const Vector<T, size> &v) const {
   Vector<T, size> ret{m_array};
   const T *       other_data = v.m_array.data();
   T *             this_data  = ret.m_array.data();
@@ -166,7 +166,7 @@ inline Vector<T, size> Vector<T, size>::operator-(const Vector<T, size> &v) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size> Vector<T, size>::operator*(const Vector<T, size> &v) {
+inline Vector<T, size> Vector<T, size>::operator*(const Vector<T, size> &v) const {
   Vector<T, size> ret{m_array};
   const T *       other_data = v.m_array.data();
   T *             this_data  = ret.m_array.data();
@@ -176,7 +176,7 @@ inline Vector<T, size> Vector<T, size>::operator*(const Vector<T, size> &v) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size> Vector<T, size>::operator/(const Vector<T, size> &v) {
+inline Vector<T, size> Vector<T, size>::operator/(const Vector<T, size> &v) const {
   Vector<T, size> ret{m_array};
   const T *       other_data = v.m_array.data();
   T *             this_data  = ret.m_array.data();
@@ -189,7 +189,7 @@ inline Vector<T, size> Vector<T, size>::operator/(const Vector<T, size> &v) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size> Vector<T, size>::operator^(const Vector<T, size> &v) {
+inline Vector<T, size> Vector<T, size>::operator^(const Vector<T, size> &v) const {
   Vector<T, size> ret{};
   T *             this_data  = m_array.data();
   T *             other_data = v.m_array.data();
@@ -242,14 +242,14 @@ bool Vector<T, size>::operator==(const float &v) const {
   return false;
 }
 template <class T, uint32_t size>
-Vector<T, size> Vector<T, size>::operator*(const int &v) {
+Vector<T, size> Vector<T, size>::operator*(const int &v) const {
   Vector<T, size> ret{m_array};
   for (auto &data : ret.m_array)
     data *= v;
   return ret;
 }
 template <class T, uint32_t size>
-Vector<T, size> Vector<T, size>::operator*(const float &v) {
+Vector<T, size> Vector<T, size>::operator*(const float &v) const {
   Vector<T, size> ret{m_array};
   for (auto &data : ret.m_array)
     data *= v;
@@ -261,7 +261,7 @@ T Vector<T, size>::operator[](uint32_t i) const {
 }
 
 template <class T, uint32_t size>
-Vector<T, size> &Vector<T, size>::lerp(const Vector<T, size> &_end, float percent) {
+Vector<T, size> &Vector<T, size>::lerp(const Vector<T, size> &_end, float percent) const {
   return *this + percent * (_end - *this);
 }
 template <class T, uint32_t size>
@@ -277,7 +277,7 @@ void Vector<T, size>::normalize() {
     tmp /= l;
 }
 template <class T, uint32_t size>
-T Vector<T, size>::dot(const Vector<T, size> &b) {
+T Vector<T, size>::dot(const Vector<T, size> &b) const {
   T p = 0.0f;
   for (int i{0}; i < size; ++i)
     p += m_array[i] * b[i];
@@ -293,7 +293,7 @@ public:
   T &                      x;
   T &                      y;
   T &                      z;
-  [[nodiscard]] Vector3<T> cross(const Vector3<T> &b);
+  [[nodiscard]] Vector3<T> cross(const Vector3<T> &b) const;
 };
 
 template <class T>
@@ -302,7 +302,7 @@ Vector3<T>::Vector3(int a, int b, int c) : Vector<T, 3>{{a, b, c}},
                                            y{this->m_marray[1]},
                                            z{this->m_array[2]} {}
 template <class T>
-Vector3<T> Vector3<T>::cross(const Vector3<T> &b) {
+Vector3<T> Vector3<T>::cross(const Vector3<T> &b) const {
   return Vector<T, 3>(y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x);
 }
 template <class T>
