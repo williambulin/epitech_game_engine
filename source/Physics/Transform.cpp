@@ -1,9 +1,13 @@
 #include "Transform.hpp"
 
-Transform::Transform(Matrix4 &modelMatrix) {
-    m_modelMatrix = m_modelMatrix;
+Transform::Transform() :
+  m_modelMatrix(Matrix4<float> {})
+{}
+
+Transform::Transform(Matrix4<float> &modelMatrix) :
+  m_modelMatrix(modelMatrix) {
 }
 
 bool Transform::operator==(const Transform &second) const noexcept {
-    return m_modelMatrix == second.m_modelMatrix;
+  return m_modelMatrix == second.m_modelMatrix;
 }

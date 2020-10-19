@@ -7,7 +7,8 @@ public:
   Matrix4<float> m_modelMatrix{};
 
 public:
-  explicit Transform(Matrix4 &modelMatrix);
+  explicit Transform();
+  explicit Transform(Matrix4<float> &modelMatrix);
 
   bool operator==(const Transform &transform) const noexcept;
 };
