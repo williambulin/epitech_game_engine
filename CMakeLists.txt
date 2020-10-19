@@ -23,6 +23,11 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/source/Core.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Collision.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Collision.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Shapes/AABB.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Shapes/AABB.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Vectors.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Matrix.hpp
+
 )
 
 target_include_directories(
