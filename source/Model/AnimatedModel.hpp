@@ -2,10 +2,11 @@
 
 #include <assimp\scene.h>
 #include <map>
-#include <pair>
 #include <string>
 #include <vector>
 
+#include "../Maths/Matrix.hpp"
+#include "../Maths/Quaternion.hpp"
 #include "../Maths/Vectors.hpp"
 #include "Converter/Assimp.hpp"
 #include "IAnimatedModel.hpp"
@@ -13,10 +14,11 @@
 
 class AnimatedModel : public IAnimatedModel, public Model {
 private:
-  struct Bone final {
+  class Bone final {
   private:
-    struct VertexWeight final {
+    class VertexWeight final {
     public:
+      // AnimatedModel::Bone::VertexWeight ----------------------------------------------------------------------------
       using Id     = unsigned int;
       using Weight = float;
 
@@ -25,22 +27,17 @@ private:
       Weight m_weight{};
 
     public:
-      explicit VertexWeight(const aiVertexWeight &vertexWeight) : m_id{vertexWeight.mVertexId}, m_weight{vertexWeight.mWeight} {}
-
+      explicit VertexWeight(const aiVertexWeight &);
       ~VertexWeight() = default;
 
-      [[nodiscard]] auto getId() const -> const Id & {
-        return m_id;
-      }
-
-      [[nodiscard]] auto getWeight() const -> const Weight & {
-        return m_weight;
-      }
+      [[nodiscard]] auto getId() const -> const Id &;
+      [[nodiscard]] auto getWeight() const -> const Weight &;
     };
 
   public:
+    // AnimatedModel::Bone --------------------------------------------------------------------------------------------
     using Id               = unsigned int;
-    using OffsetMatrix     = int;  // todo : use our own matrix type
+    using OffsetMatrix     = Matrix<float, 4U, 4U>;
     using VertexWeightList = std::vector<VertexWeight>;
 
   private:
@@ -49,30 +46,19 @@ private:
     VertexWeightList m_vertexWeight{};
 
   public:
-    explicit Bone(const Id &id, const aiBone &bone) : m_id{id} {
-      // todo : store transposed offsetmatrix with our own matrix type
-      for (auto i = 0U; i < bone.mNumWeights; i++)
-        m_vertexWeight.push_back(VertexWeight(bone.mWeights[i]));
-    }
-
+    explicit Bone(const Id &, const aiBone &);
     ~Bone() = default;
 
-    [[nodiscard]] auto getId() const -> const Id & {
-      return m_id;
-    }
-    [[nodiscard]] auto getOffsetMatrix() const -> const OffsetMatrix & {
-      return m_offsetMatrix;
-    }
-
-    [[nodiscard]] auto getVertexWeight() const -> const VertexWeightList & {
-      return m_vertexWeight;
-    }
+    [[nodiscard]] auto getId() const -> const Id &;
+    [[nodiscard]] auto getOffsetMatrix() const -> const OffsetMatrix &;
+    [[nodiscard]] auto getVertexWeight() const -> const VertexWeightList &;
   };
 
-  struct Node final {
+  class Node final {
   public:
+    // AnimatedModel::Node --------------------------------------------------------------------------------------------
     using Name            = std::string;
-    using TransformMatrix = int;  // todo : use our own matrix type
+    using TransformMatrix = Matrix<float, 4U, 4U>;
     using Parent          = Node *;
     using Children        = std::vector<Node>;
 
@@ -83,143 +69,113 @@ private:
     Children        m_children{};
 
   public:
-    explicit Node(const aiNode &node, const Parent &parent) : m_name{node.mName.C_Str()}, m_parent{parent} {
-      // todo : store transposed transformmatrix with our own matrix type
-      for (auto i = 0U; i < node.mNumChildren; i++)
-        m_children.push_back(Node(*node.mChildren[i], this));
-    }
-
+    explicit Node(const aiNode &, const Parent &);
     ~Node() = default;
 
-    [[nodiscard]] auto getName() const -> const Name & {
-      return m_name;
-    }
-
-    [[nodiscard]] auto getTransformMatrix() const -> const TransformMatrix & {
-      return m_transformMatrix;
-    }
-
-    [[nodiscard]] auto getParent() const -> const Parent & {
-      return m_parent;
-    }
-
-    [[nodiscard]] auto getChildren() const -> const Children & {
-      return m_children;
-    }
+    [[nodiscard]] auto getName() const -> const Name &;
+    [[nodiscard]] auto getTransformMatrix() const -> const TransformMatrix &;
+    [[nodiscard]] auto getParent() const -> const Parent &;
+    [[nodiscard]] auto getChildren() const -> const Children &;
   };
 
-  struct Animation final {
+  class Animation final {
   private:
-    struct Node final {
+    class Node final {
     private:
       template <class T>
-      struct TransformationKey {
+      class TransformationKey {
       public:
+        // AnimatedModel::Animation::Node::TransformationKey ----------------------------------------------------------
         using Timestamp      = float;
         using Transformation = T;
 
-      private:
+      protected:
         Timestamp      m_timestamp;
         Transformation m_transformation;
 
       public:
-        explicit TransformationKey(const Timestamp &timestamp, const Transformation &transformation) : m_timestamp{timestamp}, m_transformation{transformation} {}
-
+        explicit TransformationKey(const Timestamp &, const Transformation &);
         ~TransformationKey() = default;
 
-        [[nodiscard]] auto getTimestamp() const -> const Timestamp & {
-          return m_timestamp;
-        }
+        [[nodiscard]] auto getTimestamp() const -> const Timestamp &;
+        [[nodiscard]] auto getTransformation() const -> const Transformation &;
 
-        [[nodiscard]] auto getTransformation() const -> const Transformation & {
-          return m_transformation;
-        }
+      protected:
+        [[nodiscard]] auto getProgress(const TransformationKey &) const -> Timestamp;
       };
 
-      struct VectorKey final : public TransformationKey<Vector<float, 3U>> {
+      class VectorKey final : public TransformationKey<Vector<float, 3U>> {
       public:
-        explicit VectorKey(const aiVectorKey &vectorKey, const float &ticksPerSecond) {
-          TransformationKey::TransformationKey(vectorKey.mTime / ticksPerSecond, FromAssimp::Vector3(vectorKey.mValue));
-        }
-
+        // AnimatedModel::Animation::Node::VectorKey ------------------------------------------------------------------
+        explicit VectorKey(const aiVectorKey &, const float &);
         ~VectorKey() = default;
 
-        [[nodiscard]] auto interpolate(const Vector<float, 3U> &other, const float &timestamp) const -> Vector<float, 3U> {
-          // todo interpolate vectors
-        }
+        [[nodiscard]] auto interpolate(const VectorKey &, const float &) -> Vector<float, 3U>;
       };
 
-      /*
-      struct QuatKey final : public TransformationKey<Quaternion<float>> {
+      class QuatKey final : public TransformationKey<Quaternion> {
       public:
-        explicit QuatKey::QuatKey(const aiQuatKey &quatKey, const float &ticksPerSecond) {
-          TransformationKey::TransformationKey(quatKey.mTime / ticksPerSecond, FromAssimp::Quaternion(quatKey.mValue));
-        }
+        // AnimatedModel::Animation::Node::QuatKey --------------------------------------------------------------------
+        explicit QuatKey(const aiQuatKey &, const float &);
+        ~QuatKey() = default;
 
-        QuatKey::~QuatKey() = default;
-
-        [[nodiscard]] auto interpolate(const Quaternion<float> &other, const float &timestamp) const -> Quaternion<float> {
-          //todo interpolate quaternions
-        }
+        [[nodiscard]] auto interpolate(const QuatKey &, const float &) const -> Quaternion;
       };
-      */
 
     public:
-      using VectorKeyMap = std::map<float, VectorKey>;
-      // using QuatKeyMap = std::map<float, QuatKey>;
+      // AnimatedModel::Animation::Node -------------------------------------------------------------------------------
+      template <class T>
+      using KeyMap       = std::map<float, T>;
+      using VectorKeyMap = KeyMap<VectorKey>;
+      using QuatKeyMap   = KeyMap<QuatKey>;
 
     private:
       VectorKeyMap m_positionKey{};
-      // QuatKeyMap   m_rotationKey{};
+      QuatKeyMap   m_rotationKey{};
       VectorKeyMap m_scalingKey{};
 
     public:
-      explicit Node(const aiAnimation &channel, const float &ticksPerSecond) {}
-
+      explicit Node(const aiNodeAnim &, const float &);
       ~Node() = default;
 
-      [[nodiscard]] auto getPositionKey() const -> const VectorKeyMap & {
-        return m_positionKey;
-      }
+      [[nodiscard]] auto getPositionKey() const -> const VectorKeyMap &;
+      [[nodiscard]] auto getRotationKey() const -> const QuatKeyMap &;
+      [[nodiscard]] auto getScalingKey() const -> const VectorKeyMap &;
+      [[nodiscard]] auto getTransformMatrix(const float &) const -> Matrix<float, 4U, 4U>;
 
-      /*
-      [[nodiscard]] auto getRotationKey() const -> const QuatKeyMap & {
-        return m_rotationKey;
-      }
-      */
-
-      [[nodiscard]] auto getScalingKey() const -> const VectorKeyMap & {
-        return m_scalingKey;
-      }
+    private:
+      template <class T>
+      [[nodiscard]] auto getTransformation(const KeyMap<T> &, const float &) const -> T;
     };
 
   public:
+    // AnimatedModel::Animation ---------------------------------------------------------------------------------------
     using Duration         = float;
+    using Loop             = bool;
     using NodeAnimationMap = std::map<std::string, Node>;
 
   private:
     Duration         m_duration{};
+    Loop             m_loop{};
     NodeAnimationMap m_nodeAnimation{};
 
   public:
-    explicit Animation(const aiAnimation &animation) {
-      float ticksPerSecond = animation.mTicksPerSecond > 0.0f ? animation.mTicksPerSecond : 1.0f;
-      m_duration           = animation.mDuration / ticksPerSecond;
-      for (auto i = 0U; i < animation.mNumChannels; i++) {
-        auto channel = animation.mChannels[i];
-        // auto nodeAnimation = AnimatedModel::Animation::Node(channel, ticksPerSecond);
-        // m_nodeAnimation.insert(std::pair<std::string, AnimatedModel::Animation::Node>(channel->mNodeName, nodeAnimation));
-      }
-    }
-
+    explicit Animation(const aiAnimation &);
     ~Animation() = default;
+
+    [[nodiscard]] auto getDuration() const -> const Duration &;
+    [[nodiscard]] auto getLoop() const -> const Loop &;
+    [[nodiscard]] auto getNodeAnimation() const -> const NodeAnimationMap &;
   };
 
+public:
+  // AnimatedModel ----------------------------------------------------------------------------------------------------
   using BoneMap                = std::map<std::string, Bone>;
-  using InverseTransformMatrix = int;  // todo : use our own matrix type
+  using InverseTransformMatrix = Matrix<float, 4U, 4U>;
   using Node                   = Node;
   using AnimationMap           = std::map<std::string, Animation>;
 
+private:
   BoneMap                m_boneMap{};
   InverseTransformMatrix m_inverseTransform{};
   Node                   m_nodeData{};

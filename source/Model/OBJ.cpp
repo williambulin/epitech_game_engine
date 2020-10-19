@@ -42,11 +42,11 @@ OBJ::OBJ(const std::string &path) {
       for (std::string &dataPart : data)
         dataFloat.push_back(std::stof(dataPart));
       if (index == "v" && dataFloat.size() == 3)
-        vertices.push_back(Vector<float, 3>(dataFloat));
+        vertices.push_back(Vector<float, 3U>(dataFloat));
       else if (index == "vn" && dataFloat.size() == 3)
-        normals.push_back(Vector<float, 3>(dataFloat));
+        normals.push_back(Vector<float, 3U>(dataFloat));
       else if (index == "vt" && dataFloat.size() == 2)
-        texcoords.push_back(Vector<float, 2>(dataFloat));
+        texcoords.push_back(Vector<float, 2U>(dataFloat));
     }
   }
   file.close();
