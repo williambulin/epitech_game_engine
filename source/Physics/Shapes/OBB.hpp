@@ -5,7 +5,9 @@
 
 class OBB final : public ICollisionShape<OBB> {
 public:
+
   Vec3 m_pos{0.0f, 0.0f, 0.0f};
+  //matrix
   Vec3 m_axisX{0.0f, 0.0f, 0.0f};
   Vec3 m_axisY{0.0f, 0.0f, 0.0f};
   Vec3 m_axisZ{0.0f, 0.0f, 0.0f};
@@ -28,6 +30,8 @@ public:
     m_halfSize{second.m_halfSize}
   {
   }
+
+  //updateHitbox
 
   [[nodiscard]] bool operator==(const OBB &second) const noexcept final
   {
