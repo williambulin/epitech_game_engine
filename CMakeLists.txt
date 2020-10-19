@@ -22,6 +22,8 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/source/Core.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Core.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Collision.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Transform.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Transform.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Collision.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Shapes/AABB.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Shapes/AABB.cpp
