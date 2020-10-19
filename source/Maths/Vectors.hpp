@@ -334,6 +334,7 @@ public:
   explicit Vector2(T a, T b);
   explicit Vector2(const std::array<T, 2> &array);
   explicit Vector2(const std::vector<T> &array);
+  Vector2<T>& operator= (const Vector3<T> &v);
   T &x;
   T &y;
 };
@@ -352,6 +353,12 @@ template <class T>
 Vector2<T>::Vector2(const std::vector<T> &array) : Vector<T, 2>{array},
                                                    x{this->m_array[0]},
                                                    y{this->m_array[1]} {}
+template <class T>
+Vector2<T> &Vector2<T>::operator=(const Vector3<T> &v) {
+  x =v.x;
+  y = v.y;
+  return *this;
+}
 
 using Vector2i = Vector2<int>;
 using Vector2f = Vector2<float>;
