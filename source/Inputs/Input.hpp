@@ -3,6 +3,7 @@
 #include "Key.hpp"
 
 #include <array>
+#include <vector>
 #include <iterator>
 
 #if defined(_WIN32) || defined(WIN32)
@@ -14,9 +15,7 @@ public:
 private:
   MSG                          _msg;
   HWND                         _dummyHWND;
-  std::array<int, 6>           _keypressed;
-  std::array<int, 6>::iterator _it;
-  Key                         *_keys;
+  std::vector<Key *>           _keys;
 
 public:
   explicit Input();
@@ -25,4 +24,5 @@ public:
   void addKeypressed(int);
   void startTriggeringInput();
   void releasedKeys(int);
+  bool keyIsPressed(int, Key::state_e);
 };
