@@ -179,6 +179,7 @@ Vector<T, height> Matrix<T, width, height>::operator[](std::size_t i) const {
 template <class T>
 class Matrix4 : public Matrix<T, 4, 4> {
 public:
+  explicit Matrix4();
   explicit Matrix4(const std::array<std::array<T, 4>, 4> &array);
   explicit Matrix4(const std::vector<std::vector<T>> &array);
   [[nodiscard]] static Matrix4<T> lookAt(const Vector<T, 3> &eye, const Vector<T, 3> &center, const Vector<T, 3> &up);
@@ -204,3 +205,5 @@ template <class T>
 Matrix4<T>::Matrix4(const std::array<std::array<T, 4>, 4> &array) : Matrix<T, 4, 4>(array) {}
 template <class T>
 Matrix4<T>::Matrix4(const std::vector<std::vector<T>> &array) : Matrix<T, 4, 4>(array) {}
+template <class T>
+Matrix4<T>::Matrix4() : Matrix<T, 4, 4>() {}
