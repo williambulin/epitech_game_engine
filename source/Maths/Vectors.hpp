@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <vector>
+#include <array>
 #include <numeric>
 
 template <class T, uint32_t size>
@@ -65,7 +66,7 @@ Vector<T, size> &Vector<T, size>::operator*=(const float &v) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size>::Vector() : m_array{} {}
+inline Vector<T, size>::Vector() : m_array() {} // fix for aurelien
 
 template <class T, uint32_t size>
 inline Vector<T, size>::Vector(const std::array<T, size> &array) : m_array{array} {}
@@ -297,7 +298,7 @@ public:
 };
 
 template <class T>
-Vector3<T>::Vector3(T a, T b, T c) : Vector<T, 3>{{a, b, c}},
+Vector3<T>::Vector3(T a, T b, T c) : Vector<T, 3>{std::array<T, 3>{a, b, c}},
                                            x{this->m_array[0]},
                                            y{this->m_array[1]},
                                            z{this->m_array[2]} {}
