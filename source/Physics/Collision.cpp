@@ -1,6 +1,7 @@
 #include <math.h>       /* fabs */
 
 #include "Collision.hpp"
+#include "Transform.hpp"
 
 float Collision::SqDistPointAABB(const Vec3 &p, const AABB &b ) noexcept {
   float sqDist = 0.0f;
@@ -19,7 +20,7 @@ float Collision::SqDistPointAABB(const Vec3 &p, const AABB &b ) noexcept {
   return sqDist;
 }
 
-bool Collision::getSeparatingPlane(const Vec3 &rPos, const Vec3 &plane, const OBB& box1, const OBB& box2) {
+bool Collision::getSeparatingPlane(const Vec3 &rPos, const Vec3 &plane, const OBB &box1, const OBB &box2) noexcept {
 return (fabs(rPos*plane) > 
         (fabs((box1.m_axisX*box1.m_halfSize.x)*plane) +
         fabs((box1.m_axisY*box1.m_halfSize.y)*plane) +

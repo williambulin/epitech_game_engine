@@ -1,11 +1,13 @@
 #pragma once
 
+#include "Maths/Matrix.hpp"
+
 class Transform {
 public:
-  Mat4 m_modelMatrix{};
+  Matrix4<float> m_modelMatrix{};
 
 public:
   explicit Transform();
 
-  bool operator==(const Transform &transform);
+  bool operator==(const Transform &transform) const noexcept;
 };
