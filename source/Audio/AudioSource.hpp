@@ -3,26 +3,44 @@
 #include <string>
 #include <iostream>
 
+#include <sndfile.h>
+#include <stdio.h>
+
 class AudioSource {
 public:
   using GroupName = std::string;
-  using Volume    = int;
+  using Volume    = float;
 
 public:
-  explicit AudioSource(std::string fileName, std::string groupName = "Master");
+  explicit AudioSource(const std::string &fileName, std::string groupName = "Master");
   AudioSource() = delete;
   AudioSource(const AudioSource &audioSource);
   ~AudioSource();
 
-  [[nodiscard]] auto GetGroupName() const -> const GroupName &;
+  [[nodiscard]] auto    GetGroupName() const -> const GroupName &;
 
-  void SetVolume(Volume volume);
+  [[noreturn]] void     SetVolume(Volume volume);
 
-  int         m_Id = 0;
+  float   GetData();
+  void    Mute(const bool &mute);
+  void    Play();
+  void    Pause();
+  void    Stop();
+
+  int         m_Id            = 0;
+  float *     m_data;
+  bool        m_Loop          = false;
 
 private:
-  std::string m_FileName;
-  GroupName   m_GroupName;
+  //Settings
+  bool        m_Muted         = false;
+  bool        m_Playing       = false;
 
-  Volume      m_Volume = 0;
+  GroupName   m_GroupName;
+  Volume      m_Volume        = 0;
+
+  int         m_currentIndex  = 0;
+  SNDFILE *   m_FileData;
+  std::string m_FileName;
+  SF_INFO     m_sfInfo;
 };
