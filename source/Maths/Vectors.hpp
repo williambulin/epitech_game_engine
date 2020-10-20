@@ -5,6 +5,9 @@
 #include <array>
 #include <numeric>
 
+template <class T, std::size_t width, std::size_t height>
+class Matrix;
+
 template <class T, uint32_t size>
 class Vector {
 protected:
@@ -34,6 +37,7 @@ public:
   [[nodiscard]] Vector<T, size>  operator-(const Vector<T, size> &v) const;
   [[nodiscard]] Vector<T, size>  operator*(const Vector<T, size> &v) const;
   [[nodiscard]] Vector<T, size>  operator*(const int &v) const;
+  [[nodiscard]] Vector<T, size>  operator*(const Matrix<T, size, size> &v) const;
   [[nodiscard]] Vector<T, size>  operator*(const float &v) const;
   [[nodiscard]] Vector<T, size>  operator/(const Vector<T, size> &v) const;
   [[nodiscard]] Vector<T, size>  operator^(const Vector<T, size> &v) const;
@@ -283,6 +287,16 @@ T Vector<T, size>::dot(const Vector<T, size> &b) const {
   for (int i{0}; i < size; ++i)
     p += m_array[i] * b[i];
   return p;
+}
+template <class T, uint32_t size>
+Vector<T, size> Vector<T, size>::operator*(const Matrix<T, size, size> &v) const {
+  Vector<T, size> ret{};
+  for (int i = 0; i < size; ++i) {
+    ret[i] = 0.0f;
+    for (int j = 0; j < size; ++j)
+      ret[i] += v[i][j] * ret[j];
+  }
+  return ret;
 }
 
 template <class T>
