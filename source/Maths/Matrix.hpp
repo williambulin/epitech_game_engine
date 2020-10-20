@@ -199,6 +199,7 @@ public:
   [[nodiscard]] static Matrix4<T> perspective(T angle, T ratio, T near, T far);
   [[nodiscard]] Matrix4<T>        scale(T a, T b, T c);
   [[nodiscard]] static Matrix4<T> translate(const Vector3<T> &vec);
+  [[nodiscard]] static Matrix4<T> perspectiveRH(T fovy, T aspect, T near, T far);
 };
 
 template <class T>
@@ -240,4 +241,19 @@ Matrix4<T> Matrix4<T>::translate(const Vector3<T> &vec) {
   ret[3][1] = vec[1];
   ret[3][2] = vec[2];
   return ret;
+}
+
+template <class T>
+Matrix4<T> Matrix4<T>::perspectiveRH(T fovy, T aspect, T near, T far) {
+  assert(abs(aspect - std::numeric_limits<T>::epsilon()) > static_cast<T>(0));
+
+  T const tanHalfFovy = tan(fovy / static_cast<T>(2));
+
+  Matrix4<T> result(0);  // when {0} error reference might be null
+  result[0][0] = static_cast<T>(1) / (aspect * tanHalfFovy);
+  result[1][1] = static_cast<T>(1) / (tanHalfFovy);
+  result[2][2] = far / (near - far);
+  result[2][3] = -static_cast<T>(1);
+  result[3][2] = -(far * near) / (far - near);
+  return result;
 }
