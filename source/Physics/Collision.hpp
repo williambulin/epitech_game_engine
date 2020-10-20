@@ -8,6 +8,12 @@
 #include "Shapes/OBB.hpp"
 #include "Transform.hpp"
 
+class CollisionPointData final {
+public:
+  Vector3f position{0.0f, 0.0f, 0.0f}; // In world space
+  Vector3f surfaceNormal{0.0f, 0.0f, 0.0f}; // In world space too
+};
+
 class Collision {
 public:
   Collision() {}
