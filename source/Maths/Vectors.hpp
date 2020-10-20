@@ -51,6 +51,7 @@ public:
   [[nodiscard]] T                length() const;
   [[nodiscard]] T                dot(const Vector<T, size> &b) const;
   void                           normalize();
+  [[nodiscard]] Vector<T, size> rotate(T const &angle, const Vector<T, size> &normal);
 };
 
 template <class T, uint32_t size>
@@ -70,7 +71,7 @@ Vector<T, size> &Vector<T, size>::operator*=(const float &v) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size>::Vector() : m_array() {} // fix for aurelien
+inline Vector<T, size>::Vector() : m_array() {}  // fix for aurelien
 
 template <class T, uint32_t size>
 inline Vector<T, size>::Vector(const std::array<T, size> &array) : m_array{array} {}
@@ -299,24 +300,28 @@ Vector<T, size> Vector<T, size>::operator*(const Matrix<T, size, size> &v) const
   return ret;
 }
 
+template <class T, std::size_t size>
+Vector<T, size> Vector<T, size>::rotate(const T &angle, const Vector<T, size> &normal) {
+  return *this * cosf(normal) + (normal * *this) * sinf(angle) + normal * (normal.dot(*this)) * (1 - cosf(angle));
+}
+
 template <class T>
 class Vector3 : public Vector<T, 3> {
 public:
   explicit Vector3(T a, T b, T c);
   explicit Vector3(const std::array<T, 3> &array);
   explicit Vector3(const std::vector<T> &array);
-  Vector3<T>& operator= (const Vector3<T> &v);
+  Vector3<T> &             operator=(const Vector3<T> &v);
   T &                      x;
   T &                      y;
   T &                      z;
   [[nodiscard]] Vector3<T> cross(const Vector3<T> &b) const;
 };
-
 template <class T>
 Vector3<T>::Vector3(T a, T b, T c) : Vector<T, 3>{std::array<T, 3>{a, b, c}},
-                                           x{this->m_array[0]},
-                                           y{this->m_array[1]},
-                                           z{this->m_array[2]} {}
+                                     x{this->m_array[0]},
+                                     y{this->m_array[1]},
+                                     z{this->m_array[2]} {}
 template <class T>
 Vector3<T> Vector3<T>::cross(const Vector3<T> &b) const {
   return Vector<T, 3>(y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x);
@@ -348,15 +353,16 @@ public:
   explicit Vector2(T a, T b);
   explicit Vector2(const std::array<T, 2> &array);
   explicit Vector2(const std::vector<T> &array);
-  Vector2<T>& operator= (const Vector3<T> &v);
-  T &x;
-  T &y;
+  Vector2<T> &             operator=(const Vector3<T> &v);
+  T &                      x;
+  T &                      y;
+  [[nodiscard]] Vector2<T> rotate(T const &angle);
 };
 
 template <class T>
 Vector2<T>::Vector2(T a, T b) : Vector<T, 2>{{a, b}},
-                                    x{this->m_array[0]},
-                                    y{this->m_array[1]} {}
+                                x{this->m_array[0]},
+                                y{this->m_array[1]} {}
 
 template <class T>
 Vector2<T>::Vector2(const std::array<T, 2> &array) : Vector<T, 2>{array},
@@ -369,9 +375,13 @@ Vector2<T>::Vector2(const std::vector<T> &array) : Vector<T, 2>{array},
                                                    y{this->m_array[1]} {}
 template <class T>
 Vector2<T> &Vector2<T>::operator=(const Vector3<T> &v) {
-  x =v.x;
+  x = v.x;
   y = v.y;
   return *this;
+}
+template <class T>
+Vector2<T> Vector2<T>::rotate(T const &angle) {
+  return Vector2<T>(T(x * cosf(angle) - y * sinf(angle)), T(x * sinf(angle) + y * cosf(angle)));
 }
 
 using Vector2i = Vector2<int>;

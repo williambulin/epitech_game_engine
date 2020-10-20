@@ -11,6 +11,7 @@ private:
 
 public:
   explicit Quaternion(float x, float y, float z, float w);
+  [[nodiscard]] Quaternion operator*(const Quaternion& b) const;
   void                              normalize();
   [[nodiscard]] Matrix<float, 4, 4> toRotationMatrix() const;
   [[nodiscard]] static Quaternion   fromMatrix(Matrix<float, 4, 4> mat);
@@ -108,4 +109,12 @@ Quaternion Quaternion::slerp(Quaternion a, Quaternion b, float blend) {
   const float coeff2 = sut / st;
 
   return Quaternion{coeff1 * a.x + coeff2 * b.x, coeff1 * a.y + coeff2 * b.y, coeff1 * a.z + coeff2 * b.z, coeff1 * a.w + coeff2 * b.w};
+}
+Quaternion Quaternion::operator*(const Quaternion& b) const {
+  return Quaternion(
+  w * b.w - x * b.x - y * b.y - z * b.z,
+  w * b.x + x * b.w + y * b.z - z * b.y,
+  w * b.y - x * b.z + y * b.w + z * b.x,
+  w * b.z + x * b.y - y * b.x + z * b.w
+  );
 }

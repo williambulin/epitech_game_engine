@@ -133,7 +133,7 @@ inline Matrix<T, width, height> Matrix<T, width, height>::operator^(const Matrix
 }
 
 template <class T, std::size_t width, std::size_t height>
-inline Matrix<T, width, height>& Matrix<T, width, height>::operator+=(const Matrix<T, width, height> &v) {
+inline Matrix<T, width, height> &Matrix<T, width, height>::operator+=(const Matrix<T, width, height> &v) {
   m_matrix += v.m_matrix;
   return *this;
 }
@@ -145,7 +145,7 @@ inline Matrix<T, width, height> &Matrix<T, width, height>::operator-=(const Matr
 }
 
 template <class T, std::size_t width, std::size_t height>
-inline Matrix<T, width, height>& Matrix<T, width, height>::operator*=(const Matrix<T, width, height> &v) {
+inline Matrix<T, width, height> &Matrix<T, width, height>::operator*=(const Matrix<T, width, height> &v) {
   if (width != height)
     throw std::runtime_error{"cannot multiply a n*m matrix by a n*m matrix only n*n matrices by n*n matrices"};
   *this = *this * v;  // we need to do a copy of *this to use it in the mul
@@ -192,10 +192,13 @@ template <class T>
 class Matrix4 : public Matrix<T, 4, 4> {
 public:
   explicit Matrix4();
+  explicit Matrix4(T x, T y = 1.0f, T z = 1.0f, T w = 1.0f);  // identity multiplied by vector [a, b, c, d]
   explicit Matrix4(const std::array<std::array<T, 4>, 4> &array);
   explicit Matrix4(const std::vector<std::vector<T>> &array);
   [[nodiscard]] static Matrix4<T> lookAt(const Vector<T, 3> &eye, const Vector<T, 3> &center, const Vector<T, 3> &up);
   [[nodiscard]] static Matrix4<T> perspective(T angle, T ratio, T near, T far);
+  [[nodiscard]] Matrix4<T>        scale(T a, T b, T c);
+  [[nodiscard]] static Matrix4<T> translate(const Vector3<T> &vec);
 };
 
 template <class T>
@@ -219,3 +222,22 @@ template <class T>
 Matrix4<T>::Matrix4(const std::vector<std::vector<T>> &array) : Matrix<T, 4, 4>(array) {}
 template <class T>
 Matrix4<T>::Matrix4() : Matrix<T, 4, 4>() {}
+template <class T>
+Matrix4<T>::Matrix4(T x, T y, T z, T w) : Matrix<T, 4, 4>{} {
+  this->m_matrix[0][0] = x;
+  this->m_matrix[1][1] = y;
+  this->m_matrix[2][2] = z;
+  this->m_matrix[3][3] = w;
+}
+template <class T>
+Matrix4<T> Matrix4<T>::scale(T a, T b, T c) {
+  return *this * Matrix4<T>{a, b, c};
+}
+template <class T>
+Matrix4<T> Matrix4<T>::translate(const Vector3<T> &vec) {
+  Matrix4<T> ret{1};
+  ret[3][0] = vec[0];
+  ret[3][1] = vec[1];
+  ret[3][2] = vec[2];
+  return ret;
+}
