@@ -1,6 +1,7 @@
 #pragma once
 
-#include <assimp\scene.h>
+#include <assimp/scene.h>
+#include <ctime>
 #include <map>
 #include <string>
 #include <vector>
@@ -17,8 +18,8 @@ private:
   class Bone final {
   private:
     class VertexWeight final {
-    public:
       // AnimatedModel::Bone::VertexWeight ----------------------------------------------------------------------------
+    public:
       using Id     = unsigned int;
       using Weight = float;
 
@@ -34,8 +35,8 @@ private:
       [[nodiscard]] auto getWeight() const -> const Weight &;
     };
 
-  public:
     // AnimatedModel::Bone --------------------------------------------------------------------------------------------
+  public:
     using Id               = unsigned int;
     using OffsetMatrix     = Matrix<float, 4U, 4U>;
     using VertexWeightList = std::vector<VertexWeight>;
@@ -55,8 +56,8 @@ private:
   };
 
   class Node final {
-  public:
     // AnimatedModel::Node --------------------------------------------------------------------------------------------
+  public:
     using Name            = std::string;
     using TransformMatrix = Matrix<float, 4U, 4U>;
     using Parent          = Node *;
@@ -84,8 +85,8 @@ private:
     private:
       template <class T>
       class TransformationKey {
-      public:
         // AnimatedModel::Animation::Node::TransformationKey ----------------------------------------------------------
+      public:
         using Timestamp      = float;
         using Transformation = T;
 
@@ -105,8 +106,8 @@ private:
       };
 
       class VectorKey final : public TransformationKey<Vector<float, 3U>> {
-      public:
         // AnimatedModel::Animation::Node::VectorKey ------------------------------------------------------------------
+      public:
         explicit VectorKey(const aiVectorKey &, const float &);
         ~VectorKey() = default;
 
@@ -114,16 +115,16 @@ private:
       };
 
       class QuatKey final : public TransformationKey<Quaternion> {
-      public:
         // AnimatedModel::Animation::Node::QuatKey --------------------------------------------------------------------
+      public:
         explicit QuatKey(const aiQuatKey &, const float &);
         ~QuatKey() = default;
 
         [[nodiscard]] auto interpolate(const QuatKey &, const float &) const -> Quaternion;
       };
 
-    public:
       // AnimatedModel::Animation::Node -------------------------------------------------------------------------------
+    public:
       template <class T>
       using KeyMap       = std::map<float, T>;
       using VectorKeyMap = KeyMap<VectorKey>;
@@ -145,19 +146,23 @@ private:
 
     private:
       template <class T>
-      [[nodiscard]] auto getTransformation(const KeyMap<T> &, const float &) const -> T;
+      [[nodiscard]] auto getInterpolatedFrame(const KeyMap<T> &, const float &) const -> T;
     };
 
-  public:
     // AnimatedModel::Animation ---------------------------------------------------------------------------------------
+  public:
+    using Clock            = clock_t;
     using Duration         = float;
     using Loop             = bool;
     using NodeAnimationMap = std::map<std::string, Node>;
+    using Time             = float;
 
   private:
+    Clock            m_clock{};
     Duration         m_duration{};
     Loop             m_loop{};
     NodeAnimationMap m_nodeAnimation{};
+    Time             m_time{};
 
   public:
     explicit Animation(const aiAnimation &);
@@ -166,10 +171,17 @@ private:
     [[nodiscard]] auto getDuration() const -> const Duration &;
     [[nodiscard]] auto getLoop() const -> const Loop &;
     [[nodiscard]] auto getNodeAnimation() const -> const NodeAnimationMap &;
+    [[nodiscard]] auto getTime() -> const Time &;
+    [[nodiscard]] auto isComplete() -> bool;
+    [[nodiscard]] auto isStarted() const -> bool;
+    void               reset();
+    void               setLoop(const Loop &);
+    void               start();
+    void               stop();
   };
 
-public:
   // AnimatedModel ----------------------------------------------------------------------------------------------------
+public:
   using BoneMap                = std::map<std::string, Bone>;
   using InverseTransformMatrix = Matrix<float, 4U, 4U>;
   using Node                   = Node;

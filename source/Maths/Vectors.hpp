@@ -3,7 +3,11 @@
 #include <cstdint>
 #include <stdexcept>
 #include <vector>
+#include <array>
 #include <numeric>
+
+template <class T, std::size_t width, std::size_t height>
+class Matrix;
 
 template <class T, uint32_t size>
 class Vector {
@@ -30,23 +34,25 @@ public:
   [[nodiscard]] T &              operator[](uint32_t);
   [[nodiscard]] T                operator[](uint32_t) const;
   [[nodiscard]] T &              operator()(uint32_t);
-  [[nodiscard]] Vector<T, size>  operator+(const Vector<T, size> &v);
-  [[nodiscard]] Vector<T, size>  operator-(const Vector<T, size> &v);
-  [[nodiscard]] Vector<T, size>  operator*(const Vector<T, size> &v);
-  [[nodiscard]] Vector<T, size>  operator*(const int &v);
-  [[nodiscard]] Vector<T, size>  operator*(const float &v);
-  [[nodiscard]] Vector<T, size>  operator/(const Vector<T, size> &v);
-  [[nodiscard]] Vector<T, size>  operator^(const Vector<T, size> &v);
+  [[nodiscard]] Vector<T, size>  operator+(const Vector<T, size> &v) const;
+  [[nodiscard]] Vector<T, size>  operator-(const Vector<T, size> &v) const;
+  [[nodiscard]] Vector<T, size>  operator*(const Vector<T, size> &v) const;
+  [[nodiscard]] Vector<T, size>  operator*(const int &v) const;
+  [[nodiscard]] Vector<T, size>  operator*(const Matrix<T, size, size> &v) const;
+  [[nodiscard]] Vector<T, size>  operator*(const float &v) const;
+  [[nodiscard]] Vector<T, size>  operator/(const Vector<T, size> &v) const;
+  [[nodiscard]] Vector<T, size>  operator^(const Vector<T, size> &v) const;
   Vector<T, size> &              operator+=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   Vector<T, size> &              operator-=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   Vector<T, size> &              operator*=(const int &v);
   Vector<T, size> &              operator*=(const float &v);
   Vector<T, size> &              operator*=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   Vector<T, size> &              operator/=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
-  [[nodiscard]] Vector<T, size> &lerp(const Vector<T, size> &_end, float percent);
+  [[nodiscard]] Vector<T, size> &lerp(const Vector<T, size> &_end, float percent) const;
   [[nodiscard]] T                length() const;
-  [[nodiscard]] T                dot(const Vector<T, size> &b);
+  [[nodiscard]] T                dot(const Vector<T, size> &b) const;
   void                           normalize();
+  [[nodiscard]] Vector<T, size> rotate(T const &angle, const Vector<T, size> &normal);
 };
 
 template <class T, uint32_t size>
@@ -66,7 +72,7 @@ Vector<T, size> &Vector<T, size>::operator*=(const float &v) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size>::Vector() : m_array{} {}
+inline Vector<T, size>::Vector() : m_array() {}  // fix for aurelien
 
 template <class T, uint32_t size>
 inline Vector<T, size>::Vector(const std::array<T, size> &array) : m_array{array} {}
@@ -147,7 +153,7 @@ inline T &Vector<T, size>::operator()(uint32_t i) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size> Vector<T, size>::operator+(const Vector<T, size> &v) {
+inline Vector<T, size> Vector<T, size>::operator+(const Vector<T, size> &v) const {
   Vector<T, size> ret{m_array};
   const T *       other_data = v.m_array.data();
   T *             this_data  = ret.m_array.data();
@@ -157,7 +163,7 @@ inline Vector<T, size> Vector<T, size>::operator+(const Vector<T, size> &v) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size> Vector<T, size>::operator-(const Vector<T, size> &v) {
+inline Vector<T, size> Vector<T, size>::operator-(const Vector<T, size> &v) const {
   Vector<T, size> ret{m_array};
   const T *       other_data = v.m_array.data();
   T *             this_data  = ret.m_array.data();
@@ -167,7 +173,7 @@ inline Vector<T, size> Vector<T, size>::operator-(const Vector<T, size> &v) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size> Vector<T, size>::operator*(const Vector<T, size> &v) {
+inline Vector<T, size> Vector<T, size>::operator*(const Vector<T, size> &v) const {
   Vector<T, size> ret{m_array};
   const T *       other_data = v.m_array.data();
   T *             this_data  = ret.m_array.data();
@@ -177,7 +183,7 @@ inline Vector<T, size> Vector<T, size>::operator*(const Vector<T, size> &v) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size> Vector<T, size>::operator/(const Vector<T, size> &v) {
+inline Vector<T, size> Vector<T, size>::operator/(const Vector<T, size> &v) const {
   Vector<T, size> ret{m_array};
   const T *       other_data = v.m_array.data();
   T *             this_data  = ret.m_array.data();
@@ -190,7 +196,7 @@ inline Vector<T, size> Vector<T, size>::operator/(const Vector<T, size> &v) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size> Vector<T, size>::operator^(const Vector<T, size> &v) {
+inline Vector<T, size> Vector<T, size>::operator^(const Vector<T, size> &v) const {
   Vector<T, size> ret{};
   T *             this_data  = m_array.data();
   T *             other_data = v.m_array.data();
@@ -243,14 +249,14 @@ bool Vector<T, size>::operator==(const float &v) const {
   return false;
 }
 template <class T, uint32_t size>
-Vector<T, size> Vector<T, size>::operator*(const int &v) {
+Vector<T, size> Vector<T, size>::operator*(const int &v) const {
   Vector<T, size> ret{m_array};
   for (auto &data : ret.m_array)
     data *= v;
   return ret;
 }
 template <class T, uint32_t size>
-Vector<T, size> Vector<T, size>::operator*(const float &v) {
+Vector<T, size> Vector<T, size>::operator*(const float &v) const {
   Vector<T, size> ret{m_array};
   for (auto &data : ret.m_array)
     data *= v;
@@ -262,7 +268,7 @@ T Vector<T, size>::operator[](uint32_t i) const {
 }
 
 template <class T, uint32_t size>
-Vector<T, size> &Vector<T, size>::lerp(const Vector<T, size> &_end, float percent) {
+Vector<T, size> &Vector<T, size>::lerp(const Vector<T, size> &_end, float percent) const {
   return *this + percent * (_end - *this);
 }
 template <class T, uint32_t size>
@@ -278,44 +284,66 @@ void Vector<T, size>::normalize() {
     tmp /= l;
 }
 template <class T, uint32_t size>
-T Vector<T, size>::dot(const Vector<T, size> &b) {
+T Vector<T, size>::dot(const Vector<T, size> &b) const {
   T p = 0.0f;
   for (int i{0}; i < size; ++i)
     p += m_array[i] * b[i];
   return p;
 }
+template <class T, uint32_t size>
+Vector<T, size> Vector<T, size>::operator*(const Matrix<T, size, size> &v) const {
+  Vector<T, size> ret{};
+  for (int i = 0; i < size; ++i) {
+    ret[i] = 0.0f;
+    for (int j = 0; j < size; ++j)
+      ret[i] += v[i][j] * ret[j];
+  }
+  return ret;
+}
+
+template <class T, std::size_t size>
+Vector<T, size> Vector<T, size>::rotate(const T &angle, const Vector<T, size> &normal) {
+  return *this * cosf(normal) + (normal * *this) * sinf(angle) + normal * (normal.dot(*this)) * (1 - cosf(angle));
+}
 
 template <class T>
 class Vector3 : public Vector<T, 3> {
 public:
-  explicit Vector3(int a, int b, int c);
+  explicit Vector3(T a, T b, T c);
   explicit Vector3(const std::array<T, 3> &array);
   explicit Vector3(const std::vector<T> &array);
+  Vector3<T> &             operator=(const Vector3<T> &v);
   T &                      x;
   T &                      y;
   T &                      z;
-  [[nodiscard]] Vector3<T> cross(const Vector3<T> &b);
+  [[nodiscard]] Vector3<T> cross(const Vector3<T> &b) const;
 };
-
 template <class T>
-Vector3<T>::Vector3(int a, int b, int c) : Vector<T, 3>{{a, b, c}},
-                                           x{this->m_array[0]},
-                                           y{this->m_marray[1]},
-                                           z{this->m_array[2]} {}
+Vector3<T>::Vector3(T a, T b, T c) : Vector<T, 3>{std::array<T, 3>{a, b, c}},
+                                     x{this->m_array[0]},
+                                     y{this->m_array[1]},
+                                     z{this->m_array[2]} {}
 template <class T>
-Vector3<T> Vector3<T>::cross(const Vector3<T> &b) {
+Vector3<T> Vector3<T>::cross(const Vector3<T> &b) const {
   return Vector<T, 3>(y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x);
 }
 template <class T>
 Vector3<T>::Vector3(const std::array<T, 3> &array) : Vector<T, 3>{array},
                                                      x{this->m_array[0]},
-                                                     y{this->m_marray[1]},
+                                                     y{this->m_array[1]},
                                                      z{this->m_array[2]} {}
 template <class T>
 Vector3<T>::Vector3(const std::vector<T> &array) : Vector<T, 3>{array},
                                                    x{this->m_array[0]},
-                                                   y{this->m_marray[1]},
+                                                   y{this->m_array[1]},
                                                    z{this->m_array[2]} {}
+template <class T>
+Vector3<T> &Vector3<T>::operator=(const Vector3<T> &v) {
+  x = v.x;
+  y = v.y;
+  z = v.z;
+  return *this;
+}
 
 using Vector3i = Vector3<int>;
 using Vector3f = Vector3<float>;
@@ -323,27 +351,39 @@ using Vector3f = Vector3<float>;
 template <class T>
 class Vector2 : public Vector<T, 2> {
 public:
-  explicit Vector2(int a, int b);
+  explicit Vector2(T a, T b);
   explicit Vector2(const std::array<T, 2> &array);
   explicit Vector2(const std::vector<T> &array);
-  T &x;
-  T &y;
+  Vector2<T> &             operator=(const Vector3<T> &v);
+  T &                      x;
+  T &                      y;
+  [[nodiscard]] Vector2<T> rotate(T const &angle);
 };
 
 template <class T>
-Vector2<T>::Vector2(int a, int b) : Vector<T, 2>{{a, b}},
-                                    x{this->m_array[0]},
-                                    y{this->m_marray[1]} {}
+Vector2<T>::Vector2(T a, T b) : Vector<T, 2>{{a, b}},
+                                x{this->m_array[0]},
+                                y{this->m_array[1]} {}
 
 template <class T>
 Vector2<T>::Vector2(const std::array<T, 2> &array) : Vector<T, 2>{array},
                                                      x{this->m_array[0]},
-                                                     y{this->m_marray[1]} {}
+                                                     y{this->m_array[1]} {}
 
 template <class T>
 Vector2<T>::Vector2(const std::vector<T> &array) : Vector<T, 2>{array},
                                                    x{this->m_array[0]},
-                                                   y{this->m_marray[1]} {}
+                                                   y{this->m_array[1]} {}
+template <class T>
+Vector2<T> &Vector2<T>::operator=(const Vector3<T> &v) {
+  x = v.x;
+  y = v.y;
+  return *this;
+}
+template <class T>
+Vector2<T> Vector2<T>::rotate(T const &angle) {
+  return Vector2<T>(T(x * cosf(angle) - y * sinf(angle)), T(x * sinf(angle) + y * cosf(angle)));
+}
 
 using Vector2i = Vector2<int>;
 using Vector2f = Vector2<float>;
