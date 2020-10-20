@@ -12,18 +12,21 @@
 #include "../../Maths/Quaternion.hpp"
 #include "../../Maths/Vectors.hpp"
 
-class FromAssimp {
+class FromAssimp final {
 public:
-  static inline Quaternion Quaternion(const aiQuaterniont<float> &);
+  template <class T>
+  static Matrix<T, 4U, 4U> mat4(const aiMatrix4x4t<T> &);
 
-  static inline std::string String(const aiString &);
+  static Quaternion quat(const aiQuaterniont<float> &);
+
+  static std::string str(const aiString &);
 
   template <class T>
-  static inline Vector<T, 2> Vector2(const aiVector2t<T> &);
+  static Vector<T, 2U> vec2(const aiVector2t<T> &);
 
   template <class T>
-  static inline Vector<T, 2> Vector2(const aiVector3t<T> &);
+  static Vector<T, 2U> vec2(const aiVector3t<T> &);
 
   template <class T>
-  static inline Vector<T, 3> Vector3(const aiVector3t<T> &);
+  static Vector<T, 3U> vec3(const aiVector3t<T> &);
 };

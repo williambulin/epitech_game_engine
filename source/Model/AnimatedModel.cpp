@@ -4,9 +4,16 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#include <ctime>
 #include <stdexcept>
 #include <map>
+#include <math.h>
 #include <string>
+
+#include "../Maths/Matrix.hpp"
+#include "../Maths/Quaternion.hpp"
+#include "../Maths/Vectors.hpp"
+#include "Converter/Assimp.hpp"
 
 static const unsigned int modelProcessing = aiPostProcessSteps::aiProcess_CalcTangentSpace | aiPostProcessSteps::aiProcess_GenSmoothNormals | aiPostProcessSteps::aiProcess_GenUVCoords | aiPostProcessSteps::aiProcess_LimitBoneWeights | aiPostProcessSteps::aiProcess_Triangulate;
 
@@ -36,13 +43,17 @@ bool AnimatedModel::loadAnimation(const aiMesh *mesh, const aiScene *scene) {
   if (!mesh->HasBones())
     return false;
   for (unsigned int i = 0; i < mesh->mNumBones; i++) {
+    auto bone = mesh->mBones[i];
+    m_boneMap.insert(std::pair<std::string, Bone>{FromAssimp::str(bone->mName), Bone(i, *bone)});
   }
+  m_inverseTransform = FromAssimp::mat4(scene->mRootNode->mTransformation);
+  m_nodeData         = Node(*scene->mRootNode);
 }
 
 // Bone ---------------------------------------------------------------------------------------------------------------
 
 AnimatedModel::Bone::Bone(const Id &id, const aiBone &bone) : m_id{id} {
-  // todo : store transposed offsetmatrix with our own matrix type
+  m_offsetMatrix = FromAssimp::mat4(bone.mOffsetMatrix);
   for (auto i = 0U; i < bone.mNumWeights; i++)
     m_vertexWeight.push_back(VertexWeight(bone.mWeights[i]));
 }
@@ -73,8 +84,8 @@ auto AnimatedModel::Bone::VertexWeight::getWeight() const -> const Weight & {
 
 // Node ---------------------------------------------------------------------------------------------------------------
 
-AnimatedModel::Node::Node(const aiNode &node, const Parent &parent) : m_name{FromAssimp::String(node.mName)}, m_parent{parent} {
-  // todo : store transposed transformmatrix with our own matrix type
+AnimatedModel::Node::Node(const aiNode &node, const Parent &parent = nullptr) : m_name{FromAssimp::str(node.mName)}, m_parent{parent} {
+  m_transformMatrix = FromAssimp::mat4(node.mTransformation);
   for (auto i = 0U; i < node.mNumChildren; i++)
     m_children.push_back(Node(*node.mChildren[i], this));
 }
@@ -97,13 +108,12 @@ auto AnimatedModel::Node::getChildren() const -> const Children & {
 
 // Animation ----------------------------------------------------------------------------------------------------------
 
-AnimatedModel::Animation::Animation(const aiAnimation &animation) {
+AnimatedModel::Animation::Animation(const aiAnimation &animation) : m_clock{-1}, m_loop{false}, m_time{0.0f} {
   float ticksPerSecond = animation.mTicksPerSecond > 0.0f ? animation.mTicksPerSecond : 1.0f;
   m_duration           = animation.mDuration / ticksPerSecond;
   for (auto i = 0U; i < animation.mNumChannels; i++) {
-    auto channel       = animation.mChannels[i];
-    auto nodeAnimation = AnimatedModel::Animation::Node(*channel, ticksPerSecond);
-    m_nodeAnimation.insert(std::pair<std::string, AnimatedModel::Animation::Node>(FromAssimp::String(channel->mNodeName), nodeAnimation));
+    auto channel = animation.mChannels[i];
+    m_nodeAnimation.insert(std::pair<std::string, Node>{FromAssimp::str(channel->mNodeName), Node(*channel, ticksPerSecond)});
   }
 }
 
@@ -117,6 +127,41 @@ auto AnimatedModel::Animation::getLoop() const -> const Loop & {
 
 auto AnimatedModel::Animation::getNodeAnimation() const -> const NodeAnimationMap & {
   return m_nodeAnimation;
+}
+
+auto AnimatedModel::Animation::getTime() -> const Time & {
+  if (m_clock == -1)
+    return 0.0f;
+  auto currentTime = std::clock();
+  m_time += (currentTime - m_clock) / CLOCKS_PER_SEC;
+  m_clock = currentTime;
+  if (m_time > m_duration)
+    m_time = m_loop ? std::fmod<float>(m_time, m_duration) : m_duration;
+  return m_time;
+}
+
+auto AnimatedModel::Animation::isComplete() -> bool {
+  return m_clock == -1 || m_loop ? false : getTime() >= m_duration;
+}
+
+auto AnimatedModel::Animation::isStarted() const -> bool {
+  return m_clock != -1;
+}
+
+void AnimatedModel::Animation::reset() {
+  m_time = 0.0f;
+}
+
+void AnimatedModel::Animation::setLoop(const Loop &loop) {
+  m_loop = loop;
+}
+
+void AnimatedModel::Animation::start() {
+  m_clock = std::clock();
+}
+
+void AnimatedModel::Animation::stop() {
+  m_clock = -1;
 }
 
 // Animation::Node ----------------------------------------------------------------------------------------------------
@@ -136,26 +181,28 @@ auto AnimatedModel::Animation::Node::getScalingKey() const -> const VectorKeyMap
 }
 
 auto AnimatedModel::Animation::Node::getTransformMatrix(const float &timestamp) const -> Matrix<float, 4U, 4U> {
-  auto position = getTransformation<VectorKey>(m_positionKey, timestamp).getTransformation();
-  auto rotation = getTransformation<QuatKey>(m_rotationKey, timestamp).getTransformation();
-  auto scaling  = getTransformation<VectorKey>(m_scalingKey, timestamp).getTransformation();
-  // todo : return the matrix generated using these transformations
+  auto position        = getInterpolatedFrame<VectorKey>(m_positionKey, timestamp).getTransformation();     // Compute the interpolated position frame
+  auto transformMatrix = Matrix4<float>::translate(Vector3<float>{position[0], position[1], position[2]});  // Apply it to the tranform matrix
+  auto rotation        = getInterpolatedFrame<QuatKey>(m_rotationKey, timestamp).getTransformation();       // And repeat for rotation and scaling
+  transformMatrix *= rotation.toRotationMatrix();
+  auto scaling = getInterpolatedFrame<VectorKey>(m_scalingKey, timestamp).getTransformation();
+  return transformMatrix.scale(scaling[0], scaling[1], scaling[2]);
 }
 
 template <class T>
-auto AnimatedModel::Animation::Node::getTransformation(const KeyMap<T> &keyMap, const float &timestamp) const -> T {
+auto AnimatedModel::Animation::Node::getInterpolatedFrame(const KeyMap<T> &keyMap, const float &timestamp) const -> T {
   std::vector<float> keyframeTimestamps;
   for (auto it = keyMap.begin(); it != keyMap.end(); it++)
-    keyframeTimestamps.push_back(it->first);
-  std::sort(keyframeTimestamps.begin(), keyframeTimestamps.end());
+    keyframeTimestamps.push_back(it->first);                        // Gather the keyframes' timestamps
+  std::sort(keyframeTimestamps.begin(), keyframeTimestamps.end());  // And sort them
   for (auto i = 0U; i < keyframeTimestamps.size(); i++) {
     auto keyframeTimestamp = keyframeTimestamps[i];
-    if (keyframeTimestamp > timestamp) {
-      auto prevKeyframeTimestamp = keyframeTimestamps[(i == 0 ? keyframeTimestamps.size() : i) - 1];
-      return keyMap[prevKeyframeTimestamp].interpolate(keyMap[keyframeTimestamp], timestamp);
+    if (keyframeTimestamp > timestamp) {                                                              // Detect the frame just after our timestamp
+      auto prevKeyframeTimestamp = keyframeTimestamps[(i == 0 ? keyframeTimestamps.size() : i) - 1];  // Get the frame just before our timestamp
+      return keyMap[prevKeyframeTimestamp].interpolate(keyMap[keyframeTimestamp], timestamp);         // And return the interpolation between the two
     }
   }
-  return keyMap[keyframeTimestamps[0]];
+  return keyMap[keyframeTimestamps[0]];  // This line should never be reach but if it does we return the first frame
 }
 
 // Animation::Node::TransformationKey ---------------------------------------------------------------------------------
@@ -182,7 +229,7 @@ auto AnimatedModel::Animation::Node::TransformationKey<T>::getProgress(const Tra
 // Animation::Node::VectorKey -----------------------------------------------------------------------------------------
 
 AnimatedModel::Animation::Node::VectorKey::VectorKey(const aiVectorKey &vectorKey, const float &ticksPerSecond) {
-  TransformationKey::TransformationKey(vectorKey.mTime / ticksPerSecond, FromAssimp::Vector3(vectorKey.mValue));
+  TransformationKey::TransformationKey(vectorKey.mTime / ticksPerSecond, FromAssimp::vec3(vectorKey.mValue));
 }
 
 auto AnimatedModel::Animation::Node::VectorKey::interpolate(const VectorKey &other, const float &timestamp) -> Vector<float, 3U> {
@@ -192,7 +239,7 @@ auto AnimatedModel::Animation::Node::VectorKey::interpolate(const VectorKey &oth
 // Animation::Node::QuatKey -------------------------------------------------------------------------------------------
 
 AnimatedModel::Animation::Node::QuatKey::QuatKey(const aiQuatKey &quatKey, const float &ticksPerSecond) {
-  TransformationKey::TransformationKey(quatKey.mTime / ticksPerSecond, FromAssimp::Quaternion(quatKey.mValue));
+  TransformationKey::TransformationKey(quatKey.mTime / ticksPerSecond, FromAssimp::quat(quatKey.mValue));
 }
 
 auto AnimatedModel::Animation::Node::QuatKey::interpolate(const QuatKey &other, const float &timestamp) const -> Quaternion {

@@ -37,8 +37,8 @@ auto Model::getTexcoords() const -> const Texcoords & {
 
 void Model::loadMesh(const aiMesh *mesh) {
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-    m_vertices.push_back(FromAssimp::Vector3<float>(mesh->mVertices[i]));
-    m_normals.push_back(FromAssimp::Vector3<float>(mesh->mNormals[i]));
-    m_texcoords.push_back(FromAssimp::Vector2<float>(mesh->mNormals[i]));
+    m_vertices.push_back(FromAssimp::vec3<float>(mesh->mVertices[i]));
+    m_normals.push_back(FromAssimp::vec3<float>(mesh->mNormals[i]));
+    m_texcoords.push_back(FromAssimp::vec2<float>(mesh->mNormals[i]));
   }
 }
