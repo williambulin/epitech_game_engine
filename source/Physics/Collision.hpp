@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <optional>
 
 #include "Maths/Vectors.hpp"
 #include "Shapes/AABB.hpp"
@@ -22,7 +23,7 @@ public:
 
   [[nodiscard]] static bool getSeparatingPlane(const Vector3<float> &rPos, const Vector3<float> &plane, const OBB& box1, const OBB& box2) noexcept;
 
-  [[nodiscard]] static bool collide(AABB &firstCollider, Transform modelMatrixFirstCollider, AABB &secondCollider, Transform modelMatrixSecondCollider) noexcept;
+  [[nodiscard]] static std::optional<std::vector<CollisionPointData>> collide(AABB &firstCollider, Transform modelMatrixFirstCollider, AABB &secondCollider, Transform modelMatrixSecondCollider) noexcept;
 
   [[nodiscard]] static bool collide(const Sphere &firstCollider, Transform modelMatrixFirstCollider, const Sphere &secondCollider, Transform modelMatrixSecondcollider) noexcept;
 

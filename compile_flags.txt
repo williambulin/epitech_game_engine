@@ -1,6 +1,8 @@
 "command":
 "
 -I
+-g3
+-g
 -std=gnu++2a
 -o
 CMakeFiles

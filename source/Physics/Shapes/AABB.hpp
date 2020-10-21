@@ -7,7 +7,7 @@
 // Deduire les deux autres points puis la hitbox
 class AABB final : public ICollisionShape<AABB> {
 public:
-  explicit AABB(Vector3f min, Vector3f max) noexcept;
+  explicit AABB(const Vector3f &min, const Vector3f &max) noexcept;
 
   explicit AABB(const AABB &second) noexcept;
 
