@@ -19,8 +19,8 @@ public:
 
 class CollisionInfo final {
   ContactPoint point;
-
-  void AddContactPoint(const Vector3f &localA, const Vector3f &localB, const Vector3f &normal, float p) {
+public:
+  void addContactPoint(const Vector3f &localA, const Vector3f &localB, const Vector3f &normal, float p) {
     point.localA = localA;
     point.localB = localB;
     point.normal = normal;
@@ -42,7 +42,7 @@ public:
 
   [[nodiscard]] static bool collide(const Sphere &firstCollider, Transform modelMatrixFirstCollider, const Sphere &secondCollider, Transform modelMatrixSecondcollider, CollisionInfo &collisionInfo) noexcept;
 
-  [[nodiscard]] static bool collide(const Sphere &firstCollider, Transform modelMatrixFirstCollider, AABB &secondCollider, Transform modelMatrixSecondCollider) noexcept;
+  [[nodiscard]] static bool collide(AABB &firstCollider, Transform modelMatrixFirstCollider, const Sphere &secondCollider, Transform modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;
 
   [[nodiscard]] static bool collide(const OBB &firstCollider, const OBB &secondCollider) noexcept;
 };

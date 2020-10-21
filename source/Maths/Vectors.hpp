@@ -5,6 +5,7 @@
 #include <array>
 #include <numeric>
 #include <array>
+#include <algorithm>
 #include <iostream>
 
 template <class T, std::size_t width, std::size_t height>
@@ -55,6 +56,7 @@ public:
   [[nodiscard]] T                dot(const Vector<T, size> &b) const;
   void                           normalize();
   [[nodiscard]] Vector<T, size> rotate(T const &angle, const Vector<T, size> &normal);
+  [[nodiscard]] Vector<T, size> clamp(const Vector<T, size> &min, const Vector<T, size> &max) const;
 };
 
 template <class T, uint32_t size>
@@ -282,7 +284,7 @@ T Vector<T, size>::length() const {
 template <class T, uint32_t size>
 void Vector<T, size>::normalize() {
   T l = length();
-  for (auto tmp : m_array)
+  for (auto &tmp : m_array)
     tmp /= l;
 }
 template <class T, uint32_t size>
@@ -306,6 +308,16 @@ Vector<T, size> Vector<T, size>::operator*(const Matrix<T, size, size> &v) const
 template <class T, uint32_t size>
 Vector<T, size> Vector<T, size>::rotate(const T &angle, const Vector<T, size> &normal) {
   return *this * cosf(normal) + (normal * *this) * sinf(angle) + normal * (normal.dot(*this)) * (1 - cosf(angle));
+}
+template <class T, uint32_t size>
+Vector<T, size> Vector<T, size>::clamp(const Vector<T, size> &min, const Vector<T, size> &max) const {
+  Vector<T, size> ret{m_array};
+  T *values  = ret.m_array.data();
+  const T *min_values = min.m_array.data();
+  const T *max_values = min.m_array.data();
+  for (int i = 0; i < size; ++i, ++values, ++min_values, ++max_values)
+    *values = std::clamp(*values, *min_values, *max_values);
+  return ret;
 }
 template <class T, uint32_t size>
 Vector<T, size>::Vector(const Vector<T, size> &v) : m_array{v.m_array} {}

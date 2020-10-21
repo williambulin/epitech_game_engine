@@ -1,5 +1,7 @@
 #include <math.h>       /* fabs */
 #include <iostream>
+#include <algorithm>
+
 #include "Collision.hpp"
 
 float Collision::SqDistPointAABB(const Vector3<float> &p, const Vector3<float> &aabbMin, const Vector3<float> &aabbMax) noexcept {
@@ -63,20 +65,38 @@ bool Collision::collide(const Sphere &firstCollider, Transform modelMatrixFirstC
   //apply transformation
   float radii = firstCollider.getRadius() +  secondCollider.getRadius();
   Vector3f delta = secondCollider.getCenter() - firstCollider.getCenter();
-  return (true);
+
+  float deltaLength = delta.length();
+  if (deltaLength < radii) {
+    float penetration = ( radii - deltaLength );
+    delta.normalize();
+    Vector3f normal = delta;
+    Vector3f localA = normal * firstCollider.getRadius();
+    Vector3f localB = (normal * -1) * secondCollider.getRadius();
+    collisionInfo.addContactPoint(localA, localB, normal, penetration);
+    return (true);
+  }
+  return (false);
 }
 
-//https://gamedev.stackexchange.com/questions/156870/how-do-i-implement-a-aabb-sphere-collision
-bool Collision::collide(const Sphere &firstCollider, Transform modelMatrixFirstCollider, AABB &secondCollider, Transform modelMatrixSecondCollider) noexcept {
-  auto firstColliderCenter = firstCollider.getCenter();
-  auto firstColliderRadius = firstCollider.getRadius();
-  auto secondColliderHitbox = secondCollider.getPoints(modelMatrixSecondCollider);
-  auto minSecondCollider = secondColliderHitbox.front();
-  auto maxSecondCollider = secondColliderHitbox.back();
-  //apply transformation
-  float sqDist = Collision::SqDistPointAABB( firstColliderCenter, minSecondCollider, maxSecondCollider);
-  return sqDist <= firstColliderRadius * firstColliderRadius;
-  return (true);
+bool Collision::collide(AABB &firstCollider, Transform modelMatrixFirstCollider, const Sphere &secondCollider, Transform modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
+  //apply transform
+  Vector3f boxHalfSize = (firstCollider.getMax() - firstCollider.getMin()) * 0.5f;
+  Vector3f delta = secondCollider.getCenter() - (firstCollider.getMin() + firstCollider.getMax() * 0.5f);
+  Vector3f closestPointOnBox = delta.clamp ((boxHalfSize * -1), boxHalfSize);
+  Vector3f localPoint = delta - closestPointOnBox;
+  float distance = localPoint.length();
+  if (distance < secondCollider.getRadius()) {// yes , we ’re colliding !
+    localPoint.normalize();
+    Vector3f collisionNormal = localPoint;
+    float penetration = (secondCollider.getRadius() - distance);
+    //empty
+    Vector3f localA = Vector3f(0.0f, 0.0f, 0.0f);
+    Vector3f localB = (collisionNormal * -1) * secondCollider.getRadius();
+    collisionInfo.addContactPoint(localA, localB, collisionNormal, penetration);
+    return (true);
+  }
+  return (false);
 }
 
 bool Collision::collide(const OBB &firstCollider, const OBB &secondCollider) noexcept {
