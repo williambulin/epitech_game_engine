@@ -30,15 +30,18 @@ bool Collision::getSeparatingPlane(const Vector3<float> &rPos, const Vector3<flo
         fabs((box2.m_axisZ*box2.m_halfSize.z)*plane))); */
 }
 
-std::optional<std::vector<CollisionPointData>> Collision::collide(AABB &firstCollider, Transform modelMatrixFirstCollider, AABB &secondCollider, Transform modelMatrixSecondCollider) noexcept {
-  std::cout << "In collide" << std::endl;
+bool Collision::collide(AABB &firstCollider, Transform modelMatrixFirstCollider, AABB &secondCollider, Transform modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
+  //std::cout << "In collide" << std::endl;
   std::vector<Vector3f> firstColliderHitbox = firstCollider.getPoints(modelMatrixFirstCollider, true);
-  std::cout << "lul" << std::endl;
+/*   std::cout << "lul" << std::endl;
   for (Vector3f i: firstColliderHitbox) {
     std::cout << i.x << " | " << i[1] << " | " << i.z << std::endl;
-  }
+  } */
   std::vector<Vector3f> secondColliderHitbox = secondCollider.getPoints(modelMatrixSecondCollider, true);
-
+/*   std::cout << "lul" << std::endl;
+  for (Vector3f i: secondColliderHitbox) {
+    std::cout << i.x << " | " << i[1] << " | " << i.z << std::endl;
+  } */
 
   auto minFirstCollider = firstColliderHitbox.front();
   auto maxFirstCollider = firstColliderHitbox.back();
@@ -46,7 +49,7 @@ std::optional<std::vector<CollisionPointData>> Collision::collide(AABB &firstCol
   auto maxSecondCollider = secondColliderHitbox.back();
 
   return (
-    std::nullopt
+    false
 /*     maxFirstCollider.x > minSecondCollider.x &&
     minFirstCollider.x < maxSecondCollider.x &&
     maxFirstCollider.y > minSecondCollider.y &&
@@ -56,16 +59,10 @@ std::optional<std::vector<CollisionPointData>> Collision::collide(AABB &firstCol
   );
 }
 
-bool Collision::collide(const Sphere &firstCollider, Transform modelMatrixFirstCollider, const Sphere &secondCollider, Transform modelMatrixSecondCollider) noexcept {
-  auto firstColliderCenter = firstCollider.getCenter();
-  auto firstColliderRadius = firstCollider.getRadius();
-  auto secondColliderCenter = secondCollider.getCenter();
-  auto secondColliderRadius = secondCollider.getRadius();
+bool Collision::collide(const Sphere &firstCollider, Transform modelMatrixFirstCollider, const Sphere &secondCollider, Transform modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
   //apply transformation
-  float distance = (firstColliderCenter.x - secondColliderCenter.x) * (firstColliderCenter.x - secondColliderCenter.x) +
-                   (firstColliderCenter.y - secondColliderCenter.y) * (firstColliderCenter.y - secondColliderCenter.y) +
-                   (firstColliderCenter.z - secondColliderCenter.z) * (firstColliderCenter.z - secondColliderCenter.z);
-  return distance < (firstColliderRadius + secondColliderRadius) * (firstColliderRadius + secondColliderRadius);
+  float radii = firstCollider.getRadius() +  secondCollider.getRadius();
+  Vector3f delta = secondCollider.getCenter() - firstCollider.getCenter();
   return (true);
 }
 
