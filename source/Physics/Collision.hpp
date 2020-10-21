@@ -9,27 +9,40 @@
 #include "Shapes/OBB.hpp"
 #include "Transform.hpp"
 
-class CollisionPointData final {
+class ContactPoint final {
 public:
-  Vector3f position{0.0f, 0.0f, 0.0f}; // In world space
-  Vector3f surfaceNormal{0.0f, 0.0f, 0.0f}; // In world space too
+  Vector3f localA{0.0f, 0.0f, 0.0f};  // where did the collision occur ...
+  Vector3f localB{0.0f, 0.0f, 0.0f};  // in the frame of each object !
+  Vector3f normal{0.0f, 0.0f, 0.0f};  // In world space too
+  float    penetration;
 };
 
+class CollisionInfo final {
+  ContactPoint point;
+
+  void AddContactPoint(const Vector3f &localA, const Vector3f &localB, const Vector3f &normal, float p) {
+    point.localA = localA;
+    point.localB = localB;
+    point.normal = normal;
+    point.penetration = p;
+  }
+};
+
+// https://research.ncl.ac.uk/game/mastersdegree/gametechnologies/physicstutorials/4collisiondetection/Physics%20-%20Collision%20Detection.pdf
+// https://research.ncl.ac.uk/game/mastersdegree/gametechnologies/physicstutorials/5collisionresponse/Physics%20-%20Collision%20Response.pdf
 class Collision {
 public:
   Collision() {}
 
-  [[nodiscard]] static float SqDistPointAABB(const Vector3<float> &p, const Vector3<float> &aabbMin, const Vector3<float> &aabbMax ) noexcept;
+  [[nodiscard]] static float SqDistPointAABB(const Vector3<float> &p, const Vector3<float> &aabbMin, const Vector3<float> &aabbMax) noexcept;
 
-  [[nodiscard]] static bool getSeparatingPlane(const Vector3<float> &rPos, const Vector3<float> &plane, const OBB& box1, const OBB& box2) noexcept;
+  [[nodiscard]] static bool getSeparatingPlane(const Vector3<float> &rPos, const Vector3<float> &plane, const OBB &box1, const OBB &box2) noexcept;
 
-  [[nodiscard]] static std::optional<std::vector<CollisionPointData>> collide(AABB &firstCollider, Transform modelMatrixFirstCollider, AABB &secondCollider, Transform modelMatrixSecondCollider) noexcept;
+  [[nodiscard]] static bool collide(AABB &firstCollider, Transform modelMatrixFirstCollider, AABB &secondCollider, Transform modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;
 
-  [[nodiscard]] static bool collide(const Sphere &firstCollider, Transform modelMatrixFirstCollider, const Sphere &secondCollider, Transform modelMatrixSecondcollider) noexcept;
+  [[nodiscard]] static bool collide(const Sphere &firstCollider, Transform modelMatrixFirstCollider, const Sphere &secondCollider, Transform modelMatrixSecondcollider, CollisionInfo &collisionInfo) noexcept;
 
-  //https://gamedev.stackexchange.com/questions/156870/how-do-i-implement-a-aabb-sphere-collision
   [[nodiscard]] static bool collide(const Sphere &firstCollider, Transform modelMatrixFirstCollider, AABB &secondCollider, Transform modelMatrixSecondCollider) noexcept;
 
-  //SAT : https://gamedev.stackexchange.com/questions/112883/simple-3d-obb-collision-directx9-c
   [[nodiscard]] static bool collide(const OBB &firstCollider, const OBB &secondCollider) noexcept;
 };

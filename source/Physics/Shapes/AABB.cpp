@@ -7,9 +7,6 @@ AABB::AABB(const Vector3f &min, const Vector3f &max) noexcept :
   m_min{min},
   m_max{max}
 {
-  std::cout << "in aabb" << std::endl;
-  std::cout << m_min.x << " | " << m_min.y << " | " << m_min.z << std::endl;
-  std::cout << m_max.x << " | " << m_max.y << " | " << m_max.z << std::endl;
 }
 
 AABB::AABB(const AABB &second) noexcept :
@@ -22,9 +19,6 @@ auto AABB::getPoints(Transform transform, bool forceInvalidate) -> std::vector<V
   if (!forceInvalidate && transform == m_oldTransform) {
     return m_pointsCache;
   }
-  std::cout << "in get points" << std::endl;
-  std::cout << m_min.x << " | " << m_min.y << " | " << m_min.z << std::endl;
-  std::cout << m_max.x << " | " << m_max.y << " | " << m_max.z << std::endl;
   std::vector<Vector3f> points;
   points.push_back(m_min);
   points.emplace_back(m_max.x, m_min.y, m_min.z);
@@ -34,10 +28,7 @@ auto AABB::getPoints(Transform transform, bool forceInvalidate) -> std::vector<V
   points.emplace_back(m_min.x, m_min.y, m_max.z);
   points.emplace_back(m_max.x, m_min.y, m_max.z);
   points.push_back(m_max);
-  std::cout << "before transform" << std::endl;
-  for (auto i: points) {
-    std::cout << i.x << " | " << i.y << " | " << i.z << std::endl;
-  }
+
   //apply transform
 
 
@@ -74,20 +65,8 @@ auto AABB::getPoints(Transform transform, bool forceInvalidate) -> std::vector<V
   points.emplace_back(min_x, min_y, max_z);
   points.emplace_back(max_x, min_y, max_z);
   points.emplace_back(max_x, max_y, max_z);
-  std::cout << "after transform" << std::endl;
-  for (auto &i: points) {
-    std::cout << i.x << " | " << i.y << " | " << i.z << std::endl;
-  }
-  std::cout << "----" << std::endl;
-  for (auto &i: points) {
-    std::cout << i[0] << " | " << i[1] << " | " << i[2] << std::endl;
-  }
   m_pointsCache = points;
   m_oldTransform = transform;
-  std::cout << "after save" << std::endl;
-  for (auto &i: points) {
-    std::cout << i.x << " | " << i.y << " | " << i.z << std::endl;
-  }
   return points;
 }
 
