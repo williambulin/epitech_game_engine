@@ -5,6 +5,7 @@
 #include <array>
 #include <numeric>
 #include <array>
+#include <iostream>
 
 template <class T, uint32_t size>
 class Vector {
@@ -67,18 +68,24 @@ Vector<T, size> &Vector<T, size>::operator*=(const float &v) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size>::Vector() : m_array() {} // fix for aurelien
+inline Vector<T, size>::Vector() : m_array() {
+  std::cout << "test2" << std::endl;
+} // fix for aurelien
 
 template <class T, uint32_t size>
-inline Vector<T, size>::Vector(const std::array<T, size> &array) : m_array{array} {}
+inline Vector<T, size>::Vector(const std::array<T, size> &array) : m_array{array} {
+    std::cout << "test3" << std::endl;
+}
 
 template <class T, uint32_t size>
 inline Vector<T, size>::Vector(const std::vector<T> &array) : m_array{} {
+  std::cout << "test" << std::endl;
   std::copy_n(array.begin(), size, m_array.begin());
 }
 
 template <class T, uint32_t size>
 inline Vector<T, size> &Vector<T, size>::operator=(const Vector<T, size> &v) {
+  std::cout << "test2" << std::endl;
   std::copy_n(v.m_array.begin(), size, m_array.begin());
   return *this;
 }
@@ -289,7 +296,7 @@ T Vector<T, size>::dot(const Vector<T, size> &b) const {
 template <class T>
 class Vector3 : public Vector<T, 3> {
 public:
-  explicit Vector3(T a, T b, T c);
+  explicit Vector3(const T &a, const T &b, const T &c);
   explicit Vector3(const std::array<T, 3> &array);
   explicit Vector3(const std::vector<T> &array);
   Vector3<T>& operator=(const Vector3<T> &v);
@@ -300,10 +307,12 @@ public:
 };
 
 template <class T>
-Vector3<T>::Vector3(T a, T b, T c) : Vector<T, 3>{std::array<T, 3>{a, b, c}},
+Vector3<T>::Vector3(const T &a, const T &b, const T &c) : Vector<T, 3>(std::array<T, 3>{a, b, c}),
                                            x{this->m_array[0]},
                                            y{this->m_array[1]},
-                                           z{this->m_array[2]} {}
+                                           z{this->m_array[2]} {
+                                             std::cout << "test4 " << this->x << this->m_array[0] << std::endl;
+                                           }
 template <class T>
 Vector3<T> Vector3<T>::cross(const Vector3<T> &b) const {
   return Vector<T, 3>(y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x);
@@ -312,12 +321,16 @@ template <class T>
 Vector3<T>::Vector3(const std::array<T, 3> &array) : Vector<T, 3>{array},
                                                      x{this->m_array[0]},
                                                      y{this->m_array[1]},
-                                                     z{this->m_array[2]} {}
+                                                     z{this->m_array[2]} {
+                                                       std::cout << "test5" << std::endl;
+                                                     }
 template <class T>
 Vector3<T>::Vector3(const std::vector<T> &array) : Vector<T, 3>{array},
                                                    x{this->m_array[0]},
                                                    y{this->m_array[1]},
-                                                   z{this->m_array[2]} {}
+                                                   z{this->m_array[2]} {
+                                                     std::cout << "test6" << std::endl;
+                                                   }
 template <class T>
 Vector3<T> &Vector3<T>::operator=(const Vector3<T> &v) {
   x = v.x;

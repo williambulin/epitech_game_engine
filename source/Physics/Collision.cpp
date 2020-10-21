@@ -1,5 +1,5 @@
 #include <math.h>       /* fabs */
-
+#include <iostream>
 #include "Collision.hpp"
 
 float Collision::SqDistPointAABB(const Vector3<float> &p, const Vector3<float> &aabbMin, const Vector3<float> &aabbMax) noexcept {
@@ -30,21 +30,29 @@ bool Collision::getSeparatingPlane(const Vector3<float> &rPos, const Vector3<flo
         fabs((box2.m_axisZ*box2.m_halfSize.z)*plane))); */
 }
 
-bool Collision::collide(AABB &firstCollider, Transform modelMatrixFirstCollider, AABB &secondCollider, Transform modelMatrixSecondCollider) noexcept {
-  auto firstColliderHitbox = firstCollider.getPoints(modelMatrixFirstCollider);
-  auto secondColliderHitbox = secondCollider.getPoints(modelMatrixSecondCollider);
+std::optional<std::vector<CollisionPointData>> Collision::collide(AABB &firstCollider, Transform modelMatrixFirstCollider, AABB &secondCollider, Transform modelMatrixSecondCollider) noexcept {
+  std::cout << "In collide" << std::endl;
+  std::vector<Vector3f> firstColliderHitbox = firstCollider.getPoints(modelMatrixFirstCollider, true);
+  std::cout << "lul" << std::endl;
+  for (Vector3f i: firstColliderHitbox) {
+    std::cout << i.x << " | " << i[1] << " | " << i.z << std::endl;
+  }
+  std::vector<Vector3f> secondColliderHitbox = secondCollider.getPoints(modelMatrixSecondCollider, true);
+
 
   auto minFirstCollider = firstColliderHitbox.front();
   auto maxFirstCollider = firstColliderHitbox.back();
   auto minSecondCollider = secondColliderHitbox.front();
   auto maxSecondCollider = secondColliderHitbox.back();
+
   return (
-    maxFirstCollider.x > minSecondCollider.x &&
+    std::nullopt
+/*     maxFirstCollider.x > minSecondCollider.x &&
     minFirstCollider.x < maxSecondCollider.x &&
     maxFirstCollider.y > minSecondCollider.y &&
     minFirstCollider.y < maxSecondCollider.y &&
     maxFirstCollider.z > minSecondCollider.z &&
-    minFirstCollider.z < maxSecondCollider.z
+    minFirstCollider.z < maxSecondCollider.z */
   );
 }
 
