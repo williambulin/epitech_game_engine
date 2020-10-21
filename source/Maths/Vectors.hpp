@@ -313,6 +313,7 @@ class Vector3 : public Vector<T, 3> {
 public:
   explicit Vector3(T a, T b, T c);
   Vector3(const Vector3<T> & v);
+  Vector3(const Vector<T, 3> & v); // need to not explicit because used for operations
   explicit Vector3(const std::array<T, 3> &array);
   explicit Vector3(const std::vector<T> &array);
   Vector3<T> &             operator=(const Vector3<T> &v);
@@ -349,7 +350,8 @@ Vector3<T> &Vector3<T>::operator=(const Vector3<T> &v) {
 }
 template <class T>
 Vector3<T>::Vector3(const Vector3<T> &v) : Vector<T, 3>{v.m_array}, x{this->m_array[0]}, y(this->m_array[1]), z{this->m_array[2]} {}
-
+template <class T>
+Vector3<T>::Vector3(const Vector<T, 3> &v) : Vector<T, 3>{v}, x{this->m_array[0]}, y(this->m_array[1]), z{this->m_array[2]} {}
 using Vector3i = Vector3<int>;
 using Vector3f = Vector3<float>;
 
