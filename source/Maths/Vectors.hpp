@@ -280,7 +280,7 @@ T Vector<T, size>::length() const {
 template <class T, uint32_t size>
 void Vector<T, size>::normalize() {
   T l = length();
-  for (auto tmp : m_array)
+  for (auto &tmp : m_array)
     tmp /= l;
 }
 template <class T, uint32_t size>
