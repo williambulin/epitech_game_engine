@@ -34,8 +34,6 @@ class Collision {
 public:
   Collision() {}
 
-  [[nodiscard]] static float SqDistPointAABB(const Vector3<float> &p, const Vector3<float> &aabbMin, const Vector3<float> &aabbMax) noexcept;
-
   [[nodiscard]] static bool getSeparatingPlane(const Vector3<float> &rPos, const Vector3<float> &plane, const OBB &box1, const OBB &box2) noexcept;
 
   [[nodiscard]] static bool collide(AABB &firstCollider, Transform modelMatrixFirstCollider, AABB &secondCollider, Transform modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;
