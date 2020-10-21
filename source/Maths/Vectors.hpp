@@ -301,7 +301,7 @@ Vector<T, size> Vector<T, size>::operator*(const Matrix<T, size, size> &v) const
   return ret;
 }
 
-template <class T, std::size_t size>
+template <class T, uint32_t size>
 Vector<T, size> Vector<T, size>::rotate(const T &angle, const Vector<T, size> &normal) {
   return *this * cosf(normal) + (normal * *this) * sinf(angle) + normal * (normal.dot(*this)) * (1 - cosf(angle));
 }
