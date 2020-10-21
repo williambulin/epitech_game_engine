@@ -1,16 +1,8 @@
 #include "Sphere.hpp"
 
-Sphere::Sphere(Vector3f center, float radius) noexcept :
-  m_center{center},
-  m_radius{radius}
-{
-}
+Sphere::Sphere(Vector3f center, float radius) noexcept : m_center{center}, m_radius{radius} {}
 
-Sphere::Sphere(const Sphere &second) noexcept :
-  m_center{second.m_center},
-  m_radius{second.m_radius}
-{
-}
+Sphere::Sphere(const Sphere &second) noexcept : m_center{second.m_center}, m_radius{second.m_radius} {}
 
 void Sphere::setCenter(const Vector3f &center) noexcept {
   m_center = center;
