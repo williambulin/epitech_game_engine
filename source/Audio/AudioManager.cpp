@@ -9,6 +9,9 @@ AudioManager *AudioManager::m_Instance = nullptr;
 AudioManager::AudioManager() {
   auto err = Pa_Initialize();
   if (err != paNoError) exit(0);
+
+  CreateAudioGroup("Master");
+  SetAudioGroupVolume(100, "Master");
 }
 
 AudioManager::~AudioManager() {
@@ -31,7 +34,6 @@ void AudioManager::CreateAudioGroup(const std::string &audioGroupName, const Aud
   m_AudioGroups.insert(std::pair<std::string, AudioGroup>(audioGroupName, audioGroup));
 }
 
-// TODO update following function when adding new data in AudioGroup
 void AudioManager::CreateAudioGroup(const std::string &audioGroupName, const int &volume) {
   AudioGroup newAudioGroup;
   newAudioGroup.volume = volume;
@@ -39,7 +41,6 @@ void AudioManager::CreateAudioGroup(const std::string &audioGroupName, const int
   m_AudioGroups.insert(std::pair<std::string, AudioGroup>(audioGroupName, newAudioGroup));
 }
 
-// TODO probably change this to smart pointers
 void AudioManager::AddAudioSource(const std::shared_ptr<AudioSource> &audioSource) {
   audioSource->m_Id = m_currentId++;
 
@@ -90,21 +91,21 @@ void AudioManager::SetAudioGroupVolume(const int &volume, const std::string &gro
 
 void AudioManager::StartStream() {
   PaStreamParameters outputParameters;
-  PaStream *stream = nullptr;
 
   outputParameters.device = Pa_GetDefaultOutputDevice(); /* default output device */
 
   if (outputParameters.device == paNoDevice) {
-      std::cout << "dead" <<std::endl;//THROW EXCEPTION
+      std::cout << "dead" <<std::endl;
+      //TODO THROW EXCEPTION
   }
 
   outputParameters.channelCount = 2;       /* stereo output */
   outputParameters.sampleFormat = paFloat32; /* 32 bit floating point output */
-  outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultHighInputLatency;
+  outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultLowInputLatency;
   outputParameters.hostApiSpecificStreamInfo = nullptr;
 
   Pa_OpenStream(
-        &stream,
+        &m_Stream,
         nullptr, /* no input */
         &outputParameters,
         44100,
@@ -114,12 +115,17 @@ void AudioManager::StartStream() {
         &m_AudioSources
   );
 
-  auto err = Pa_StartStream(stream);
+  auto err = Pa_StartStream(m_Stream);
   if (err != paNoError){
-    std::cout << "dead" << std::endl;//THROW ERROR HERE
+    std::cout << "dead" << std::endl;
+    //TODO THROW ERROR HERE
   }
 }
 
 void AudioManager::StopStream() {
-
+  auto err = Pa_StopStream(m_Stream);
+  if (err != paNoError) {
+    std::cout << "dead" << std::endl;
+    //TODO THROW ERROR HERE
+  };
 }

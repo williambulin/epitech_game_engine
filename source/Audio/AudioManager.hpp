@@ -45,4 +45,6 @@ private:
 
   int m_currentId = 0;
   static AudioManager *m_Instance;
+
+  PaStream *m_Stream = nullptr;
 };
