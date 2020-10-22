@@ -15,17 +15,17 @@ public:
   explicit AudioSource(const std::string &fileName, std::string groupName = "Master");
   AudioSource() = delete;
   AudioSource(const AudioSource &audioSource);
-  ~AudioSource();
+  ~AudioSource() noexcept;
 
   [[nodiscard]] auto    GetGroupName() const -> const GroupName &;
 
-  [[noreturn]] void     SetVolume(Volume volume);
+  [[noreturn]] void     SetVolume(Volume volume) noexcept;
 
-  float   GetData();
-  void    Mute(const bool &mute);
-  void    Play();
-  void    Pause();
-  void    Stop();
+  float   GetData() noexcept;
+  void    Mute(const bool &mute) noexcept;
+  void    Play() noexcept;
+  void    Pause() noexcept;
+  void    Stop() noexcept;
 
   int         m_Id            = 0;
   float *     m_data;

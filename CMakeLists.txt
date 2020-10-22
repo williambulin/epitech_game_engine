@@ -30,7 +30,8 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/source/Audio/AudioListener.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Audio/AudioSource.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Audio/AudioSource.cpp
-        source/Audio/AudioStream.cpp source/Audio/AudioStream.hpp source/Audio/AudioPAData.h
+  ${CMAKE_CURRENT_LIST_DIR}/source/Audio/AudioStream.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Audio/AudioStream.hpp
 )
 
 add_executable(
@@ -44,7 +45,7 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/source/Audio/AudioListener.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Audio/AudioSource.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Audio/AudioSource.cpp
-  source/Audio/AudioStream.cpp source/Audio/AudioStream.hpp source/Audio/AudioPAData.h
+  source/Audio/AudioStream.cpp source/Audio/AudioStream.hpp
 )
 
 target_link_libraries(audio_test PRIVATE SndFile::sndfile portaudio portaudio_static)

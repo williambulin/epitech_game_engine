@@ -1,7 +1,6 @@
 #pragma once
 
 #include "portaudio.h"
-#include "AudioPAData.h"
 
 class AudioStream {
 public:
@@ -10,5 +9,5 @@ public:
                         unsigned long frameCount,
                         const PaStreamCallbackTimeInfo* timeInfo,
                         PaStreamCallbackFlags statusFlags,
-                        void *userData );
+                        void *userData) noexcept;
 };
