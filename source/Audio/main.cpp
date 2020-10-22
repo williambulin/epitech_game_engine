@@ -11,7 +11,6 @@
 //BASIC TEST PURPOSE
 int main(int argc, char **argv, char **env)
 {
-  AudioManager::Instance()->CreateAudioGroup("Master");
   AudioManager::Instance()->CreateAudioGroup("0");
   AudioManager::Instance()->CreateAudioGroup("1");
 
@@ -46,6 +45,7 @@ int main(int argc, char **argv, char **env)
   Pa_Sleep(2000);
 
   testAudioSource1->Mute(true);
+  testAudioSource2->Play();
 
   Pa_Sleep(2000);
 
