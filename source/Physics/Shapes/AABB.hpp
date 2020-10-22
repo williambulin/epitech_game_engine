@@ -5,7 +5,7 @@
 #include "Physics/Transform.hpp"
 
 // Deduire les deux autres points puis la hitbox
-class AABB final : public ICollisionShape<AABB> {
+class AABB final : public ICollisionShape {
 public:
   explicit AABB(const Vector3f &min, const Vector3f &max) noexcept;
 
@@ -18,7 +18,9 @@ public:
   void               setMax(const Vector3f &max) noexcept;
   [[nodiscard]] auto getMax() const noexcept -> Vector3f;
 
-  [[nodiscard]] bool operator==(const AABB &second) const noexcept final;
+  [[nodiscard]] bool operator==(const AABB &second) const noexcept;
+
+  ShapeType m_shapeType = ICollisionShape::ShapeType::AABB;
 
 private:
   Vector3f              m_min{0.0f, 0.0f, 0.0f};

@@ -5,7 +5,7 @@
 #include "Physics/ICollisionShape.hpp"
 #include "Physics/Transform.hpp"
 
-class Sphere final : public ICollisionShape<Sphere> {
+class Sphere final : public ICollisionShape {
 public:
   explicit Sphere(Vector3f center, float radius) noexcept;
 
@@ -16,7 +16,9 @@ public:
   void                setRadius(const float &radius) noexcept;
   [[nodiscard]] float getRadius() const noexcept;
 
-  [[nodiscard]] bool operator==(const Sphere &second) const noexcept final;
+  [[nodiscard]] bool operator==(const Sphere &second) const noexcept;
+
+  ShapeType m_shapeType = ICollisionShape::ShapeType::SPHERE;
 
 private:
   Vector3f  m_center{0.0f, 0.0f, 0.0f};

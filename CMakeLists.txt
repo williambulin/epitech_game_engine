@@ -43,6 +43,13 @@ target_include_directories(
   ${CMAKE_CURRENT_LIST_DIR}/source
 )
 
+target_link_libraries(
+  epitech_game_engine PRIVATE
+  GL
+  glut
+  GLU
+)
+
 if(EXISTS "${CMAKE_BINARY_DIR}/compile_commands.json")
   file(STRINGS ${CMAKE_BINARY_DIR}/compile_commands.json COMPILE_COMMANDS_FLAGS REGEX "^.*command.*main\.cpp.*$")
   string(REGEX REPLACE "^.*clang-cl\.exe" "" COMPILE_COMMANDS_FLAGS "${COMPILE_COMMANDS_FLAGS}")

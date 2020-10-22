@@ -2,10 +2,13 @@
 
 #include <memory>
 
-template<typename T>
-class ICollisionShape
-{
-    public:
-        virtual ~ICollisionShape() = default;
-        [[nodiscard]] virtual bool operator==(const T&) const = 0;
+class ICollisionShape {
+public:
+  virtual ~ICollisionShape()                             = default;
+  enum ShapeType {
+    UNKNOWN,
+    AABB,
+    SPHERE
+  };
+  ShapeType m_shapeType = UNKNOWN;
 };
