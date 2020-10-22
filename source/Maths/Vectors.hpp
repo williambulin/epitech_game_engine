@@ -4,6 +4,7 @@
 #include <vector>
 #include <array>
 #include <numeric>
+#include <algorithm>
 
 template <class T, std::size_t width, std::size_t height>
 class Matrix;
@@ -52,6 +53,7 @@ public:
   [[nodiscard]] T                length() const;
   [[nodiscard]] T                dot(const Vector<T, size> &b) const;
   void                           normalize();
+  [[nodiscard]] Vector<T, size> clamp(const Vector<T, size> &min, const Vector<T, size> &max) const;
   [[nodiscard]] Vector<T, size> rotate(T const &angle, const Vector<T, size> &normal);
 };
 
@@ -307,6 +309,17 @@ Vector<T, size> Vector<T, size>::rotate(const T &angle, const Vector<T, size> &n
 }
 template <class T, uint32_t size>
 Vector<T, size>::Vector(const Vector<T, size> &v) : m_array{v.m_array} {}
+
+template <class T, uint32_t size>
+Vector<T, size> Vector<T, size>::clamp(const Vector<T, size> &min, const Vector<T, size> &max) const {
+  Vector<T, size> ret{m_array};
+  T *values  = ret.m_array.data();
+  const T *min_values = min.m_array.data();
+  const T *max_values = min.m_array.data();
+  for (int i = 0; i < size; ++i, ++values, ++min_values, ++max_values)
+    *values = std::clamp(*values, *min_values, *max_values);
+  return ret;
+}
 
 template <class T>
 class Vector3 : public Vector<T, 3> {
