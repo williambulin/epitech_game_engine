@@ -15,18 +15,18 @@
 class FromAssimp final {
 public:
   template <class T>
-  static Matrix<T, 4U, 4U> mat4(const aiMatrix4x4t<T> &);
+  static Matrix4<T> mat4(const aiMatrix4x4t<T> &);
 
   static Quaternion quat(const aiQuaterniont<float> &);
 
   static std::string str(const aiString &);
 
   template <class T>
-  static Vector<T, 2U> vec2(const aiVector2t<T> &);
+  static Vector2<T> vec2(const aiVector2t<T> &);
 
   template <class T>
-  static Vector<T, 2U> vec2(const aiVector3t<T> &);
+  static Vector2<T> vec2(const aiVector3t<T> &);
 
   template <class T>
-  static Vector<T, 3U> vec3(const aiVector3t<T> &);
+  static Vector3<T> vec3(const aiVector3t<T> &);
 };
