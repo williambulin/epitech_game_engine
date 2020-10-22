@@ -6,9 +6,9 @@
 
 class IModel {
 public:
-  using Vertices  = std::vector<Vector<float, 3U>>;
-  using Normals   = std::vector<Vector<float, 3U>>;
-  using Texcoords = std::vector<Vector<float, 2U>>;
+  using Vertices  = std::vector<Vector3<float>>;
+  using Normals   = std::vector<Vector3<float>>;
+  using Texcoords = std::vector<Vector2<float>>;
 
 public:
   virtual ~IModel() = default;

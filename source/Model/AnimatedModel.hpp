@@ -38,7 +38,7 @@ private:
     // AnimatedModel::Bone --------------------------------------------------------------------------------------------
   public:
     using Id               = unsigned int;
-    using OffsetMatrix     = Matrix<float, 4U, 4U>;
+    using OffsetMatrix     = Matrix4<float>;
     using VertexWeightList = std::vector<VertexWeight>;
 
   private:
@@ -59,7 +59,7 @@ private:
     // AnimatedModel::Node --------------------------------------------------------------------------------------------
   public:
     using Name            = std::string;
-    using TransformMatrix = Matrix<float, 4U, 4U>;
+    using TransformMatrix = Matrix4<float>;
     using Parent          = Node *;
     using Children        = std::vector<Node>;
 
@@ -142,7 +142,7 @@ private:
       [[nodiscard]] auto getPositionKey() const -> const VectorKeyMap &;
       [[nodiscard]] auto getRotationKey() const -> const QuatKeyMap &;
       [[nodiscard]] auto getScalingKey() const -> const VectorKeyMap &;
-      [[nodiscard]] auto getTransformMatrix(const float &) const -> Matrix<float, 4U, 4U>;
+      [[nodiscard]] auto getTransformMatrix(const float &) const -> Matrix4<float>;
 
     private:
       template <class T>
@@ -182,16 +182,18 @@ private:
 
   // AnimatedModel ----------------------------------------------------------------------------------------------------
 public:
-  using BoneMap                = std::map<std::string, Bone>;
-  using InverseTransformMatrix = Matrix<float, 4U, 4U>;
-  using Node                   = Node;
+  using AnimationBuffer        = std::vector<std::pair<std::string, float>>;
   using AnimationMap           = std::map<std::string, Animation>;
+  using BoneMap                = std::map<std::string, Bone>;
+  using InverseTransformMatrix = Matrix4<float>;
+  using Node                   = Node;
 
 private:
+  AnimationBuffer        m_animationBuffer{};
+  AnimationMap           m_animationMap{};
   BoneMap                m_boneMap{};
   InverseTransformMatrix m_inverseTransform{};
   Node                   m_nodeData{};
-  AnimationMap           m_animationMap{};
 
 protected:
   JointsId     m_jointsId{};
@@ -200,11 +202,16 @@ protected:
 public:
   explicit AnimatedModel(const std::string &);
   AnimatedModel(const AnimatedModel &);
-  ~AnimatedModel = default;
+  ~AnimatedModel() = default;
 
+  void               animate(const std::string &, const float &, const bool &);
+  [[nodiscard]] auto getAnimationList() const -> std::vector<std::string>;
   [[nodiscard]] auto getJointsId() const -> const JointsId &;
+  [[nodiscard]] auto getJointsTransform() -> JointsTransform;
   [[nodiscard]] auto getJointsWeight() const -> const JointsWeight &;
+  void               loadAnimation(const std::string &);
 
 protected:
-  bool loadAnimation(const aiMesh *, const aiScene *);
+  void loadAnimation(const aiScene *);
+  bool loadSkeleton(const aiMesh *, const aiNode *);
 };

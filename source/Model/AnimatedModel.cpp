@@ -19,10 +19,11 @@ static const unsigned int modelProcessing = aiPostProcessSteps::aiProcess_CalcTa
 
 AnimatedModel::AnimatedModel(const std::string &path) {
   Assimp::Importer importer;
-  auto             scene = importer.ReadFile(path.c_str(), modelProcessing);
-  if (!loadAnimation(scene->mMeshes[0], scene))
+  auto             data = importer.ReadFile(path.c_str(), modelProcessing);
+  if (!loadSkeleton(data->mMeshes[0], data->mRootNode))
     throw std::runtime_error(path + ": Model mesh does not support animation.");
-  loadMesh(scene->mMeshes[0]);
+  loadMesh(data->mMeshes[0]);
+  loadAnimation(data);
 }
 
 AnimatedModel::AnimatedModel(const AnimatedModel &copy) {
@@ -31,23 +32,58 @@ AnimatedModel::AnimatedModel(const AnimatedModel &copy) {
   this->m_jointsWeight = copy.getJointsWeight();
 }
 
+void AnimatedModel::animate(const std::string &animationName = "", const float &animationStrength = 1.0f, const bool &loopAnimation = false) {
+  auto name = animationName.size() == 0 ? m_animationMap.begin()->first : animationName;
+  if (m_animationMap.find(name) == m_animationMap.end())
+    throw std::runtime_error(name + ": Animation does not exist for the specified model.");
+  m_animationBuffer.push_back(std::pair<std::string, float>{name, animationStrength});
+  auto animation = m_animationMap[name];
+  animation.setLoop(loopAnimation);
+  if (!animation.isStarted())
+    animation.start();
+}
+
+auto AnimatedModel::getAnimationList() const -> std::vector<std::string> {
+  std::vector<std::string> animationList;
+  for (auto it = m_animationMap.begin(); it != m_animationMap.end(); it++)
+    animationList.push_back(it->first);
+  return animationList;
+}
+
 auto AnimatedModel::getJointsId() const -> const JointsId & {
   return m_jointsId;
+}
+
+auto AnimatedModel::getJointsTransform() -> JointsTransform {
+
 }
 
 auto AnimatedModel::getJointsWeight() const -> const JointsWeight & {
   return m_jointsWeight;
 }
 
-bool AnimatedModel::loadAnimation(const aiMesh *mesh, const aiScene *scene) {
+void AnimatedModel::loadAnimation(const std::string &path) {
+  Assimp::Importer importer;
+  auto             scene = importer.ReadFile(path.c_str(), modelProcessing);
+  loadAnimation(scene);
+}
+
+void AnimatedModel::loadAnimation(const aiScene *data) {
+  for (auto i = 0U; i < data->mNumAnimations; i++) {
+    auto animation = data->mAnimations[i];
+    m_animationMap.insert(std::pair<std::string, Animation>{FromAssimp::str(animation->mName), Animation{*animation}});
+  }
+}
+
+bool AnimatedModel::loadSkeleton(const aiMesh *mesh, const aiNode *rootNode) {
   if (!mesh->HasBones())
     return false;
-  for (unsigned int i = 0; i < mesh->mNumBones; i++) {
+  for (auto i = 0U; i < mesh->mNumBones; i++) {
     auto bone = mesh->mBones[i];
-    m_boneMap.insert(std::pair<std::string, Bone>{FromAssimp::str(bone->mName), Bone(i, *bone)});
+    m_boneMap.insert(std::pair<std::string, Bone>{FromAssimp::str(bone->mName), Bone{i, *bone}});
   }
-  m_inverseTransform = FromAssimp::mat4(scene->mRootNode->mTransformation);
-  m_nodeData         = Node(*scene->mRootNode);
+  m_inverseTransform = FromAssimp::mat4(rootNode->mTransformation);
+  m_nodeData         = Node(*rootNode);
 }
 
 // Bone ---------------------------------------------------------------------------------------------------------------
@@ -180,7 +216,7 @@ auto AnimatedModel::Animation::Node::getScalingKey() const -> const VectorKeyMap
   return m_scalingKey;
 }
 
-auto AnimatedModel::Animation::Node::getTransformMatrix(const float &timestamp) const -> Matrix<float, 4U, 4U> {
+auto AnimatedModel::Animation::Node::getTransformMatrix(const float &timestamp) const -> Matrix4<float> {
   auto position        = getInterpolatedFrame<VectorKey>(m_positionKey, timestamp).getTransformation();     // Compute the interpolated position frame
   auto transformMatrix = Matrix4<float>::translate(Vector3<float>{position[0], position[1], position[2]});  // Apply it to the tranform matrix
   auto rotation        = getInterpolatedFrame<QuatKey>(m_rotationKey, timestamp).getTransformation();       // And repeat for rotation and scaling
