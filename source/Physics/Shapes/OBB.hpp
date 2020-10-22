@@ -4,7 +4,7 @@
 #include "Physics/ICollisionShape.hpp"
 #include "Physics/Transform.hpp"
 
-class OBB final : public ICollisionShape<OBB> {
+class OBB final : public ICollisionShape {
 public:
   explicit OBB(Vector3f &min, Vector3f &max) noexcept;
 
@@ -17,7 +17,7 @@ public:
   void               setMax(const Vector3f &max) noexcept;
   [[nodiscard]] auto getMax() const noexcept -> Vector3f;
 
-  [[nodiscard]] bool operator==(const OBB &second) const noexcept final;
+  [[nodiscard]] bool operator==(const OBB &second) const noexcept;
 
 private:
   Vector3f              m_min{0.0f, 0.0f, 0.0f};

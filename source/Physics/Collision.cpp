@@ -5,17 +5,6 @@
 
 #include "Collision.hpp"
 
-bool Collision::getSeparatingPlane(const Vector3<float> &rPos, const Vector3<float> &plane, const OBB &box1, const OBB &box2) noexcept {
-  return (true);
-  /* return (fabs(rPos*plane) >
-          (fabs((box1.m_axisX*box1.m_halfSize.x)*plane) +
-          fabs((box1.m_axisY*box1.m_halfSize.y)*plane) +
-          fabs((box1.m_axisZ*box1.m_halfSize.z)*plane) +
-          fabs((box2.m_axisX*box2.m_halfSize.x)*plane) +
-          fabs((box2.m_axisY*box2.m_halfSize.y)*plane) +
-          fabs((box2.m_axisZ*box2.m_halfSize.z)*plane))); */
-}
-
 bool Collision::collide(AABB &firstCollider, Transform modelMatrixFirstCollider, AABB &secondCollider, Transform modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
   // apply transformation
   Vector3f minFirstCollider  = firstCollider.getMin();
@@ -94,24 +83,43 @@ bool Collision::collide(AABB &firstCollider, Transform modelMatrixFirstCollider,
   return (false);
 }
 
-bool Collision::collide(const OBB &firstCollider, const OBB &secondCollider) noexcept {
-  /*   Vec3 RPos = secondCollider.m_pos - firstCollider.m_pos;
+// Returns right hand perpendicular vector
+Vector3f getNormal(const Vector3f& v)
+{
+	return Vector3f(-v.y, v.x, v.z);
+}
 
-    return !(Collision::getSeparatingPlane(RPos, firstCollider.m_axisX, firstCollider, secondCollider) ||
-          Collision::getSeparatingPlane(RPos, firstCollider.m_axisY, firstCollider, secondCollider) ||
-          Collision::getSeparatingPlane(RPos, firstCollider.m_axisZ, firstCollider, secondCollider) ||
-          Collision::getSeparatingPlane(RPos, secondCollider.m_axisX, firstCollider, secondCollider) ||
-          Collision::getSeparatingPlane(RPos, secondCollider.m_axisY, firstCollider, secondCollider) ||
-          Collision::getSeparatingPlane(RPos, secondCollider.m_axisZ, firstCollider, secondCollider) ||
-          Collision::getSeparatingPlane(RPos, firstCollider.m_axisX^secondCollider.m_axisX, firstCollider, secondCollider) ||
-          Collision::getSeparatingPlane(RPos, firstCollider.m_axisX^secondCollider.m_axisY, firstCollider, secondCollider) ||
-          Collision::getSeparatingPlane(RPos, firstCollider.m_axisX^secondCollider.m_axisZ, firstCollider, secondCollider) ||
-          Collision::getSeparatingPlane(RPos, firstCollider.m_axisY^secondCollider.m_axisX, firstCollider, secondCollider) ||
-          Collision::getSeparatingPlane(RPos, firstCollider.m_axisY^secondCollider.m_axisY, firstCollider, secondCollider) ||
-          Collision::getSeparatingPlane(RPos, firstCollider.m_axisY^secondCollider.m_axisZ, firstCollider, secondCollider) ||
-          Collision::getSeparatingPlane(RPos, firstCollider.m_axisZ^secondCollider.m_axisX, firstCollider, secondCollider) ||
-          Collision::getSeparatingPlane(RPos, firstCollider.m_axisZ^secondCollider.m_axisY, firstCollider, secondCollider) ||
-          Collision::getSeparatingPlane(RPos, firstCollider.m_axisZ^secondCollider.m_axisZ, firstCollider, secondCollider));
-   */
+Vector3f getPerpendicularAxis(const std::vector<Vector3f>& vertices, std::size_t index) { 
+  Vector3f tmp(vertices[index + 1]);
+  tmp = tmp - vertices[index];
+  tmp.normalize();
+	return getNormal(tmp);
+}
+
+// axes for which we'll test stuff. Two for each box, because testing for parallel axes isn't needed
+std::vector<Vector3f> getPerpendicularAxes(const std::vector<Vector3f>& vertices1, const std::vector<Vector3f>& vertices2) {
+	std::vector<Vector3f> axes;
+
+	axes.push_back(getPerpendicularAxis(vertices1, 0));
+  axes.push_back(getPerpendicularAxis(vertices1, 0));
+  axes.push_back(getPerpendicularAxis(vertices1, 0));
+  axes.push_back(getPerpendicularAxis(vertices1, 0));
+  axes.push_back(getPerpendicularAxis(vertices1, 0));
+  axes.push_back(getPerpendicularAxis(vertices1, 0));
+  axes.push_back(getPerpendicularAxis(vertices1, 0));
+  axes.push_back(getPerpendicularAxis(vertices1, 0));
+  axes.push_back(getPerpendicularAxis(vertices1, 0));
+	axes[1] = getPerpendicularAxis(vertices1, 1);
+
+	axes[2] = getPerpendicularAxis(vertices2, 0);
+	axes[3] = getPerpendicularAxis(vertices2, 1);
+	return axes;
+}
+
+
+bool Collision::collide(OBB &firstCollider, Transform modelMatrixFirstCollider, OBB &secondCollider, Transform modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
+  std::vector<Vector3f> verticesFirstCollider = firstCollider.getPoints(modelMatrixFirstCollider);
+  std::vector<Vector3f> verticesSecondCollider = secondCollider.getPoints(modelMatrixSecondCollider);
+  std::vector<Vector3f> axes = getPerpendicularAxes(verticesFirstCollider, verticesSecondCollider);
   return (true);
 }
