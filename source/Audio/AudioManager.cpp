@@ -8,7 +8,9 @@ AudioManager *AudioManager::m_Instance = nullptr;
 
 AudioManager::AudioManager() {
   auto err = Pa_Initialize();
-  if (err != paNoError) exit(0);
+  if (err != paNoError) {
+    throw std::runtime_error("AudioManager::AudioManager => Pa_Initialize() returned error " + std::string(Pa_GetErrorText(err)));
+  }
 
   CreateAudioGroup("Master");
   SetAudioGroupVolume(100, "Master");
@@ -16,13 +18,14 @@ AudioManager::AudioManager() {
 
 AudioManager::~AudioManager() {
   auto err = Pa_Terminate();
-  if (err != paNoError)
-    std::cout << "PortAudio error: %s\n" << Pa_GetErrorText(err) <<std::endl;
+  if (err != paNoError) {
+    throw std::runtime_error("AudioManager::~AudioManager => Pa_Initialize() returned error " + std::string(Pa_GetErrorText(err)));
+  }
 
   delete (m_Instance);
 }
 
-AudioManager *AudioManager::Instance() {
+AudioManager *AudioManager::Instance() noexcept {
   if (!m_Instance) {
     m_Instance = new AudioManager;
   }
@@ -30,24 +33,24 @@ AudioManager *AudioManager::Instance() {
   return m_Instance;
 }
 
-void AudioManager::CreateAudioGroup(const std::string &audioGroupName, const AudioGroup &audioGroup) {
+void AudioManager::CreateAudioGroup(const std::string &audioGroupName, const AudioGroup &audioGroup) noexcept {
   m_AudioGroups.insert(std::pair<std::string, AudioGroup>(audioGroupName, audioGroup));
 }
 
-void AudioManager::CreateAudioGroup(const std::string &audioGroupName, const int &volume) {
+void AudioManager::CreateAudioGroup(const std::string &audioGroupName, const int &volume) noexcept {
   AudioGroup newAudioGroup;
   newAudioGroup.volume = volume;
 
   m_AudioGroups.insert(std::pair<std::string, AudioGroup>(audioGroupName, newAudioGroup));
 }
 
-void AudioManager::AddAudioSource(const std::shared_ptr<AudioSource> &audioSource) {
+void AudioManager::AddAudioSource(const std::shared_ptr<AudioSource> &audioSource) noexcept {
   audioSource->m_Id = m_currentId++;
 
   m_AudioSources.push_back(audioSource);
 }
 
-std::shared_ptr<AudioSource> &AudioManager::CreateAudioSource(const std::string &fileName, const std::string &groupName) {
+std::shared_ptr<AudioSource> &AudioManager::CreateAudioSource(const std::string &fileName, const std::string &groupName) noexcept {
   std::shared_ptr<AudioSource> newAudioSource = std::make_shared<AudioSource>(fileName, groupName);
 
   AddAudioSource(newAudioSource);
@@ -55,7 +58,7 @@ std::shared_ptr<AudioSource> &AudioManager::CreateAudioSource(const std::string 
   return m_AudioSources[m_AudioSources.size() - 1];
 }
 
-void AudioManager::RemoveAudioSourceById(int &id) {
+void AudioManager::RemoveAudioSourceById(int &id) noexcept {
   m_AudioSources.erase(std::find_if(m_AudioSources.begin(), m_AudioSources.end(), [id](std::shared_ptr<AudioSource> &audioSource){
     return audioSource->m_Id == id;
   }));
@@ -68,9 +71,7 @@ void AudioManager::SetAudioGroupVolume(const int &volume, const std::string &gro
     iterator->second.volume = volume;
   else {
     std::cout << "Quitting method with error => " << groupName << " not found " << std::endl;
-    // TODO throw exception here
-    return;
-
+    throw std::runtime_error("AudioManager::SetAudioGroupVolume => " + groupName + " not found.");
   }
 
   // Updating volume in all audio sources with same groupName
@@ -95,12 +96,11 @@ void AudioManager::StartStream() {
   outputParameters.device = Pa_GetDefaultOutputDevice(); /* default output device */
 
   if (outputParameters.device == paNoDevice) {
-      std::cout << "dead" <<std::endl;
-      //TODO THROW EXCEPTION
+    throw std::runtime_error("AudioManager::StartStream => Pa_GetDefaultOutputDevice() returned error");
   }
 
-  outputParameters.channelCount = 2;       /* stereo output */
-  outputParameters.sampleFormat = paFloat32; /* 32 bit floating point output */
+  outputParameters.channelCount = 2;          /* stereo output */
+  outputParameters.sampleFormat = paFloat32;  /* 32 bit floating point output */
   outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultLowInputLatency;
   outputParameters.hostApiSpecificStreamInfo = nullptr;
 
@@ -117,15 +117,13 @@ void AudioManager::StartStream() {
 
   auto err = Pa_StartStream(m_Stream);
   if (err != paNoError){
-    std::cout << "dead" << std::endl;
-    //TODO THROW ERROR HERE
+    throw std::runtime_error("AudioManager::StartStream => Pa_StartStream(m_Stream) returned error");
   }
 }
 
 void AudioManager::StopStream() {
   auto err = Pa_StopStream(m_Stream);
   if (err != paNoError) {
-    std::cout << "dead" << std::endl;
-    //TODO THROW ERROR HERE
+    throw std::runtime_error("AudioManager::StopStream => Pa_StopStream(m_Stream) returned error");
   };
 }

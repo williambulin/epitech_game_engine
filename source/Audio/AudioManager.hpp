@@ -7,7 +7,6 @@
 
 #include "AudioSource.hpp"
 #include "AudioGroup.hpp"
-#include "AudioPAData.h"
 
 // Singleton class
 class AudioManager {
@@ -22,17 +21,16 @@ private:
 public:
   ~AudioManager();
 
-  static AudioManager *Instance();
+  static AudioManager *Instance() noexcept;
 
   // Creating audio groups
-  void    CreateAudioGroup(const std::string &audioGroupName, const AudioGroup &audioGroup);
-  // TODO update following function when adding new data in AudioGroup
-  void    CreateAudioGroup(const std::string &audioGroupName, const int &volume = 100);
+  void    CreateAudioGroup(const std::string &audioGroupName, const AudioGroup &audioGroup) noexcept;
+  void    CreateAudioGroup(const std::string &audioGroupName, const int &volume = 100) noexcept;
 
   // Creating and handling AudioSources
-  void                          AddAudioSource(const std::shared_ptr<AudioSource> &audioSource);
-  std::shared_ptr<AudioSource>  &CreateAudioSource(const std::string &fileName, const std::string &groupName = "Master");
-  void                          RemoveAudioSourceById(int &id);
+  void                          AddAudioSource(const std::shared_ptr<AudioSource> &audioSource) noexcept;
+  [[nodiscard]] std::shared_ptr<AudioSource>  &CreateAudioSource(const std::string &fileName, const std::string &groupName = "Master") noexcept;
+  void                          RemoveAudioSourceById(int &id) noexcept;
 
   // Group handling
   void    SetAudioGroupVolume(const int &volume, const std::string &groupName);
