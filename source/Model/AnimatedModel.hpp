@@ -212,6 +212,7 @@ public:
   void               loadAnimation(const std::string &);
 
 protected:
+  void computeAnimation(JointsTransform &, const Node &, const Matrix4<float> &) const;
   void loadAnimation(const aiScene *);
   bool loadSkeleton(const aiMesh *, const aiNode *);
 };

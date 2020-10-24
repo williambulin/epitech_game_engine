@@ -55,7 +55,12 @@ auto AnimatedModel::getJointsId() const -> const JointsId & {
 }
 
 auto AnimatedModel::getJointsTransform() -> JointsTransform {
-
+  JointsTransform jointsTransform;
+  for (auto i = 0U; i < MAX_JOINT_TRANSFORM; i++)
+    jointsTransform[i] = Matrix4<float>{1};
+  computeAnimation(jointsTransform, m_nodeData);
+  m_animationBuffer.clear();
+  return jointsTransform;
 }
 
 auto AnimatedModel::getJointsWeight() const -> const JointsWeight & {
@@ -68,9 +73,25 @@ void AnimatedModel::loadAnimation(const std::string &path) {
   loadAnimation(scene);
 }
 
+void AnimatedModel::computeAnimation(JointsTransform &jointsTransform, const Node &node, const Matrix4<float> &parentTransform = Matrix4<float>{1}) const {
+  auto nodeTransform = node.getTransformMatrix();
+  for (auto &animationData : m_animationBuffer) {
+    auto &animation     = m_animationMap[animationData.first];
+    auto  nodeAnimation = animation.getNodeAnimation().find(node.getName());
+    if (nodeAnimation != animation.getNodeAnimation().end())
+      nodeTransform.mix((*nodeAnimation).second.getTransformMatrix(animation.getTime()), animationData.second);
+  }
+  auto globalTransform = parentTransform * nodeTransform;
+  auto bone            = m_boneMap.find(node.getName());
+  if (bone != m_boneMap.end())
+    jointsTransform[(*bone).second.getId()] = m_inverseTransform * globalTransform * (*bone).second.getOffsetMatrix();
+  for (auto &child : node.getChildren())
+    computeAnimation(jointsTransform, child, globalTransform);
+}
+
 void AnimatedModel::loadAnimation(const aiScene *data) {
   for (auto i = 0U; i < data->mNumAnimations; i++) {
-    auto animation = data->mAnimations[i];
+    auto &animation = data->mAnimations[i];
     m_animationMap.insert(std::pair<std::string, Animation>{FromAssimp::str(animation->mName), Animation{*animation}});
   }
 }
@@ -79,7 +100,7 @@ bool AnimatedModel::loadSkeleton(const aiMesh *mesh, const aiNode *rootNode) {
   if (!mesh->HasBones())
     return false;
   for (auto i = 0U; i < mesh->mNumBones; i++) {
-    auto bone = mesh->mBones[i];
+    auto &bone = mesh->mBones[i];
     m_boneMap.insert(std::pair<std::string, Bone>{FromAssimp::str(bone->mName), Bone{i, *bone}});
   }
   m_inverseTransform = FromAssimp::mat4(rootNode->mTransformation);
@@ -148,7 +169,7 @@ AnimatedModel::Animation::Animation(const aiAnimation &animation) : m_clock{-1},
   float ticksPerSecond = animation.mTicksPerSecond > 0.0f ? animation.mTicksPerSecond : 1.0f;
   m_duration           = animation.mDuration / ticksPerSecond;
   for (auto i = 0U; i < animation.mNumChannels; i++) {
-    auto channel = animation.mChannels[i];
+    auto &channel = animation.mChannels[i];
     m_nodeAnimation.insert(std::pair<std::string, Node>{FromAssimp::str(channel->mNodeName), Node(*channel, ticksPerSecond)});
   }
 }
@@ -232,10 +253,10 @@ auto AnimatedModel::Animation::Node::getInterpolatedFrame(const KeyMap<T> &keyMa
     keyframeTimestamps.push_back(it->first);                        // Gather the keyframes' timestamps
   std::sort(keyframeTimestamps.begin(), keyframeTimestamps.end());  // And sort them
   for (auto i = 0U; i < keyframeTimestamps.size(); i++) {
-    auto keyframeTimestamp = keyframeTimestamps[i];
-    if (keyframeTimestamp > timestamp) {                                                              // Detect the frame just after our timestamp
-      auto prevKeyframeTimestamp = keyframeTimestamps[(i == 0 ? keyframeTimestamps.size() : i) - 1];  // Get the frame just before our timestamp
-      return keyMap[prevKeyframeTimestamp].interpolate(keyMap[keyframeTimestamp], timestamp);         // And return the interpolation between the two
+    auto &keyframeTimestamp = keyframeTimestamps[i];
+    if (keyframeTimestamp > timestamp) {                                                               // Detect the frame just after our timestamp
+      auto &prevKeyframeTimestamp = keyframeTimestamps[(i == 0 ? keyframeTimestamps.size() : i) - 1];  // Get the frame just before our timestamp
+      return keyMap[prevKeyframeTimestamp].interpolate(keyMap[keyframeTimestamp], timestamp);          // And return the interpolation between the two
     }
   }
   return keyMap[keyframeTimestamps[0]];  // This line should never be reach but if it does we return the first frame
