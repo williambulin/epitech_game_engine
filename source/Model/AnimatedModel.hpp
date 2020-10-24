@@ -70,6 +70,7 @@ private:
     Children        m_children{};
 
   public:
+    explicit Node() {}  // default constructor
     explicit Node(const aiNode &, const Parent &);
     ~Node() = default;
 
@@ -212,7 +213,7 @@ public:
   void               loadAnimation(const std::string &);
 
 protected:
-  void computeAnimation(JointsTransform &, const Node &, const Matrix4<float> &) const;
+  void computeAnimation(JointsTransform &, const Node &, const Matrix<float, 4U, 4U> &) const;
   void loadAnimation(const aiScene *);
   bool loadSkeleton(const aiMesh *, const aiNode *);
 };
