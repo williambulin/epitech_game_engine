@@ -21,7 +21,6 @@ OBJ::OBJ(const std::string &path) {
   std::vector<std::vector<std::string>> faces;
 
   while (std::getline(file, lineString)) {
-
     // extract the data from the file
     if (lineString.length() == 0)
       continue;

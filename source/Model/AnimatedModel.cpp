@@ -58,7 +58,7 @@ auto AnimatedModel::getJointsTransform() -> JointsTransform {
   JointsTransform jointsTransform;
   for (auto i = 0U; i < MAX_JOINT_TRANSFORM; i++)
     jointsTransform[i] = Matrix4<float>{1};
-  computeAnimation(jointsTransform, m_nodeData);
+  computeAnimation(jointsTransform, m_nodeData, Matrix4<float>{1});
   m_animationBuffer.clear();
   return jointsTransform;
 }
@@ -73,18 +73,23 @@ void AnimatedModel::loadAnimation(const std::string &path) {
   loadAnimation(scene);
 }
 
-void AnimatedModel::computeAnimation(JointsTransform &jointsTransform, const Node &node, const Matrix4<float> &parentTransform = Matrix4<float>{1}) const {
-  auto nodeTransform = node.getTransformMatrix();
+void AnimatedModel::computeAnimation(JointsTransform &jointsTransform, const Node &node, const Matrix<float, 4U, 4U> &parentTransform) const {
+  // Compute node transformation
+  Matrix<float, 4U, 4U>nodeTransform{node.getTransformMatrix()};
   for (auto &animationData : m_animationBuffer) {
-    auto &animation     = m_animationMap[animationData.first];
+    auto &animation     = const_cast<Animation &>(m_animationMap.at(animationData.first));
     auto  nodeAnimation = animation.getNodeAnimation().find(node.getName());
     if (nodeAnimation != animation.getNodeAnimation().end())
-      nodeTransform.mix((*nodeAnimation).second.getTransformMatrix(animation.getTime()), animationData.second);
+      nodeTransform = Matrix<float, 4U, 4U>::mix(nodeTransform, (*nodeAnimation).second.getTransformMatrix(animation.getTime()), animationData.second);
   }
+
+  // Apply node transformation to the joint transformations
   auto globalTransform = parentTransform * nodeTransform;
   auto bone            = m_boneMap.find(node.getName());
   if (bone != m_boneMap.end())
     jointsTransform[(*bone).second.getId()] = m_inverseTransform * globalTransform * (*bone).second.getOffsetMatrix();
+
+  // Compute it for the child nodes
   for (auto &child : node.getChildren())
     computeAnimation(jointsTransform, child, globalTransform);
 }
@@ -92,7 +97,7 @@ void AnimatedModel::computeAnimation(JointsTransform &jointsTransform, const Nod
 void AnimatedModel::loadAnimation(const aiScene *data) {
   for (auto i = 0U; i < data->mNumAnimations; i++) {
     auto &animation = data->mAnimations[i];
-    m_animationMap.insert(std::pair<std::string, Animation>{FromAssimp::str(animation->mName), Animation{*animation}});
+    m_animationMap.emplace(std::make_pair(FromAssimp::str(animation->mName), Animation{*animation}));
   }
 }
 
@@ -101,10 +106,10 @@ bool AnimatedModel::loadSkeleton(const aiMesh *mesh, const aiNode *rootNode) {
     return false;
   for (auto i = 0U; i < mesh->mNumBones; i++) {
     auto &bone = mesh->mBones[i];
-    m_boneMap.insert(std::pair<std::string, Bone>{FromAssimp::str(bone->mName), Bone{i, *bone}});
+    m_boneMap.emplace(std::make_pair(FromAssimp::str(bone->mName), Bone{i, *bone}));
   }
   m_inverseTransform = FromAssimp::mat4(rootNode->mTransformation);
-  m_nodeData         = Node(*rootNode);
+  m_nodeData         = Node{*rootNode, nullptr};
 }
 
 // Bone ---------------------------------------------------------------------------------------------------------------
@@ -141,7 +146,7 @@ auto AnimatedModel::Bone::VertexWeight::getWeight() const -> const Weight & {
 
 // Node ---------------------------------------------------------------------------------------------------------------
 
-AnimatedModel::Node::Node(const aiNode &node, const Parent &parent = nullptr) : m_name{FromAssimp::str(node.mName)}, m_parent{parent} {
+AnimatedModel::Node::Node(const aiNode &node, const Parent &parent) : m_name{FromAssimp::str(node.mName)}, m_parent{parent} {
   m_transformMatrix = FromAssimp::mat4(node.mTransformation);
   for (auto i = 0U; i < node.mNumChildren; i++)
     m_children.push_back(Node(*node.mChildren[i], this));
@@ -170,7 +175,7 @@ AnimatedModel::Animation::Animation(const aiAnimation &animation) : m_clock{-1},
   m_duration           = animation.mDuration / ticksPerSecond;
   for (auto i = 0U; i < animation.mNumChannels; i++) {
     auto &channel = animation.mChannels[i];
-    m_nodeAnimation.insert(std::pair<std::string, Node>{FromAssimp::str(channel->mNodeName), Node(*channel, ticksPerSecond)});
+    m_nodeAnimation.emplace(std::make_pair(FromAssimp::str(channel->mNodeName), Node{*channel, ticksPerSecond}));
   }
 }
 
@@ -285,9 +290,7 @@ auto AnimatedModel::Animation::Node::TransformationKey<T>::getProgress(const Tra
 
 // Animation::Node::VectorKey -----------------------------------------------------------------------------------------
 
-AnimatedModel::Animation::Node::VectorKey::VectorKey(const aiVectorKey &vectorKey, const float &ticksPerSecond) {
-  TransformationKey::TransformationKey(vectorKey.mTime / ticksPerSecond, FromAssimp::vec3(vectorKey.mValue));
-}
+AnimatedModel::Animation::Node::VectorKey::VectorKey(const aiVectorKey &vectorKey, const float &ticksPerSecond) : TransformationKey(vectorKey.mTime / ticksPerSecond, FromAssimp::vec3(vectorKey.mValue)) {}
 
 auto AnimatedModel::Animation::Node::VectorKey::interpolate(const VectorKey &other, const float &timestamp) -> Vector<float, 3U> {
   return m_transformation.lerp(other.getTransformation(), getProgress(other));
@@ -295,9 +298,7 @@ auto AnimatedModel::Animation::Node::VectorKey::interpolate(const VectorKey &oth
 
 // Animation::Node::QuatKey -------------------------------------------------------------------------------------------
 
-AnimatedModel::Animation::Node::QuatKey::QuatKey(const aiQuatKey &quatKey, const float &ticksPerSecond) {
-  TransformationKey::TransformationKey(quatKey.mTime / ticksPerSecond, FromAssimp::quat(quatKey.mValue));
-}
+AnimatedModel::Animation::Node::QuatKey::QuatKey(const aiQuatKey &quatKey, const float &ticksPerSecond) : TransformationKey(quatKey.mTime / ticksPerSecond, FromAssimp::quat(quatKey.mValue)) {}
 
 auto AnimatedModel::Animation::Node::QuatKey::interpolate(const QuatKey &other, const float &timestamp) const -> Quaternion {
   return Quaternion::slerp(m_transformation, other.getTransformation(), getProgress(other));
