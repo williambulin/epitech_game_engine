@@ -35,7 +35,7 @@ public:
   [[nodiscard]] Matrix<T, width, height> operator*(const int &v) const;
   [[nodiscard]] Vector<T, height>        operator*(const Vector<T, width> &v) const;
   [[nodiscard]] Matrix<T, width, height> operator*(const float &v) const;
-  [[nodiscard]] static Matrix<T, width, height> mix(const Matrix<T, width, height> & a, const Matrix<T, width, height> &b, const Matrix<T, width, height> & c);
+  [[nodiscard]] static Matrix<T, width, height> mix(const Matrix<T, width, height> & a, const Matrix<T, width, height> &b, const float & c);
   [[nodiscard]] Matrix<T, height, width> transpose() const;
   [[nodiscard]] Matrix<T, height, width> inverse();
   [[nodiscard]] T determinant();
@@ -248,10 +248,10 @@ Matrix<T, height, width> Matrix<T, width, height>::inverse() {
   return *this * (1/determinant());
 }
 template <class T, std::size_t width, std::size_t height>
-Matrix<T, width, height> Matrix<T, width, height>::mix(const Matrix<T, width, height> &a, const Matrix<T, width, height> &b, const Matrix<T, width, height> &c) {
+Matrix<T, width, height> Matrix<T, width, height>::mix(const Matrix<T, width, height> &a, const Matrix<T, width, height> &b, const float &c) {
   if (width != height)
     throw std::runtime_error{"cannot mix if height != width"};
-  return a * (c * -1 + 1.0) + b * c;
+  return a * (1.0 - c) + b * c;
 }
 
 template <class T>
