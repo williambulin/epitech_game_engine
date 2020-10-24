@@ -35,7 +35,11 @@ public:
   [[nodiscard]] Matrix<T, width, height> operator*(const int &v) const;
   [[nodiscard]] Vector<T, height>        operator*(const Vector<T, width> &v) const;
   [[nodiscard]] Matrix<T, width, height> operator*(const float &v) const;
+  [[nodiscard]] static Matrix<T, width, height> mix(const Matrix<T, width, height> & a, const Matrix<T, width, height> &b, const Matrix<T, width, height> & c);
   [[nodiscard]] Matrix<T, height, width> transpose() const;
+  [[nodiscard]] Matrix<T, height, width> inverse();
+  [[nodiscard]] T determinant();
+  void getCofactor(Matrix<T, width, height> &tmp, int p, int q);
   [[nodiscard]] Matrix<T, width, height> operator^(const Matrix<T, width, height> &v) const;
   Matrix<T, width, height> &             operator+=(const Matrix<T, width, height> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   Matrix<T, width, height> &             operator-=(const Matrix<T, width, height> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
@@ -186,6 +190,68 @@ Vector<T, height> Matrix<T, width, height>::operator*(const Vector<T, width> &v)
       ret[i] += m_matrix[i][j] * ret[j];
   }
   return ret;
+}
+template <class T, std::size_t width, std::size_t height>
+T Matrix<T, width, height>::determinant() {
+  if (width != height)
+    return -1;
+  T D = 0; // Initialize result
+
+  //  Base case : if matrix contains single element
+  if (width == 1)
+    return this[0][0];
+
+  Matrix<T, width, height> temp{}; // To store cofactors
+
+  int sign = 1; // To store sign multiplier
+
+  // Iterate for each element of first row
+  for (int f = 0; f < width; f++)
+  {
+    // Getting Cofactor of mat[0][f]
+    getCofactor(temp, 0, f);
+    D += sign * m_matrix[0][f] * determinantOfMatrix(temp, width - 1);
+    // terms are to be added with alternate sign
+    sign = -sign;
+  }
+
+  return D;
+}
+template <class T, std::size_t width, std::size_t height>
+void Matrix<T, width, height>::getCofactor(Matrix<T, width, height> &tmp, int p, int q) {
+  int i = 0, j = 0;
+
+  // Looping for each element of the matrix
+  for (int row = 0; row < height; row++)
+  {
+    for (int col = 0; col < width; col++)
+    {
+      //  Copying into temporary matrix only those
+      //  element which are not in given row and
+      //  column
+      if (row != p && col != q) {
+        tmp[i][j++] = (*this)[row][col];
+
+        // Row is filled, so increase row index and
+        // reset col index
+        if (j == width - 1)
+        {
+          j = 0;
+          i++;
+        }
+      }
+    }
+  }
+}
+template <class T, std::size_t width, std::size_t height>
+Matrix<T, height, width> Matrix<T, width, height>::inverse() {
+  return *this * (1/determinant());
+}
+template <class T, std::size_t width, std::size_t height>
+Matrix<T, width, height> Matrix<T, width, height>::mix(const Matrix<T, width, height> &a, const Matrix<T, width, height> &b, const Matrix<T, width, height> &c) {
+  if (width != height)
+    throw std::runtime_error{"cannot mix if height != width"};
+  return a * (c * -1 + 1.0) + b * c;
 }
 
 template <class T>

@@ -5,6 +5,7 @@
 #include <vector>
 #include <array>
 #include <numeric>
+#include <algorithm>
 
 template <class T, std::size_t width, std::size_t height>
 class Matrix;
@@ -18,6 +19,7 @@ public:
   explicit Vector();
   explicit Vector(const std::array<T, size> &array);
   explicit Vector(const std::vector<T> &array);
+  Vector(const Vector<T, size> & v);
 
   ~Vector()                  = default;
   Vector<T, size> &  operator=(const Vector<T, size> &v);
@@ -52,6 +54,7 @@ public:
   [[nodiscard]] T                length() const;
   [[nodiscard]] T                dot(const Vector<T, size> &b) const;
   void                           normalize();
+  [[nodiscard]] Vector<T, size> clamp(const Vector<T, size> &min, const Vector<T, size> &max) const;
   [[nodiscard]] Vector<T, size> rotate(T const &angle, const Vector<T, size> &normal);
 };
 
@@ -280,7 +283,7 @@ T Vector<T, size>::length() const {
 template <class T, uint32_t size>
 void Vector<T, size>::normalize() {
   T l = length();
-  for (auto tmp : m_array)
+  for (auto &tmp : m_array)
     tmp /= l;
 }
 template <class T, uint32_t size>
@@ -301,15 +304,30 @@ Vector<T, size> Vector<T, size>::operator*(const Matrix<T, size, size> &v) const
   return ret;
 }
 
-template <class T, std::size_t size>
+template <class T, uint32_t size>
 Vector<T, size> Vector<T, size>::rotate(const T &angle, const Vector<T, size> &normal) {
   return *this * cosf(normal) + (normal * *this) * sinf(angle) + normal * (normal.dot(*this)) * (1 - cosf(angle));
+}
+template <class T, uint32_t size>
+Vector<T, size>::Vector(const Vector<T, size> &v) : m_array{v.m_array} {}
+
+template <class T, uint32_t size>
+Vector<T, size> Vector<T, size>::clamp(const Vector<T, size> &min, const Vector<T, size> &max) const {
+  Vector<T, size> ret{m_array};
+  T *values  = ret.m_array.data();
+  const T *min_values = min.m_array.data();
+  const T *max_values = min.m_array.data();
+  for (int i = 0; i < size; ++i, ++values, ++min_values, ++max_values)
+    *values = std::clamp(*values, *min_values, *max_values);
+  return ret;
 }
 
 template <class T>
 class Vector3 : public Vector<T, 3> {
 public:
   explicit Vector3(T a, T b, T c);
+  Vector3(const Vector3<T> & v);
+  Vector3(const Vector<T, 3> & v); // need to not explicit because used for operations
   explicit Vector3(const std::array<T, 3> &array);
   explicit Vector3(const std::vector<T> &array);
   Vector3<T> &             operator=(const Vector3<T> &v);
@@ -344,7 +362,10 @@ Vector3<T> &Vector3<T>::operator=(const Vector3<T> &v) {
   z = v.z;
   return *this;
 }
-
+template <class T>
+Vector3<T>::Vector3(const Vector3<T> &v) : Vector<T, 3>{v.m_array}, x{this->m_array[0]}, y(this->m_array[1]), z{this->m_array[2]} {}
+template <class T>
+Vector3<T>::Vector3(const Vector<T, 3> &v) : Vector<T, 3>{v}, x{this->m_array[0]}, y(this->m_array[1]), z{this->m_array[2]} {}
 using Vector3i = Vector3<int>;
 using Vector3f = Vector3<float>;
 
@@ -354,6 +375,7 @@ public:
   explicit Vector2(T a, T b);
   explicit Vector2(const std::array<T, 2> &array);
   explicit Vector2(const std::vector<T> &array);
+  Vector2(const Vector2<T> & v);
   Vector2<T> &             operator=(const Vector3<T> &v);
   T &                      x;
   T &                      y;
@@ -384,6 +406,8 @@ template <class T>
 Vector2<T> Vector2<T>::rotate(T const &angle) {
   return Vector2<T>(T(x * cosf(angle) - y * sinf(angle)), T(x * sinf(angle) + y * cosf(angle)));
 }
+template <class T>
+Vector2<T>::Vector2(const Vector2<T> &v):Vector<T, 2>{v.m_array}, x(this->m_marray[0]), y{this->m_array[1]} {}
 
 using Vector2i = Vector2<int>;
 using Vector2f = Vector2<float>;
