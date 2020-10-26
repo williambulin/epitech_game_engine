@@ -8,58 +8,60 @@
 
 class PhysicsObject {
 public:
+	const float UNIT_MULTIPLIER = 100.0f;
+	const float UNIT_RECIPROCAL = 1.0f / UNIT_MULTIPLIER;
+
   explicit PhysicsObject(std::shared_ptr<ICollisionShape> parentCollider, std::shared_ptr<Transform> parentTransform);
 	void clearForces() noexcept;
-/* 			Vector3 GetLinearVelocity() const {
-				return linearVelocity;
+ 			Vector3f getLinearVelocity() const {
+				return m_linearVelocity;
 			}
 
-			Vector3 GetAngularVelocity() const {
-				return angularVelocity;
+			Vector3f getAngularVelocity() const {
+				return m_angularVelocity;
 			}
 
-			Vector3 GetTorque() const {
-				return torque;
+			Vector3f getTorque() const {
+				return m_torque;
 			}
 
-			Vector3 GetForce() const {
-				return force;
+			Vector3f getForce() const {
+				return m_force;
 			}
 
-			void SetInverseMass(float invMass) {
-				inverseMass = invMass;
+			void setInverseMass(float invMass) {
+				m_inverseMass = invMass;
 			}
 
-			float GetInverseMass() const {
-				return inverseMass;
+			float getInverseMass() const {
+				return m_inverseMass;
 			}
 
-			void ApplyAngularImpulse(const Vector3& force);
-			void ApplyLinearImpulse(const Vector3& force);
+			void applyAngularImpulse(const Vector3f& force);
+			void applyLinearImpulse(const Vector3f& force);
 			
-			void AddForce(const Vector3& force);
+			void addForce(const Vector3f& force);
 
-			void AddForceAtPosition(const Vector3& force, const Vector3& position);
+			void addForceAtPosition(const Vector3f& force, const Vector3f& position);
 
-			void AddTorque(const Vector3& torque);
+			void addTorque(const Vector3f& torque);
 
-			void SetLinearVelocity(const Vector3& v) {
-				linearVelocity = v;
+			void setLinearVelocity(const Vector3f& v) {
+				m_linearVelocity = v;
 			}
 
-			void SetAngularVelocity(const Vector3& v) {
-				angularVelocity = v;
+			void setAngularVelocity(const Vector3f& v) {
+				m_angularVelocity = v;
 			}
 
-			void InitCubeInertia();
-			void InitSphereInertia();
+			void initCubeInertia();
+			void initSphereInertia();
 
-			void UpdateInertiaTensor();
+			void updateInertiaTensor();
 
-			Matrix3 GetInertiaTensor() const {
-				return inverseInteriaTensor;
+			Matrix<float, 3, 3> getInertiaTensor() const {
+				return m_inverseInteriaTensor;
 			}
- */
 protected:
   const std::shared_ptr<ICollisionShape> m_collider;
   std::shared_ptr<Transform>             m_modelMatrix;
@@ -70,13 +72,13 @@ protected:
 
   // linear stuff
   Vector3f m_linearVelocity{0.0f, 0.0f, 0.0f};
-  Vector3f m_acceleration{0.0f, 0.0f, 0.0f};
+  Vector3f m_force{0.0f, 0.0f, 0.0f};
 
   // angular stuff
   Vector3f m_angularVelocity{0.0f, 0.0f, 0.0f};
   Vector3f m_torque{0.0f, 0.0f, 0.0f};
   Vector3f inverseInertia{0.0f, 0.0f, 0.0f};
-	Matrix<float, 3, 3> inverseInteriaTensor{
+	Matrix<float, 3, 3> m_inverseInteriaTensor{
     std::array<std::array<float, 3>, 3> {
     std::array<float, 3>{0.0f, 0.0f, 0.0f},
     std::array<float, 3>{0.0f, 0.0f, 0.0f},

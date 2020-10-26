@@ -1,4 +1,4 @@
-#include "CollisionSytem.hpp"
+#include "CollisionSystem.hpp"
 #include "Collision.hpp"
 
 void CollisionSystem::addCollider(GameObject &collider) {
