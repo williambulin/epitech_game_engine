@@ -13,7 +13,6 @@ endif ()
 
 add_executable(
   epitech_game_engine
-
   ${CMAKE_CURRENT_LIST_DIR}/source/Extension/Language/Keywords.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Extension/Language/Platform.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/main.cpp
@@ -22,9 +21,13 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/source/Core.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Core.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Collision.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Collision.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Transform.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Transform.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Collision.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/CollisionSystem.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/CollisionSystem.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/PhysicsObject.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/PhysicsObject.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Shapes/AABB.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Shapes/AABB.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Shapes/OBB.hpp
@@ -34,7 +37,6 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Vectors.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Matrix.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Quaternion.hpp
-
 )
 
 target_include_directories(
