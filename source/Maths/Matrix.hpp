@@ -50,7 +50,10 @@ template <class T, std::size_t width, std::size_t height>
 inline Matrix<T, width, height>::Matrix() : m_matrix{} {}
 
 template <class T, std::size_t width, std::size_t height>
-inline Matrix<T, width, height>::Matrix(const std::array<std::array<T, height>, width> &array) : m_matrix{array} {}
+inline Matrix<T, width, height>::Matrix(const std::array<std::array<T, height>, width> &array) : m_matrix{} {
+  for (int i = 0; i < width; ++i)
+    m_matrix[i] = Vector<T, height>{array[i]};
+}
 
 template <class T, std::size_t width, std::size_t height>
 inline Matrix<T, width, height>::Matrix(const std::vector<std::vector<T>> &array) : m_matrix{} {
