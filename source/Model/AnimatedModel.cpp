@@ -32,7 +32,7 @@ AnimatedModel::AnimatedModel(const AnimatedModel &copy) {
   this->m_jointsWeight = copy.getJointsWeight();
 }
 
-void AnimatedModel::animate(const std::string &animationName = "", const float &animationStrength = 1.0f, const bool &loopAnimation = false) {
+void AnimatedModel::animate(const std::string &animationName, const float &animationStrength, const bool &loopAnimation) {
   auto name = animationName.size() == 0 ? m_animationMap.begin()->first : animationName;
   if (m_animationMap.find(name) == m_animationMap.end())
     throw std::runtime_error(name + ": Animation does not exist for the specified model.");
@@ -58,7 +58,7 @@ auto AnimatedModel::getJointsTransform() -> JointsTransform {
   JointsTransform jointsTransform;
   for (auto i = 0U; i < MAX_JOINT_TRANSFORM; i++)
     jointsTransform[i] = Matrix4<float>{1};
-  computeAnimation(jointsTransform, m_nodeData, Matrix4<float>{1});
+  computeAnimation(jointsTransform, m_nodeData);
   m_animationBuffer.clear();
   return jointsTransform;
 }
@@ -109,7 +109,7 @@ bool AnimatedModel::loadSkeleton(const aiMesh *mesh, const aiNode *rootNode) {
     m_boneMap.emplace(std::make_pair(FromAssimp::str(bone->mName), Bone{i, *bone}));
   }
   m_inverseTransform = FromAssimp::mat4(rootNode->mTransformation);
-  m_nodeData         = Node{*rootNode, nullptr};
+  m_nodeData         = Node{*rootNode};
 }
 
 // Bone ---------------------------------------------------------------------------------------------------------------
@@ -261,10 +261,10 @@ auto AnimatedModel::Animation::Node::getInterpolatedFrame(const KeyMap<T> &keyMa
     auto &keyframeTimestamp = keyframeTimestamps[i];
     if (keyframeTimestamp > timestamp) {                                                               // Detect the frame just after our timestamp
       auto &prevKeyframeTimestamp = keyframeTimestamps[(i == 0 ? keyframeTimestamps.size() : i) - 1];  // Get the frame just before our timestamp
-      return keyMap[prevKeyframeTimestamp].interpolate(keyMap[keyframeTimestamp], timestamp);          // And return the interpolation between the two
+      return keyMap.at(prevKeyframeTimestamp).interpolate(keyMap.at(keyframeTimestamp), timestamp);          // And return the interpolation between the two
     }
   }
-  return keyMap[keyframeTimestamps[0]];  // This line should never be reach but if it does we return the first frame
+  return keyMap.at(keyframeTimestamps[0]);  // This line should never be reach but if it does we return the first frame
 }
 
 // Animation::Node::TransformationKey ---------------------------------------------------------------------------------
@@ -284,7 +284,7 @@ auto AnimatedModel::Animation::Node::TransformationKey<T>::getTransformation() c
 }
 
 template <class T>
-auto AnimatedModel::Animation::Node::TransformationKey<T>::getProgress(const TransformationKey &other) const -> float {
+auto AnimatedModel::Animation::Node::TransformationKey<T>::getProgress(const TransformationKey &other, const float &timestamp) const -> float {
   return std::max<float>(0.0, std::min<float>(1.0, (timestamp - m_timestamp) / (other.getTimestamp() - m_timestamp)));
 }
 
@@ -292,14 +292,14 @@ auto AnimatedModel::Animation::Node::TransformationKey<T>::getProgress(const Tra
 
 AnimatedModel::Animation::Node::VectorKey::VectorKey(const aiVectorKey &vectorKey, const float &ticksPerSecond) : TransformationKey(vectorKey.mTime / ticksPerSecond, FromAssimp::vec3(vectorKey.mValue)) {}
 
-auto AnimatedModel::Animation::Node::VectorKey::interpolate(const VectorKey &other, const float &timestamp) -> Vector<float, 3U> {
-  return m_transformation.lerp(other.getTransformation(), getProgress(other));
+auto AnimatedModel::Animation::Node::VectorKey::interpolate(const VectorKey &other, const float &timestamp) const -> VectorKey {
+  return VectorKey{timestamp, m_transformation.lerp(other.getTransformation(), getProgress(other, timestamp))};
 }
 
 // Animation::Node::QuatKey -------------------------------------------------------------------------------------------
 
 AnimatedModel::Animation::Node::QuatKey::QuatKey(const aiQuatKey &quatKey, const float &ticksPerSecond) : TransformationKey(quatKey.mTime / ticksPerSecond, FromAssimp::quat(quatKey.mValue)) {}
 
-auto AnimatedModel::Animation::Node::QuatKey::interpolate(const QuatKey &other, const float &timestamp) const -> Quaternion {
-  return Quaternion::slerp(m_transformation, other.getTransformation(), getProgress(other));
+auto AnimatedModel::Animation::Node::QuatKey::interpolate(const QuatKey &other, const float &timestamp) const -> QuatKey {
+  return QuatKey{timestamp, Quaternion::slerp(m_transformation, other.getTransformation(), getProgress(other, timestamp))};
 }
