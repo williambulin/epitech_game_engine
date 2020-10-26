@@ -71,7 +71,7 @@ private:
 
   public:
     explicit Node() {}  // default constructor
-    explicit Node(const aiNode &, const Parent &);
+    explicit Node(const aiNode &, const Parent & = nullptr);
     ~Node() = default;
 
     [[nodiscard]] auto getName() const -> const Name &;
@@ -103,25 +103,27 @@ private:
         [[nodiscard]] auto getTransformation() const -> const Transformation &;
 
       protected:
-        [[nodiscard]] auto getProgress(const TransformationKey &) const -> Timestamp;
+        [[nodiscard]] auto getProgress(const TransformationKey &, const float &) const -> Timestamp;
       };
 
       class VectorKey final : public TransformationKey<Vector<float, 3U>> {
         // AnimatedModel::Animation::Node::VectorKey ------------------------------------------------------------------
       public:
+        using TransformationKey::TransformationKey;
         explicit VectorKey(const aiVectorKey &, const float &);
         ~VectorKey() = default;
 
-        [[nodiscard]] auto interpolate(const VectorKey &, const float &) -> Vector<float, 3U>;
+        [[nodiscard]] auto interpolate(const VectorKey &, const float &) const -> VectorKey;
       };
 
       class QuatKey final : public TransformationKey<Quaternion> {
         // AnimatedModel::Animation::Node::QuatKey --------------------------------------------------------------------
       public:
+        using TransformationKey::TransformationKey;
         explicit QuatKey(const aiQuatKey &, const float &);
         ~QuatKey() = default;
 
-        [[nodiscard]] auto interpolate(const QuatKey &, const float &) const -> Quaternion;
+        [[nodiscard]] auto interpolate(const QuatKey &, const float &) const -> QuatKey;
       };
 
       // AnimatedModel::Animation::Node -------------------------------------------------------------------------------
@@ -205,7 +207,7 @@ public:
   AnimatedModel(const AnimatedModel &);
   ~AnimatedModel() = default;
 
-  void               animate(const std::string &, const float &, const bool &);
+  void               animate(const std::string & = "", const float & = 1.0f, const bool & = false);
   [[nodiscard]] auto getAnimationList() const -> std::vector<std::string>;
   [[nodiscard]] auto getJointsId() const -> const JointsId &;
   [[nodiscard]] auto getJointsTransform() -> JointsTransform;
@@ -213,7 +215,7 @@ public:
   void               loadAnimation(const std::string &);
 
 protected:
-  void computeAnimation(JointsTransform &, const Node &, const Matrix<float, 4U, 4U> &) const;
+  void computeAnimation(JointsTransform &, const Node &, const Matrix<float, 4U, 4U> & = Matrix4<float>{1}) const;
   void loadAnimation(const aiScene *);
   bool loadSkeleton(const aiMesh *, const aiNode *);
 };
