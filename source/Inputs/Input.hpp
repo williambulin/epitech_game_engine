@@ -1,21 +1,15 @@
 #pragma once
 
 #include "Key.hpp"
-
-#include <array>
-#include <vector>
-#include <iterator>
-
-#if defined(_WIN32) || defined(WIN32)
-#include <Windows.h>
-#endif
+#include "Mouse.hpp"
 
 class Input {
 public:
 private:
-  MSG                          _msg;
-  HWND                         _dummyHWND;
-  std::vector<Key *>           _keys;
+  MSG                _msg;
+  HWND               _dummyHWND;
+  std::vector<Key *> _keys;
+  Mouse *            _mouse;
 
 public:
   explicit Input();
@@ -24,5 +18,6 @@ public:
   void addKeypressed(int);
   void startTriggeringInput();
   void releasedKeys(int);
-  bool keyIsPressed(int, Key::state_e);
-};
+  bool keyInState(int, Key::state_e);
+  bool combinationKeyStroke(std::vector<int>);
+  };
