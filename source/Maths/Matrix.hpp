@@ -35,6 +35,7 @@ public:
   [[nodiscard]] Matrix<T, width, height> operator*(const int &v) const;
   [[nodiscard]] Vector<T, height>        operator*(const Vector<T, width> &v) const;
   [[nodiscard]] Matrix<T, width, height> operator*(const float &v) const;
+  [[nodiscard]] static Matrix<T, width, height> mix(const Matrix<T, width, height> & a, const Matrix<T, width, height> &b, const float & c);
   [[nodiscard]] Matrix<T, height, width> transpose() const;
   [[nodiscard]] Matrix<T, height, width> inverse();
   [[nodiscard]] T determinant();
@@ -49,7 +50,10 @@ template <class T, std::size_t width, std::size_t height>
 inline Matrix<T, width, height>::Matrix() : m_matrix{} {}
 
 template <class T, std::size_t width, std::size_t height>
-inline Matrix<T, width, height>::Matrix(const std::array<std::array<T, height>, width> &array) : m_matrix{array} {}
+inline Matrix<T, width, height>::Matrix(const std::array<std::array<T, height>, width> &array) : m_matrix{} {
+  for (int i = 0; i < width; ++i)
+    m_matrix[i] = Vector<T, height>{array[i]};
+}
 
 template <class T, std::size_t width, std::size_t height>
 inline Matrix<T, width, height>::Matrix(const std::vector<std::vector<T>> &array) : m_matrix{} {
@@ -245,6 +249,12 @@ void Matrix<T, width, height>::getCofactor(Matrix<T, width, height> &tmp, int p,
 template <class T, std::size_t width, std::size_t height>
 Matrix<T, height, width> Matrix<T, width, height>::inverse() {
   return *this * (1/determinant());
+}
+template <class T, std::size_t width, std::size_t height>
+Matrix<T, width, height> Matrix<T, width, height>::mix(const Matrix<T, width, height> &a, const Matrix<T, width, height> &b, const float &c) {
+  if (width != height)
+    throw std::runtime_error{"cannot mix if height != width"};
+  return a * (1.0 - c) + b * c;
 }
 
 template <class T>
