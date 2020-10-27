@@ -27,11 +27,11 @@ void Key::isPressed() {
 }
 
 bool Key::isDestroy() {
-  if ((1000.0 * (std::clock() - _start) / CLOCKS_PER_SEC) > 0.4 && (_state == Key::state_e::Pressed || _state == Key::state_e::Repeated)) {
+  if ((1000.0 * (std::clock() - _start) / CLOCKS_PER_SEC) > 0.4 && _state == Key::state_e::Pressed) {
     _state = Key::state_e::Hold;
   } else if (_state == Key::state_e::Released) {
     _state = Key::state_e::Unknow;
-  } else if ((_state == Key::state_e::Unknow) && (1000.0 * (std::clock() - _released) / CLOCKS_PER_SEC) > 0.8)
+  } else if ((_state == Key::state_e::Unknow) && (1000.0 * (std::clock() - _released) / CLOCKS_PER_SEC) > 0.3)
     return true;
   else
     return false;
