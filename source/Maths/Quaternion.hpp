@@ -12,8 +12,10 @@ private:
 public:
   explicit Quaternion(float x, float y, float z, float w);
   [[nodiscard]] Quaternion operator*(const Quaternion& b) const;
+  [[nodiscard]] Quaternion conjugate() const;
   void                              normalize();
   [[nodiscard]] Matrix<float, 4, 4> toRotationMatrix() const;
+  [[nodiscard]] Matrix<float, 3, 3> toMatrix3() const;
   [[nodiscard]] static Quaternion   fromMatrix(Matrix<float, 4, 4> mat);
   [[nodiscard]] static Quaternion   nlerp(Quaternion a, Quaternion b, float blend);
   [[nodiscard]] static Quaternion   slerp(Quaternion a, Quaternion b, float blend);
@@ -117,4 +119,20 @@ Quaternion Quaternion::operator*(const Quaternion& b) const {
   w * b.y - x * b.z + y * b.w + z * b.x,
   w * b.z + x * b.y - y * b.x + z * b.w
   );
+}
+Quaternion Quaternion::conjugate() const {
+  return Quaternion(-x, -y, -z, w);
+}
+Matrix<float, 3, 3> Quaternion::toMatrix3() const {
+  const float         xy       = x * y;
+  const float         xz       = x * z;
+  const float         xw       = x * w;
+  const float         yz       = y * z;
+  const float         yw       = y * w;
+  const float         zw       = z * w;
+  const float         xSquared = x * x;
+  const float         ySquared = y * y;
+  const float         zSquared = z * z;
+  Matrix<float, 3, 3> ret{{{1 - 2 * (ySquared + zSquared), 2 * (xy - zw), 2 * (xz + yw)}, {2 * (xy + zw), 1 - 2 * (xSquared + zSquared), 2 * (yz - xw)}, {2 * (xz - yw), 2 * (yz + xw), 1 - 2 * (xSquared + ySquared)}}};
+  return ret;
 }
