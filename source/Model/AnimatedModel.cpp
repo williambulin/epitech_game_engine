@@ -75,7 +75,7 @@ void AnimatedModel::loadAnimation(const std::string &path) {
 
 void AnimatedModel::computeAnimation(JointsTransform &jointsTransform, const Node &node, const Matrix<float, 4U, 4U> &parentTransform) const {
   // Compute node transformation
-  Matrix<float, 4U, 4U>nodeTransform{node.getTransformMatrix()};
+  Matrix<float, 4U, 4U> nodeTransform{node.getTransformMatrix()};
   for (auto &animationData : m_animationBuffer) {
     auto &animation     = const_cast<Animation &>(m_animationMap.at(animationData.first));
     auto  nodeAnimation = animation.getNodeAnimation().find(node.getName());
@@ -261,7 +261,7 @@ auto AnimatedModel::Animation::Node::getInterpolatedFrame(const KeyMap<T> &keyMa
     auto &keyframeTimestamp = keyframeTimestamps[i];
     if (keyframeTimestamp > timestamp) {                                                               // Detect the frame just after our timestamp
       auto &prevKeyframeTimestamp = keyframeTimestamps[(i == 0 ? keyframeTimestamps.size() : i) - 1];  // Get the frame just before our timestamp
-      return keyMap.at(prevKeyframeTimestamp).interpolate(keyMap.at(keyframeTimestamp), timestamp);          // And return the interpolation between the two
+      return keyMap.at(prevKeyframeTimestamp).interpolate(keyMap.at(keyframeTimestamp), timestamp);    // And return the interpolation between the two
     }
   }
   return keyMap.at(keyframeTimestamps[0]);  // This line should never be reach but if it does we return the first frame
