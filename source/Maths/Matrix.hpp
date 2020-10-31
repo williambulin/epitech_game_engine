@@ -31,6 +31,7 @@ public:
   [[nodiscard]] Vector<T, height> &      operator()(std::size_t);
   [[nodiscard]] Matrix<T, width, height> operator+(const Matrix<T, width, height> &v) const;
   [[nodiscard]] Matrix<T, width, height> operator-(const Matrix<T, width, height> &v) const;
+  [[nodiscard]] Matrix<T, width, height> operator-(const Vector<T, height> &v) const;
   [[nodiscard]] Matrix<T, width, height> operator*(const Matrix<T, width, height> &v) const;
   [[nodiscard]] Matrix<T, width, height> operator*(const int &v) const;
   [[nodiscard]] Vector<T, height>        operator*(const Vector<T, width> &v) const;
@@ -50,7 +51,10 @@ template <class T, std::size_t width, std::size_t height>
 inline Matrix<T, width, height>::Matrix() : m_matrix{} {}
 
 template <class T, std::size_t width, std::size_t height>
-inline Matrix<T, width, height>::Matrix(const std::array<std::array<T, height>, width> &array) : m_matrix{array} {}
+inline Matrix<T, width, height>::Matrix(const std::array<std::array<T, height>, width> &array) : m_matrix{} {
+  for (int i = 0; i < width; ++i)
+    m_matrix[i] = Vector<T, height>{array[i]};
+}
 
 template <class T, std::size_t width, std::size_t height>
 inline Matrix<T, width, height>::Matrix(const std::vector<std::vector<T>> &array) : m_matrix{} {
@@ -252,6 +256,13 @@ Matrix<T, width, height> Matrix<T, width, height>::mix(const Matrix<T, width, he
   if (width != height)
     throw std::runtime_error{"cannot mix if height != width"};
   return a * (1.0 - c) + b * c;
+}
+template <class T, std::size_t width, std::size_t height>
+Matrix<T, width, height> Matrix<T, width, height>::operator-(const Vector<T, height> &v) const {
+  Matrix<T, width, height>ret{*this};
+  for (auto &vec: ret.m_matrix)
+    ret -= v;
+  return ret;
 }
 
 template <class T>
