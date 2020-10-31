@@ -1,5 +1,5 @@
 "command":
 "C:\\PROGRA~2\\MICROS~3\\2019\\COMMUN~1\\VC\\Tools\\MSVC\\1427~1.291\\bin\\Hostx86\\x86\\cl.exe
 -IC:\\Users\\aFranchon\\source\\repos\\williambulin\\epitech_game_engine\\source
--IC:\\Users\\aFranchon\\vcpkg\\installed\\x86-windows\\include
+-g3
 -MDd

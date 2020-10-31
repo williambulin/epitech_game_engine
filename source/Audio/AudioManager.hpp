@@ -7,6 +7,7 @@
 
 #include "AudioSource.hpp"
 #include "AudioGroup.hpp"
+#include "portaudio.h"
 
 // Singleton class
 class AudioManager {
@@ -19,30 +20,24 @@ private:
   AudioSources m_AudioSources{};
 
 public:
+  AudioManager();
   ~AudioManager();
 
-  static AudioManager *Instance() noexcept;
-
   // Creating audio groups
-  void    CreateAudioGroup(const std::string &audioGroupName, const AudioGroup &audioGroup) noexcept;
-  void    CreateAudioGroup(const std::string &audioGroupName, const int &volume = 100) noexcept;
+  void    createAudioGroup(const std::string &audioGroupName, const AudioGroup &audioGroup) noexcept;
+  void    createAudioGroup(const std::string &audioGroupName, const int volume = 100) noexcept;
 
   // Creating and handling AudioSources
-  void                          AddAudioSource(const std::shared_ptr<AudioSource> &audioSource) noexcept;
-  [[nodiscard]] std::shared_ptr<AudioSource>  &CreateAudioSource(const std::string &fileName, const std::string &groupName = "Master") noexcept;
-  void                          RemoveAudioSourceById(int &id) noexcept;
+  void                                          addAudioSource(const std::shared_ptr<AudioSource> &audioSource) noexcept;
+  [[nodiscard]] std::shared_ptr<AudioSource> &  createAudioSource(const std::string &fileName, const std::string &groupName = "Master") noexcept;
+  void                                          removeAudioSourceById(const int id) noexcept;
 
   // Group handling
-  void    SetAudioGroupVolume(const int &volume, const std::string &groupName);
-  void    StartStream();
-  void    StopStream();
+  void    setAudioGroupVolume(const int volume, const std::string &groupName);
+  void    startStream();
+  void    stopStream();
 
 private:
-  AudioManager();
-  AudioManager &operator=(AudioManager const &audioManager){};
-
   int m_currentId = 0;
-  static AudioManager *m_Instance;
-
-  PaStream *m_Stream = nullptr;
+  PaStream *m_stream = nullptr;
 };
