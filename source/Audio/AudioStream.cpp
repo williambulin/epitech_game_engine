@@ -12,19 +12,17 @@ int AudioStream::PaStreamCallback(  const void *inputBuffer,
                                     const PaStreamCallbackTimeInfo* timeInfo,
                                     PaStreamCallbackFlags statusFlags,
                                     void *userData) noexcept {
-  auto *out = (float*)outputBuffer;
-  auto data = (AudioManager::AudioSources *)userData;
-  auto tmp = (float*)calloc(frameCount * 2, sizeof(float));
+//  std::cout << "playing sound" <<std::endl;
+
+  auto *out = static_cast<float *>(outputBuffer);
+  auto data = static_cast<AudioManager::AudioSources *>(userData);
 
   memset(out, 0x00, frameCount * 2 * sizeof(float));
 
   for (auto &elem : *data)
-  {
     for (auto i = 0; i < frameCount * 2; i++)
-    {
-      out[i] += elem->GetData() * (elem->m_Id == 0 ? .4f : .3f);
-    }
-  }
+      out[i] += elem->getData() * (elem->m_id == 0 ? .4f : .3f);
+
 
   return paContinue;
 }

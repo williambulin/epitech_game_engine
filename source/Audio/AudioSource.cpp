@@ -3,7 +3,7 @@
 #include <utility>
 #include "AudioManager.hpp"
 
-AudioSource::AudioSource(const std::string &fileName, std::string groupName) : m_FileName(fileName), m_GroupName(std::move(groupName)) {
+AudioSource::AudioSource(const std::string &fileName, std::string groupName) : m_fileName(fileName), m_groupName(std::move(groupName)) {
   m_sfInfo.frames = 0;
   m_sfInfo.samplerate = 0;
   m_sfInfo.channels = 0;
@@ -11,76 +11,73 @@ AudioSource::AudioSource(const std::string &fileName, std::string groupName) : m
   m_sfInfo.sections = 0;
   m_sfInfo.seekable = 0;
 
-  if (!(m_FileData = sf_open(m_FileName.c_str(), SFM_READ, &m_sfInfo))) {
-    sf_perror(m_FileData);
-    throw std::runtime_error("AudioSource::AudioSource => sf_open(m_FileName.c_str(), SFM_READ, &m_sfInfo) returned error");
+  if (!(m_fileData = sf_open(m_fileName.c_str(), SFM_READ, &m_sfInfo))) {
+    sf_perror(m_fileData);
+    throw std::runtime_error{"AudioSource::AudioSource => sf_open(m_fileName.c_str(), SFM_READ, &m_sfInfo) returned error"};
   }
 
   m_data = (float *)calloc(m_sfInfo.frames * 2, sizeof(float));
-  std::cout << sf_readf_float(m_FileData, m_data, m_sfInfo.frames) << " and " << m_sfInfo.frames << std::endl;
+  sf_readf_float(m_fileData, m_data, m_sfInfo.frames);
 
-  sf_close(m_FileData);
+  sf_close(m_fileData);
 }
 
 AudioSource::~AudioSource() noexcept {
-  AudioManager::Instance()->RemoveAudioSourceById(m_Id);
 }
 
 AudioSource::AudioSource(const AudioSource &audioSource)
-  : m_Volume(audioSource.m_Volume), m_Id(audioSource.m_Id), m_GroupName(audioSource.m_GroupName), m_FileName(audioSource.m_FileName), m_sfInfo(audioSource.m_sfInfo) {
-  if (!(m_FileData = sf_open(m_FileName.c_str(), SFM_READ, &m_sfInfo))) {
-    sf_perror(m_FileData);
-    throw std::runtime_error("AudioSource::AudioSource => sf_open(m_FileName.c_str(), SFM_READ, &m_sfInfo) returned error");
+  : m_volume(audioSource.m_volume), m_id(audioSource.m_id), m_groupName(audioSource.m_groupName), m_fileName(audioSource.m_fileName), m_sfInfo(audioSource.m_sfInfo) {
+  if (!(m_fileData = sf_open(m_fileName.c_str(), SFM_READ, &m_sfInfo))) {
+    sf_perror(m_fileData);
+    throw std::runtime_error{"AudioSource::AudioSource => sf_open(m_fileName.c_str(), SFM_READ, &m_sfInfo) returned error"};
   }
 
   m_data = (float *)calloc(m_sfInfo.frames * 2, sizeof(float));
-  std::cout << sf_readf_float(m_FileData, m_data, m_sfInfo.frames) << " and " << m_sfInfo.frames << std::endl;
+  sf_readf_float(m_fileData, m_data, m_sfInfo.frames);
 
-  sf_close(m_FileData);
+  sf_close(m_fileData);
 }
 
-auto AudioSource::GetGroupName() const -> const GroupName & {
-  return m_GroupName;
+auto AudioSource::getGroupName() const -> const GroupName & {
+  return m_groupName;
 }
 
-void AudioSource::SetVolume(Volume volume) noexcept {
-  m_Volume = volume;
+void AudioSource::setVolume(Volume volume) noexcept {
+  m_volume = volume;
 }
 
-float AudioSource::GetData() noexcept {
+float AudioSource::getData() noexcept {
   //TODO SOUND VOLUME => maybe change this one day to make it more smooth => https://stackoverflow.com/questions/15776390/controlling-audio-volume-in-real-time
-  if (!m_Playing) {
+  if (!m_playing)
     return 0;
-  }
 
   if (m_currentIndex >= m_sfInfo.frames * 2) {
-    if (!m_Loop) {
-      m_Playing = false;
-    }
+    if (!m_loop)
+      m_playing = false;
     m_currentIndex = 0;
   }
 
-  if (m_Muted) {
+  if (m_muted) {
     m_currentIndex++;
     return 0;
   }
 
-  return m_data[m_currentIndex++] * (m_Volume / 100);
+  return m_data[m_currentIndex++] * (m_volume / 100);
 }
 
-void    AudioSource::Mute(const bool &mute) noexcept {
-  m_Muted = mute;
+void    AudioSource::mute(const bool mute) noexcept {
+  m_muted = mute;
 }
 
-void    AudioSource::Play() noexcept {
-  m_Playing = true;
+void    AudioSource::play() noexcept {
+  m_playing = true;
 }
 
-void    AudioSource::Pause() noexcept {
-  m_Playing = false;
+void    AudioSource::pause() noexcept {
+  m_playing = false;
 }
 
-void    AudioSource::Stop() noexcept {
-  m_Playing = false;
+void    AudioSource::stop() noexcept {
+  m_playing      = false;
   m_currentIndex = 0;
 }

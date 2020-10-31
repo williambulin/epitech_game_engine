@@ -17,30 +17,30 @@ public:
   AudioSource(const AudioSource &audioSource);
   ~AudioSource() noexcept;
 
-  [[nodiscard]] auto    GetGroupName() const -> const GroupName &;
+  [[nodiscard]] auto  getGroupName() const -> const GroupName &;
 
-  [[noreturn]] void     SetVolume(Volume volume) noexcept;
+  [[noreturn]] void   setVolume(Volume volume) noexcept;
 
-  float   GetData() noexcept;
-  void    Mute(const bool &mute) noexcept;
-  void    Play() noexcept;
-  void    Pause() noexcept;
-  void    Stop() noexcept;
+  float   getData() noexcept;
+  void    mute(const bool mute) noexcept;
+  void    play() noexcept;
+  void    pause() noexcept;
+  void    stop() noexcept;
 
-  int         m_Id            = 0;
+  int         m_id            = 0;
   float *     m_data;
-  bool        m_Loop          = false;
+  bool        m_loop          = false;
 
 private:
   //Settings
-  bool        m_Muted         = false;
-  bool        m_Playing       = false;
+  bool        m_muted         = false;
+  bool        m_playing       = false;
 
-  GroupName   m_GroupName;
-  Volume      m_Volume        = 0;
+  GroupName   m_groupName;
+  Volume      m_volume        = 0;
 
   int         m_currentIndex  = 0;
-  SNDFILE *   m_FileData;
-  std::string m_FileName;
+  SNDFILE *   m_fileData;
+  std::string m_fileName;
   SF_INFO     m_sfInfo;
 };
