@@ -94,3 +94,8 @@ auto AABB::getMax() const noexcept -> Vector3f {
 bool AABB::operator==(const AABB &second) const noexcept {
   return (second.m_min == m_min && second.m_max == m_max && second.m_oldTransform == m_oldTransform && second.m_pointsCache == second.m_pointsCache);
 }
+
+//TODO IMPLEMENT
+Vector3f AABB::getLocalPosition() {
+  return Vector3f {1, 1, 1};
+}

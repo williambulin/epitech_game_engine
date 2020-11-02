@@ -19,6 +19,8 @@ public:
 
   [[nodiscard]] bool operator==(const OBB &second) const noexcept;
 
+  Vector3f getLocalPosition() override;
+
 private:
   Vector3f              m_min{0.0f, 0.0f, 0.0f};
   Vector3f              m_max{0.0f, 0.0f, 0.0f};

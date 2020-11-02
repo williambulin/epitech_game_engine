@@ -286,6 +286,8 @@ public:
   [[nodiscard]] Matrix4<T>        scale(T a, T b, T c);
   [[nodiscard]] static Matrix4<T> translate(const Vector3<T> &vec);
   [[nodiscard]] static Matrix4<T> perspectiveRH(T fovy, T aspect, T near, T far);
+  [[nodiscard]] Vector3f getTranslation() const;
+  void setTranslation(const Vector3<T> &vec);
 };
 
 template <class T>
@@ -327,6 +329,18 @@ Matrix4<T> Matrix4<T>::translate(const Vector3<T> &vec) {
   ret[3][1] = vec[1];
   ret[3][2] = vec[2];
   return ret;
+}
+
+template <class T>
+void Matrix4<T>::setTranslation(const Vector3<T> &vec) {
+  this->m_matrix[3][0] = vec[0];
+  this->m_matrix[3][1] = vec[1];
+  this->m_matrix[3][2] = vec[2];
+}
+
+template <class T>
+Vector3f Matrix4<T>::getTranslation() const {
+  return Vector3f {this->m_matrix[3][0], this->m_matrix[3][1], this->m_matrix[3][2]};
 }
 
 template <class T>

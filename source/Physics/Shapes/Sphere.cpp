@@ -22,3 +22,8 @@ void Sphere::setRadius(const float &radius) noexcept {
 bool Sphere::operator==(const Sphere &second) const noexcept {
   return (m_center == second.m_center && m_radius == second.m_radius);
 }
+
+//TODO IMPLEMENT
+Vector3f Sphere::getLocalPosition() {
+  return Vector3f {1, 1, 1};
+}

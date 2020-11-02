@@ -44,3 +44,8 @@ auto OBB::getMax() const noexcept -> Vector3f {
 bool OBB::operator==(const OBB &second) const noexcept {
   return (second.m_min == m_min && second.m_max == m_max && second.m_oldTransform == m_oldTransform && second.m_pointsCache == second.m_pointsCache);
 }
+
+//TODO IMPLEMENT
+Vector3f OBB::getLocalPosition() {
+  return Vector3f {1, 1, 1};
+}

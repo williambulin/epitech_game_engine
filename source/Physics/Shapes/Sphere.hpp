@@ -20,6 +20,9 @@ public:
 
   ShapeType m_shapeType = ICollisionShape::ShapeType::SPHERE;
 
+  Vector3f getLocalPosition() override;
+
+
 private:
   Vector3f  m_center{0.0f, 0.0f, 0.0f};
   float     m_radius{0.0f};

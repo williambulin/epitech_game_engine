@@ -3,9 +3,10 @@
 
 PhysicsObject::PhysicsObject(std::shared_ptr<ICollisionShape> parentCollider, std::shared_ptr<Transform> parentTransform) :
   m_modelMatrix(parentTransform),
-  m_collider(parentCollider)
+  m_collider(parentCollider),
+  m_physicObject(m_collider, m_modelMatrix)
 {
-    m_inverseMass = 1.0f;
+  m_inverseMass = 1.0f;
 	m_elasticity	= 0.8f;
 	m_friction	= 0.8f;
 }
