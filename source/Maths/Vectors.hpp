@@ -52,6 +52,7 @@ public:
   [[nodiscard]] Vector<T, size> &lerp(const Vector<T, size> &_end, float percent) const;
   [[nodiscard]] T                length() const;
   [[nodiscard]] T                dot(const Vector<T, size> &b) const;
+  [[nodiscard]] size_t hash() const;
   void                           normalize();
   [[nodiscard]] Vector<T, size> clamp(const Vector<T, size> &min, const Vector<T, size> &max) const;
   [[nodiscard]] Vector<T, size> rotate(T const &angle, const Vector<T, size> &normal);
@@ -74,7 +75,7 @@ Vector<T, size> &Vector<T, size>::operator*=(const float &v) {
 }
 
 template <class T, uint32_t size>
-inline Vector<T, size>::Vector() : m_array() {} // fix for aurelien
+inline Vector<T, size>::Vector() : m_array() {}  // fix for aurelien
 
 template <class T, uint32_t size>
 inline Vector<T, size>::Vector(const std::array<T, size> &array) : m_array{array} {}
@@ -271,7 +272,7 @@ T Vector<T, size>::operator[](uint32_t i) const {
 
 template <class T, uint32_t size>
 Vector<T, size> &Vector<T, size>::lerp(const Vector<T, size> &_end, float percent) const {
-  return *this + percent * (_end - *this);
+  return *this + (_end - *this) * percent;
 }
 template <class T, uint32_t size>
 T Vector<T, size>::length() const {
@@ -308,6 +309,9 @@ Vector<T, size> Vector<T, size>::rotate(const T &angle, const Vector<T, size> &n
   return *this * cosf(normal) + (normal * *this) * sinf(angle) + normal * (normal.dot(*this)) * (1 - cosf(angle));
 }
 template <class T, uint32_t size>
+Vector<T, size>::Vector(const Vector<T, size> &v) : m_array{v.m_array} {}
+
+template <class T, uint32_t size>
 Vector<T, size> Vector<T, size>::clamp(const Vector<T, size> &min, const Vector<T, size> &max) const {
   Vector<T, size> ret{m_array};
   T *values  = ret.m_array.data();
@@ -318,12 +322,17 @@ Vector<T, size> Vector<T, size>::clamp(const Vector<T, size> &min, const Vector<
   return ret;
 }
 template <class T, uint32_t size>
-Vector<T, size>::Vector(const Vector<T, size> &v) : m_array{v.m_array} {}
+size_t Vector<T, size>::hash() const {
+  size_t seed = 0;
+  for (int i = 0; i < size; ++i)
+    seed ^= std::hash(m_array[i]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+  return seed;
+}
 
 template <class T>
 class Vector3 : public Vector<T, 3> {
 public:
-  explicit Vector3(const T &a, const T &b, const T &c);
+  explicit Vector3(T a, T b, T c);
   Vector3(const Vector3<T> & v);
   Vector3(const Vector<T, 3> & v); // need to not explicit because used for operations
   explicit Vector3(const std::array<T, 3> &array);
@@ -335,10 +344,10 @@ public:
   [[nodiscard]] Vector3<T> cross(const Vector3<T> &b) const;
 };
 template <class T>
-Vector3<T>::Vector3(const T &a, const T &b, const T &c) : Vector<T, 3>(std::array<T, 3>{a, b, c}),
-                                           x{this->m_array[0]},
-                                           y{this->m_array[1]},
-                                           z{this->m_array[2]} {}
+Vector3<T>::Vector3(T a, T b, T c) : Vector<T, 3>{std::array<T, 3>{a, b, c}},
+                                     x{this->m_array[0]},
+                                     y{this->m_array[1]},
+                                     z{this->m_array[2]} {}
 template <class T>
 Vector3<T> Vector3<T>::cross(const Vector3<T> &b) const {
   return Vector<T, 3>(y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x);
@@ -361,9 +370,9 @@ Vector3<T> &Vector3<T>::operator=(const Vector3<T> &v) {
   return *this;
 }
 template <class T>
-Vector3<T>::Vector3(const Vector<T, 3> &v) : Vector<T, 3>{v}, x{this->m_array[0]}, y(this->m_array[1]), z{this->m_array[2]} {}
-template <class T>
 Vector3<T>::Vector3(const Vector3<T> &v) : Vector<T, 3>{v.m_array}, x{this->m_array[0]}, y(this->m_array[1]), z{this->m_array[2]} {}
+template <class T>
+Vector3<T>::Vector3(const Vector<T, 3> &v) : Vector<T, 3>{v}, x{this->m_array[0]}, y(this->m_array[1]), z{this->m_array[2]} {}
 using Vector3i = Vector3<int>;
 using Vector3f = Vector3<float>;
 
@@ -405,7 +414,7 @@ Vector2<T> Vector2<T>::rotate(T const &angle) {
   return Vector2<T>(T(x * cosf(angle) - y * sinf(angle)), T(x * sinf(angle) + y * cosf(angle)));
 }
 template <class T>
-Vector2<T>::Vector2(const Vector2<T> &v):Vector<T, 2>{v.m_array}, x(this->m_marray[0]), y{this->m_array[1]} {}
+Vector2<T>::Vector2(const Vector2<T> &v):Vector<T, 2>{v.m_array}, x(this->m_array[0]), y{this->m_array[1]} {}
 
 using Vector2i = Vector2<int>;
 using Vector2f = Vector2<float>;
