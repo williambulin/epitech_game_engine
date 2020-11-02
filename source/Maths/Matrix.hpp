@@ -39,6 +39,7 @@ public:
   [[nodiscard]] static Matrix<T, width, height> mix(const Matrix<T, width, height> & a, const Matrix<T, width, height> &b, const float & c);
   [[nodiscard]] Matrix<T, height, width> transpose() const;
   [[nodiscard]] Matrix<T, height, width> inverse();
+  [[nodiscard]] size_t hash() const;
   [[nodiscard]] T determinant();
   void getCofactor(Matrix<T, width, height> &tmp, int p, int q);
   [[nodiscard]] Matrix<T, width, height> operator^(const Matrix<T, width, height> &v) const;
@@ -263,6 +264,13 @@ Matrix<T, width, height> Matrix<T, width, height>::operator-(const Vector<T, hei
   for (auto &vec: ret.m_matrix)
     ret -= v;
   return ret;
+}
+template <class T, std::size_t width, std::size_t height>
+size_t Matrix<T, width, height>::hash() const {
+  size_t seed = 0;
+  for (int i = 0; i < width; ++i)
+    seed ^= m_matrix[i].hash() + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+  return seed;
 }
 
 template <class T>

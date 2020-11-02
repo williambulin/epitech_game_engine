@@ -52,6 +52,7 @@ public:
   [[nodiscard]] Vector<T, size> &lerp(const Vector<T, size> &_end, float percent) const;
   [[nodiscard]] T                length() const;
   [[nodiscard]] T                dot(const Vector<T, size> &b) const;
+  [[nodiscard]] size_t hash() const;
   void                           normalize();
   [[nodiscard]] Vector<T, size> clamp(const Vector<T, size> &min, const Vector<T, size> &max) const;
   [[nodiscard]] Vector<T, size> rotate(T const &angle, const Vector<T, size> &normal);
@@ -319,6 +320,13 @@ Vector<T, size> Vector<T, size>::clamp(const Vector<T, size> &min, const Vector<
   for (int i = 0; i < size; ++i, ++values, ++min_values, ++max_values)
     *values = std::clamp(*values, *min_values, *max_values);
   return ret;
+}
+template <class T, uint32_t size>
+size_t Vector<T, size>::hash() const {
+  size_t seed = 0;
+  for (int i = 0; i < size; ++i)
+    seed ^= std::hash(m_array[i]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+  return seed;
 }
 
 template <class T>
