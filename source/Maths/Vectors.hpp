@@ -271,7 +271,7 @@ T Vector<T, size>::operator[](uint32_t i) const {
 
 template <class T, uint32_t size>
 Vector<T, size> &Vector<T, size>::lerp(const Vector<T, size> &_end, float percent) const {
-  return *this + percent * (_end - *this);
+  return *this + (_end - *this) * percent;
 }
 template <class T, uint32_t size>
 T Vector<T, size>::length() const {
@@ -406,7 +406,7 @@ Vector2<T> Vector2<T>::rotate(T const &angle) {
   return Vector2<T>(T(x * cosf(angle) - y * sinf(angle)), T(x * sinf(angle) + y * cosf(angle)));
 }
 template <class T>
-Vector2<T>::Vector2(const Vector2<T> &v):Vector<T, 2>{v.m_array}, x(this->m_marray[0]), y{this->m_array[1]} {}
+Vector2<T>::Vector2(const Vector2<T> &v):Vector<T, 2>{v.m_array}, x(this->m_array[0]), y{this->m_array[1]} {}
 
 using Vector2i = Vector2<int>;
 using Vector2f = Vector2<float>;
