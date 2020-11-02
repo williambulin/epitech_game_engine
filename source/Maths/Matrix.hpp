@@ -6,7 +6,7 @@
 
 template <class T, std::size_t width, std::size_t height>
 class Matrix {
-private:
+protected:
   Vector<Vector<T, height>, width> m_matrix;
 
 public:
@@ -255,7 +255,7 @@ template <class T, std::size_t width, std::size_t height>
 Matrix<T, width, height> Matrix<T, width, height>::mix(const Matrix<T, width, height> &a, const Matrix<T, width, height> &b, const float &c) {
   if (width != height)
     throw std::runtime_error{"cannot mix if height != width"};
-  return a * (1.0 - c) + b * c;
+  return a * (1.0f - c) + b * c;
 }
 template <class T, std::size_t width, std::size_t height>
 Matrix<T, width, height> Matrix<T, width, height>::operator-(const Vector<T, height> &v) const {
@@ -272,6 +272,7 @@ public:
   explicit Matrix4(T x, T y = 1.0f, T z = 1.0f, T w = 1.0f);  // identity multiplied by vector [a, b, c, d]
   explicit Matrix4(const std::array<std::array<T, 4>, 4> &array);
   explicit Matrix4(const std::vector<std::vector<T>> &array);
+  Matrix4(const Matrix<T, 4, 4> &v);
   [[nodiscard]] static Matrix4<T> lookAt(const Vector<T, 3> &eye, const Vector<T, 3> &center, const Vector<T, 3> &up);
   [[nodiscard]] static Matrix4<T> perspective(T angle, T ratio, T near, T far);
   [[nodiscard]] Matrix4<T>        scale(T a, T b, T c);
@@ -334,3 +335,5 @@ Matrix4<T> Matrix4<T>::perspectiveRH(T fovy, T aspect, T near, T far) {
   result[3][2] = -(far * near) / (far - near);
   return result;
 }
+template <class T>
+Matrix4<T>::Matrix4(const Matrix<T, 4, 4> &v): Matrix<T,4,4>(v) {}
