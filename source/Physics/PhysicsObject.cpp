@@ -1,3 +1,4 @@
+#include <Maths/Quaternion.hpp>
 #include "Physics/PhysicsObject.hpp"
 
 PhysicsObject::PhysicsObject(std::shared_ptr<ICollisionShape> parentCollider, std::shared_ptr<Transform> parentTransform) :
@@ -23,10 +24,10 @@ void PhysicsObject::addForce(const Vector3f& addedForce) {
 
 void PhysicsObject::addForceAtPosition(const Vector3f& addedForce, const Vector3f& position) {
 	//need more function in math
-/* 	Vector3f localPos = m_modelMatrix->m_modelMatrix - position;
+  Vector3f localPos = position; //TODO change it if not working
 
 	m_force += addedForce * PhysicsObject::UNIT_MULTIPLIER;
-	torque += Vector3f::Cross(addedForce, localPos); */
+	m_torque += addedForce.cross(localPos);
 }
 
 void PhysicsObject::addTorque(const Vector3f& addedTorque) {
@@ -40,29 +41,28 @@ void PhysicsObject::clearForces() noexcept {
 
 void PhysicsObject::initCubeInertia() {
 	//define get local scale
-/* 	Vector3f dimensions	= transform->GetLocalScale();
+  Vector3f dimensions {1, 1, 1};	//= m_modelMatrix->getLocalScale(); // TODO change here to adjust
 	Vector3f dimsSqr		= dimensions * dimensions;
 
 	inverseInertia.x = (12.0f * m_inverseMass) / (dimsSqr.y + dimsSqr.z);
 	inverseInertia.y = (12.0f * m_inverseMass) / (dimsSqr.x + dimsSqr.z);
 	inverseInertia.z = (12.0f * m_inverseMass) / (dimsSqr.x + dimsSqr.y);
-} */
 }
 
 void PhysicsObject::initSphereInertia() {
 	//get local scale
-/* 	float radius	= transform->GetLocalScale().GetMaxElement();
+ 	float radius = 1;	//= m_modelMatrix->getLocalScale().GetMaxElement(); // TODO change here to adjust
 	float i			= 2.5f * m_inverseMass / (radius*radius);
 
-	inverseInertia = Vector3(i, i, i); */
+	inverseInertia = Vector3(i, i, i);
 }
 
 void PhysicsObject::updateInertiaTensor() {
 	//need to understand
-	//Quaternion q = transform->GetWorldOrientation();
-/* 	
-	Matrix3 invOrientation	= q.Conjugate().ToMatrix3();
-	Matrix3 orientation		= q.ToMatrix3();
+  Quaternion q = Quaternion::fromMatrix(m_modelMatrix->m_modelMatrix);
 
-	m_inverseInteriaTensor = orientation * Matrix3::Scale(inverseInertia) *invOrientation; */
+	Matrix<float, 3, 3> invOrientation	= q.conjugate().toMatrix3();
+  Matrix<float, 3, 3> orientation		= q.toMatrix3();
+
+	m_inverseInteriaTensor = orientation * invOrientation;
 }
