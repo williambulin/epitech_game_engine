@@ -168,13 +168,14 @@ private:
     Time             m_time{};
 
   public:
+    explicit Animation() {}  // default constructor
     explicit Animation(const aiAnimation &);
     ~Animation() = default;
 
     [[nodiscard]] auto getDuration() const -> const Duration &;
     [[nodiscard]] auto getLoop() const -> const Loop &;
     [[nodiscard]] auto getNodeAnimation() const -> const NodeAnimationMap &;
-    [[nodiscard]] auto getTime() -> const Time &;
+    [[nodiscard]] auto getTime() -> const Time;
     [[nodiscard]] auto isComplete() -> bool;
     [[nodiscard]] auto isStarted() const -> bool;
     void               reset();

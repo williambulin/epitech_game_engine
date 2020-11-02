@@ -110,6 +110,7 @@ bool AnimatedModel::loadSkeleton(const aiMesh *mesh, const aiNode *rootNode) {
   }
   m_inverseTransform = FromAssimp::mat4(rootNode->mTransformation);
   m_nodeData         = Node{*rootNode};
+  return true;
 }
 
 // Bone ---------------------------------------------------------------------------------------------------------------
@@ -191,7 +192,7 @@ auto AnimatedModel::Animation::getNodeAnimation() const -> const NodeAnimationMa
   return m_nodeAnimation;
 }
 
-auto AnimatedModel::Animation::getTime() -> const Time & {
+auto AnimatedModel::Animation::getTime() -> const Time {
   if (m_clock == -1)
     return 0.0f;
   auto currentTime = std::clock();
