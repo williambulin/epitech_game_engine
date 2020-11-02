@@ -69,3 +69,21 @@ OBJ::OBJ(const std::string &path) {
     }
   }
 }
+
+OBJ::OBJ(const OBJ &copy) {
+  m_vertices  = copy.getVertices();
+  m_normals   = copy.getNormals();
+  m_texcoords = copy.getTexcoords();
+}
+
+auto OBJ::getVertices() const -> const Vertices & {
+  return m_vertices;
+}
+
+auto OBJ::getNormals() const -> const Normals & {
+  return m_normals;
+}
+
+auto OBJ::getTexcoords() const -> const Texcoords & {
+  return m_texcoords;
+}

@@ -23,14 +23,7 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Matrix.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Quaternion.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Vectors.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/source/Model/Converter/Assimp.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/source/Model/Converter/Assimp.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/source/Model/AnimatedModel.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/source/Model/AnimatedModel.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/source/Model/IAnimatedModel.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Model/IModel.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/source/Model/Model.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/source/Model/Model.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Model/OBJ.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Model/OBJ.hpp
 )
@@ -39,16 +32,6 @@ target_include_directories(
   epitech_game_engine PRIVATE
 
   ${CMAKE_CURRENT_LIST_DIR}/source
-)
-
-find_package(
-  Assimp CONFIG REQUIRED
-)
-
-target_link_libraries(
-  epitech_game_engine PRIVATE
-	
-  assimp::assimp
 )
 
 if(EXISTS "${CMAKE_BINARY_DIR}/compile_commands.json")
