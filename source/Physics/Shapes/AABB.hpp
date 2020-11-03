@@ -20,8 +20,6 @@ public:
 
   [[nodiscard]] bool operator==(const AABB &second) const noexcept;
 
-  ShapeType m_shapeType = ICollisionShape::ShapeType::AABB;
-
   Vector3f getLocalPosition() override;
 
 private:

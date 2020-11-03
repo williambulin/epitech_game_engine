@@ -5,7 +5,7 @@ OBB::OBB(Vector3f &min, Vector3f &max) noexcept : m_min{min}, m_max{max} {}
 OBB::OBB(const OBB &second) noexcept : m_min{second.m_min}, m_oldTransform{second.m_oldTransform}, m_max{second.m_max}, m_pointsCache{second.m_pointsCache} {}
 
 auto OBB::getPoints(Transform transform, bool forceInvalidate) -> std::vector<Vector3f> {
-  if (!forceInvalidate && transform == m_oldTransform) {
+  if (!forceInvalidate && transform == m_oldTransform && m_pointsCache.size() > 0) {
     return m_pointsCache;
   }
   std::vector<Vector3f> points{};

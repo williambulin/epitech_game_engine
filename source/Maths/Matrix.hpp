@@ -2,6 +2,7 @@
 
 #include <array>
 #include <vector>
+#include <iostream>
 #include "Vectors.hpp"
 
 template <class T, std::size_t width, std::size_t height>
@@ -35,6 +36,7 @@ public:
   [[nodiscard]] Matrix<T, width, height> operator*(const Matrix<T, width, height> &v) const;
   [[nodiscard]] Matrix<T, width, height> operator*(const int &v) const;
   [[nodiscard]] Vector<T, height>        operator*(const Vector<T, width> &v) const;
+  [[nodiscard]] Vector<T, width -1>        operator*(const Vector<T, width - 1> &v) const;
   [[nodiscard]] Matrix<T, width, height> operator*(const float &v) const;
   [[nodiscard]] static Matrix<T, width, height> mix(const Matrix<T, width, height> & a, const Matrix<T, width, height> &b, const float & c);
   [[nodiscard]] Matrix<T, height, width> transpose() const;
@@ -189,11 +191,16 @@ const Vector<T, height> &Matrix<T, width, height>::operator[](std::size_t i) con
 template <class T, std::size_t width, std::size_t height>
 Vector<T, height> Matrix<T, width, height>::operator*(const Vector<T, width> &v) const {
   Vector<T, height> ret{};
+  //std::cout << "Point avant multiply = " << v[0] << " | " << v[1] << " | " << v[2] << " | " << v[3] << std::endl;
+  //std::cout << "Matrix : " << std::endl;
   for (int i = 0; i < height; ++i) {
     ret[i] = 0.0f;
-    for (int j = 0; j < width; ++j)
-      ret[i] += m_matrix[i][j] * ret[j];
+    for (int j = 0; j < width; ++j) {
+      //std::cout << "Matrix " << i << " " << j << ": " << m_matrix[i][j] << " * " << v[j] << std::endl;
+      ret[i] += (m_matrix[j][i] * v[j]);
+    }
   }
+  //std::cout << "Point apres multiply = " << ret[0] << " | " << ret[1] << " | " << ret[2] << " | " <<ret[3] << std::endl;
   return ret;
 }
 template <class T, std::size_t width, std::size_t height>
@@ -271,6 +278,18 @@ size_t Matrix<T, width, height>::hash() const {
   for (int i = 0; i < width; ++i)
     seed ^= m_matrix[i].hash() + 0x9e3779b9 + (seed << 6) + (seed >> 2);
   return seed;
+}
+template <class T, std::size_t width, std::size_t height>
+Vector<T, width - 1> Matrix<T, width, height>::operator*(const Vector<T, width - 1> &v) const {
+  Vector<T, height> ret{};
+  for (int i = 0; i < width - 1; ++i)
+    ret[i] = v[i];
+  ret[width - 1] = 1;
+  ret = *this * ret;
+  Vector<T, width - 1> ret2{};
+  for (int i = 0; i < width - 1; ++i)
+    ret2[i] = ret[i];
+  return ret2;
 }
 
 template <class T>

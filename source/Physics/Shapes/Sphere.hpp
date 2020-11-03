@@ -18,8 +18,6 @@ public:
 
   [[nodiscard]] bool operator==(const Sphere &second) const noexcept;
 
-  ShapeType m_shapeType = ICollisionShape::ShapeType::SPHERE;
-
   Vector3f getLocalPosition() override;
 
 
