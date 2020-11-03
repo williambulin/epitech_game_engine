@@ -2,7 +2,10 @@
 #include "Collision.hpp"
 #include "PhysicsObject.hpp"
 
-void CollisionSystem::addCollider(GameObject &collider) {
+CollisionSystem::CollisionSystem() {
+}
+
+void CollisionSystem::addCollider(std::shared_ptr<GameObject> collider) {
   m_colliders.push_back(collider);
 }
 
@@ -10,25 +13,25 @@ void CollisionSystem::collisionDections() {
   for (auto i : m_colliders) {
     for (auto j : m_colliders) {
       CollisionInfo info;
-      info.firstCollider  = std::make_shared<GameObject>(i);
-      info.secondCollider = std::make_shared<GameObject>(j);
-      if (i.m_collider->m_shapeType == ICollisionShape::ShapeType::AABB && j.m_collider->m_shapeType == ICollisionShape::ShapeType::AABB) {
-        if (Collision::collide((AABB &)*i.m_collider, i.m_modelMatrix, (AABB &)*j.m_collider, j.m_modelMatrix, info) == true) {
+      info.firstCollider  = i;
+      info.secondCollider = j;
+      if (i->m_collider->m_shapeType == ICollisionShape::ShapeType::AABB && j->m_collider->m_shapeType == ICollisionShape::ShapeType::AABB) {
+        if (Collision::collide((AABB &)*i->m_collider, i->m_modelMatrix, (AABB &)*j->m_collider, j->m_modelMatrix, info) == true) {
           m_collisions.push_back(info);
         }
-      } else if (i.m_collider->m_shapeType == ICollisionShape::ShapeType::SPHERE && j.m_collider->m_shapeType == ICollisionShape::ShapeType::SPHERE) {
+      } else if (i->m_collider->m_shapeType == ICollisionShape::ShapeType::SPHERE && j->m_collider->m_shapeType == ICollisionShape::ShapeType::SPHERE) {
         CollisionInfo info;
-        if (Collision::collide((Sphere &)*i.m_collider, i.m_modelMatrix, (Sphere &)*j.m_collider, j.m_modelMatrix, info) == true) {
+        if (Collision::collide((Sphere &)*i->m_collider, i->m_modelMatrix, (Sphere &)*j->m_collider, j->m_modelMatrix, info) == true) {
           m_collisions.push_back(info);
         }
-      } else if (i.m_collider->m_shapeType == ICollisionShape::ShapeType::AABB && j.m_collider->m_shapeType == ICollisionShape::ShapeType::SPHERE) {
+      } else if (i->m_collider->m_shapeType == ICollisionShape::ShapeType::AABB && j->m_collider->m_shapeType == ICollisionShape::ShapeType::SPHERE) {
         CollisionInfo info;
-        if (Collision::collide((AABB &)*i.m_collider, i.m_modelMatrix, (Sphere &)*j.m_collider, j.m_modelMatrix, info) == true) {
+        if (Collision::collide((AABB &)*i->m_collider, i->m_modelMatrix, (Sphere &)*j->m_collider, j->m_modelMatrix, info) == true) {
           m_collisions.push_back(info);
         }
-      } else if (i.m_collider->m_shapeType == ICollisionShape::ShapeType::SPHERE && j.m_collider->m_shapeType == ICollisionShape::ShapeType::AABB) {
+      } else if (i->m_collider->m_shapeType == ICollisionShape::ShapeType::SPHERE && j->m_collider->m_shapeType == ICollisionShape::ShapeType::AABB) {
         CollisionInfo info;
-        if (Collision::collide((AABB &)*j.m_collider, j.m_modelMatrix, (Sphere &)*i.m_collider, i.m_modelMatrix, info) == true) {
+        if (Collision::collide((AABB &)*j->m_collider, j->m_modelMatrix, (Sphere &)*i->m_collider, i->m_modelMatrix, info) == true) {
           m_collisions.push_back(info);
         }
       }
@@ -68,8 +71,8 @@ void CollisionSystem::ImpulseResolveCollision(CollisionInfo &p) const {
   transformA.m_modelMatrix.setTranslation(p.firstCollider->getWorldPosition() - (p.point.normal * p.point.penetration * (physA.getInverseMass() / totalMass)));
   transformB.m_modelMatrix.setTranslation(p.secondCollider->getWorldPosition() - (p.point.normal * p.point.penetration * (physB.getInverseMass() / totalMass)));
 
-  Vector3f relativeA = p.point.position - p.firstCollider->getWorldPosition();
-  Vector3f relativeB = p.point.position - p.secondCollider->getWorldPosition();
+  Vector3f relativeA = p.point.localA - p.firstCollider->getWorldPosition();
+  Vector3f relativeB = p.point.localB - p.secondCollider->getWorldPosition();
   Vector3f angVelocityA = physA.getAngularVelocity().cross(relativeA);
   Vector3f angVelocityB = physB.getAngularVelocity().cross(relativeB);
 
@@ -88,12 +91,12 @@ void CollisionSystem::ImpulseResolveCollision(CollisionInfo &p) const {
 
   float j = (-(1.0f + cRestitution) * impulseForce) / (totalMass + angularEffect);
 
-  Vector3 fullImpulse = p.point.normal * j ;
+  Vector3f fullImpulse = p.point.normal * j ;
 
-  physA.applyLinearImpulse(-fullImpulse);
+  physA.applyLinearImpulse(fullImpulse * -1);
   physB.applyLinearImpulse(fullImpulse);
 
-  physA.applyAngularImpulse(relativeA.cross(-fullImpulse));
+  physA.applyAngularImpulse(relativeA.cross(fullImpulse * -1));
   physB.applyAngularImpulse(relativeB.cross(fullImpulse));
 
 

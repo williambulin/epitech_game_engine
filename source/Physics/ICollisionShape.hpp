@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include "Maths/Vectors.hpp"
 
 class ICollisionShape {
 public:

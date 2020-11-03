@@ -3,8 +3,7 @@
 
 PhysicsObject::PhysicsObject(std::shared_ptr<ICollisionShape> parentCollider, std::shared_ptr<Transform> parentTransform) :
   m_modelMatrix(parentTransform),
-  m_collider(parentCollider),
-  m_physicObject(m_collider, m_modelMatrix)
+  m_collider(parentCollider)
 {
   m_inverseMass = 1.0f;
 	m_elasticity	= 0.8f;
@@ -55,14 +54,14 @@ void PhysicsObject::initSphereInertia() {
  	float radius = 1;	//= m_modelMatrix->getLocalScale().GetMaxElement(); // TODO change here to adjust
 	float i			= 2.5f * m_inverseMass / (radius*radius);
 
-	inverseInertia = Vector3(i, i, i);
+	inverseInertia = Vector3f(i, i, i);
 }
 
 void PhysicsObject::updateInertiaTensor() {
 	//need to understand
   Quaternion q = Quaternion::fromMatrix(m_modelMatrix->m_modelMatrix);
 
-	Matrix<float, 3, 3> invOrientation	= q.conjugate().toMatrix3();
+  Matrix<float, 3, 3> invOrientation	= q.conjugate().toMatrix3();
   Matrix<float, 3, 3> orientation		= q.toMatrix3();
 
 	m_inverseInteriaTensor = orientation * invOrientation;
