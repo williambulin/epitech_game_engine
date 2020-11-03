@@ -6,8 +6,20 @@
 #include "Collision.hpp"
 
 bool Collision::collide(AABB &firstCollider, Transform modelMatrixFirstCollider, AABB &secondCollider, Transform modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
-  auto firstPoints = firstCollider.getPoints(modelMatrixFirstCollider);
-  auto secondPoints = secondCollider.getPoints(modelMatrixSecondCollider);
+  std::cout << "--------------------" << std::endl;
+  std::cout << "Matrix first collider : " << std::endl;
+  std::cout << modelMatrixFirstCollider.m_modelMatrix[0][0] << " | " << modelMatrixFirstCollider.m_modelMatrix[0][1] << " | " << modelMatrixFirstCollider.m_modelMatrix[0][2] << " | " << modelMatrixFirstCollider.m_modelMatrix[0][3] << " | " << std::endl;
+  std::cout << modelMatrixFirstCollider.m_modelMatrix[1][0] << " | " << modelMatrixFirstCollider.m_modelMatrix[1][1] << " | " << modelMatrixFirstCollider.m_modelMatrix[1][2] << " | " << modelMatrixFirstCollider.m_modelMatrix[1][3] << " | " << std::endl;
+  std::cout << modelMatrixFirstCollider.m_modelMatrix[2][0] << " | " << modelMatrixFirstCollider.m_modelMatrix[2][1] << " | " << modelMatrixFirstCollider.m_modelMatrix[2][2] << " | " << modelMatrixFirstCollider.m_modelMatrix[2][3] << " | " << std::endl;
+  std::cout << modelMatrixFirstCollider.m_modelMatrix[3][0] << " | " << modelMatrixFirstCollider.m_modelMatrix[3][1] << " | " << modelMatrixFirstCollider.m_modelMatrix[3][2] << " | " << modelMatrixFirstCollider.m_modelMatrix[3][3] << " | " << std::endl;
+  std::cout << "Matrix second collider : " << std::endl;
+  std::cout << modelMatrixSecondCollider.m_modelMatrix[0][0] << " | " << modelMatrixSecondCollider.m_modelMatrix[0][1] << " | " << modelMatrixSecondCollider.m_modelMatrix[0][2] << " | " << modelMatrixSecondCollider.m_modelMatrix[0][3] << " | " << std::endl;
+  std::cout << modelMatrixSecondCollider.m_modelMatrix[1][0] << " | " << modelMatrixSecondCollider.m_modelMatrix[1][1] << " | " << modelMatrixSecondCollider.m_modelMatrix[1][2] << " | " << modelMatrixSecondCollider.m_modelMatrix[1][3] << " | " << std::endl;
+  std::cout << modelMatrixSecondCollider.m_modelMatrix[2][0] << " | " << modelMatrixSecondCollider.m_modelMatrix[2][1] << " | " << modelMatrixSecondCollider.m_modelMatrix[2][2] << " | " << modelMatrixSecondCollider.m_modelMatrix[2][3] << " | " << std::endl;
+  std::cout << modelMatrixSecondCollider.m_modelMatrix[3][0] << " | " << modelMatrixSecondCollider.m_modelMatrix[3][1] << " | " << modelMatrixSecondCollider.m_modelMatrix[3][2] << " | " << modelMatrixSecondCollider.m_modelMatrix[3][3] << " | " << std::endl;
+  std::cout << "--------------------" << std::endl;
+  auto firstPoints = firstCollider.getPoints(modelMatrixFirstCollider, true);
+  auto secondPoints = secondCollider.getPoints(modelMatrixSecondCollider, true);
   Vector3f minFirstCollider  = firstPoints.front();
   Vector3f maxFirstCollider  = firstPoints.back();
   Vector3f minSecondCollider = secondPoints.front();
@@ -41,6 +53,7 @@ bool Collision::collide(AABB &firstCollider, Transform modelMatrixFirstCollider,
       }
     }
     collisionInfo.addContactPoint(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f), bestAxis, penetration);
+    std::cout << "test" << std::endl;
     return (true);
   }
   return (false);

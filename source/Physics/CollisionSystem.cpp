@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "CollisionSystem.hpp"
 #include "Collision.hpp"
 #include "PhysicsObject.hpp"
@@ -10,26 +12,31 @@ void CollisionSystem::addCollider(std::shared_ptr<GameObject> collider) {
 }
 
 void CollisionSystem::collisionDections() {
+  //std::cout <<" start check" << std::endl;
+  //std::cout << m_colliders.size() << std::endl;
   for (auto i : m_colliders) {
     for (auto j : m_colliders) {
       CollisionInfo info;
       info.firstCollider  = i;
       info.secondCollider = j;
-      if (i->m_collider->m_shapeType == ICollisionShape::ShapeType::AABB && j->m_collider->m_shapeType == ICollisionShape::ShapeType::AABB) {
+      if (i == j)
+        continue;
+      //std::cout << "run a test" << static_cast<std::underlying_type<ShapeType>::type>(i->m_collider->m_shapeType) << std::endl;
+      if (i->m_collider->m_shapeType == ShapeType::AABB && j->m_collider->m_shapeType == ShapeType::AABB) {
         if (Collision::collide((AABB &)*i->m_collider, i->m_modelMatrix, (AABB &)*j->m_collider, j->m_modelMatrix, info) == true) {
           m_collisions.push_back(info);
         }
-      } else if (i->m_collider->m_shapeType == ICollisionShape::ShapeType::SPHERE && j->m_collider->m_shapeType == ICollisionShape::ShapeType::SPHERE) {
+      } else if (i->m_collider->m_shapeType == ShapeType::SPHERE && j->m_collider->m_shapeType == ShapeType::SPHERE) {
         CollisionInfo info;
         if (Collision::collide((Sphere &)*i->m_collider, i->m_modelMatrix, (Sphere &)*j->m_collider, j->m_modelMatrix, info) == true) {
           m_collisions.push_back(info);
         }
-      } else if (i->m_collider->m_shapeType == ICollisionShape::ShapeType::AABB && j->m_collider->m_shapeType == ICollisionShape::ShapeType::SPHERE) {
+      } else if (i->m_collider->m_shapeType == ShapeType::AABB && j->m_collider->m_shapeType == ShapeType::SPHERE) {
         CollisionInfo info;
         if (Collision::collide((AABB &)*i->m_collider, i->m_modelMatrix, (Sphere &)*j->m_collider, j->m_modelMatrix, info) == true) {
           m_collisions.push_back(info);
         }
-      } else if (i->m_collider->m_shapeType == ICollisionShape::ShapeType::SPHERE && j->m_collider->m_shapeType == ICollisionShape::ShapeType::AABB) {
+      } else if (i->m_collider->m_shapeType == ShapeType::SPHERE && j->m_collider->m_shapeType == ShapeType::AABB) {
         CollisionInfo info;
         if (Collision::collide((AABB &)*j->m_collider, j->m_modelMatrix, (Sphere &)*i->m_collider, i->m_modelMatrix, info) == true) {
           m_collisions.push_back(info);
@@ -44,6 +51,7 @@ void CollisionSystem::collisionResolution() {
     if ((*i).framesLeft == 5) {
       i->firstCollider->onCollisionBegin(i->secondCollider);
       i->secondCollider->onCollisionBegin(i->firstCollider);
+      ImpulseResolveCollision((*i));
     }
     (*i).framesLeft = (*i).framesLeft - 1;
     if ((*i).framesLeft < 0) {
@@ -55,8 +63,6 @@ void CollisionSystem::collisionResolution() {
     }
   }
 }
-
-#include <iostream>
 
 void CollisionSystem::ImpulseResolveCollision(CollisionInfo &p) const {
   PhysicsObject physA = p.firstCollider->m_physicObject;  //TODO change this if not working

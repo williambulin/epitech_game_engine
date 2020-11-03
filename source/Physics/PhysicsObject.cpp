@@ -64,5 +64,5 @@ void PhysicsObject::updateInertiaTensor() {
   Matrix<float, 3, 3> invOrientation	= q.conjugate().toMatrix3();
   Matrix<float, 3, 3> orientation		= q.toMatrix3();
 
-	m_inverseInteriaTensor = orientation * invOrientation;
+  m_inverseInteriaTensor = orientation * invOrientation;
 }

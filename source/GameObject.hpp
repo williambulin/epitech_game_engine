@@ -13,11 +13,11 @@ public:
   explicit GameObject(std::shared_ptr<ICollisionShape> collider);
 
   void onCollisionBegin(std::shared_ptr<GameObject> otherObject) {
-		//std::cout << "OnCollisionBegin event occured!\n";
+		std::cout << "OnCollisionBegin event occured!\n";
 	}
 
 	void onCollisionEnd(std::shared_ptr<GameObject> otherObject) {
-		//std::cout << "OnCollisionEnd event occured!\n";
+		std::cout << "OnCollisionEnd event occured!\n";
 	}
 
   Vector3f getWorldPosition() const {
@@ -25,6 +25,6 @@ public:
   }
 
   std::shared_ptr<ICollisionShape> m_collider;
-  Transform m_modelMatrix {};
+  Transform m_modelMatrix;
   PhysicsObject m_physicObject;
 };

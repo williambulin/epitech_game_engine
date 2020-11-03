@@ -14,9 +14,9 @@ float alpha        = 0.0f;  // Rotational angle for cube [NEW]
 float gamma2        = 0.0f;  // Rotational angle for cube [NEW]
 float beta         = 0.0f;  // Rotational angle for cube [NEW]
 int   refreshMills = 15;    // refresh interval in milliseconds [NEW]
-float x1           = -1.0f;
-float yy1          = -1.0f;
-float z1           = -6.0f;
+float x1           = 3.0f;
+float yy1          = 0.0f;
+float z1           = 0.0f;
 float x2           = 1.0f;
 float y2           = 1.0f;
 float z2           = -4.0f;
@@ -32,10 +32,14 @@ float deltaAngle = 0.0f;
 float deltaMove = 0;
 int xOrigin = -1;
 
-AABB rect(Vector3f(x1, yy1, z1), Vector3f(x2, y2, z2));
+AABB rect(Vector3f(-1.0f, -1.0f, -6.0f), Vector3f(1.0f, 1.0f, -4.0f));
 AABB rect2(Vector3f(-1.0f, 2.0f, -6.0f), Vector3f(1.0f, 4.0f, -4.0f));
 
 GameObject object1(std::make_shared<AABB>(rect));
+GameObject object2(std::make_shared<AABB>(rect2));
+
+std::shared_ptr<GameObject> ptr_object1 = std::make_shared<GameObject>(object1);
+std::shared_ptr<GameObject> ptr_object2 = std::make_shared<GameObject>(object2);
 
 CollisionSystem collisionSystem;
 
@@ -141,21 +145,26 @@ void drawAABB(std::vector<Vector3f> points, float red, float green, float blue) 
 void display() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // Clear color and depth buffers
   glMatrixMode(GL_MODELVIEW);                          // To operate on model-view matrix
+  ptr_object1->m_modelMatrix.m_modelMatrix.setTranslation(Vector3f(x1, yy1, z1));
 
-  auto points = rect.getPoints(Transform(), true);
+  auto points = rect.getPoints(ptr_object1->m_modelMatrix, true);
+/*   for(auto point: points) {
+    std::cout << "Point = " << point.x << " | " << point.y << " | " << point.z << std::endl;
+  } */
   auto points2 = rect2.getPoints(Transform(), true);
   CollisionInfo info;
-  //if (Collision::collide(rect, Transform(), rect2, Transform(), info) == true) {
-
-/*     std::cout << info.point.normal.x << " | " << info.point.normal.y << " | " << info.point.normal.z << " | " << info.point.penetration << std::endl;
+  collisionSystem.collisionDections();
+  collisionSystem.collisionResolution();
+  /*if (Collision::collide(rect, ptr_object1->m_modelMatrix, rect2, Transform(), info) == true) {
+    std::cout << info.point.normal.x << " | " << info.point.normal.y << " | " << info.point.normal.z << " | " << info.point.penetration << std::endl;
     if (info.point.normal.x == 1) {
       x1 -= 0.1;
       x2 -= 0.1;
     } else if (info.point.normal.y == 1) {
       yy1 -= 0.1;
       y2 -= 0.1;
-    } */
-  //}
+    }
+  }*/
   // Render a color-cube consisting of 6 quads with different colors
   glLoadIdentity();                          // Reset the model-view matrix
   	gluLookAt(	x, 1.0f, z,
@@ -173,6 +182,9 @@ void display() {
   glTranslatef(0.0f, 0.0f, -6.0f);           // Move right and into the screen
 
   drawAABB(points2, 0.0f, 0.0f, 1.0f);
+
+  //drawAABB(points2, 0.5f, 0.5f, 0.5f);
+
 
   glutSwapBuffers();  // Swap the front and back frame buffers (double buffering)
 
@@ -279,6 +291,9 @@ void mouseButton(int button, int state, int x, int y) {
 /* Main function: GLUT runs as a console application starting at main() */
 int main(int argc, char **argv) {
 
+  collisionSystem.addCollider(ptr_object1);
+  collisionSystem.addCollider(ptr_object2);
+  ptr_object1->m_modelMatrix.m_modelMatrix.setTranslation(Vector3f(x1, yy1, z1));
   glutInit(&argc, argv);             // Initialize GLUT
   glutInitDisplayMode(GLUT_DOUBLE);  // Enable double buffered mode
   glutInitWindowSize(640, 480);      // Set the window's initial width & height
