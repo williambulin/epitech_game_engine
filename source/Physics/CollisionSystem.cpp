@@ -90,10 +90,10 @@ void CollisionSystem::ImpulseResolveCollision(CollisionInfo &p) const {
 
   Vector3 fullImpulse = p.point.normal * j ;
 
-  physA.applyLinearImpulse(-fullImpulse);
+  physA.applyLinearImpulse(fullImpulse * Vector3f {-1, -1, -1});
   physB.applyLinearImpulse(fullImpulse);
 
-  physA.applyAngularImpulse(relativeA.cross(-fullImpulse));
+  physA.applyAngularImpulse(relativeA.cross(fullImpulse * Vector3f {-1, -1, -1}));
   physB.applyAngularImpulse(relativeB.cross(fullImpulse));
 
 
