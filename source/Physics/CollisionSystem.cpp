@@ -68,8 +68,8 @@ void CollisionSystem::ImpulseResolveCollision(CollisionInfo &p) const {
   transformA.m_modelMatrix.setTranslation(p.firstCollider->getWorldPosition() - (p.point.normal * p.point.penetration * (physA.getInverseMass() / totalMass)));
   transformB.m_modelMatrix.setTranslation(p.secondCollider->getWorldPosition() - (p.point.normal * p.point.penetration * (physB.getInverseMass() / totalMass)));
 
-  Vector3f relativeA = p.point.position - p.firstCollider->getWorldPosition();
-  Vector3f relativeB = p.point.position - p.secondCollider->getWorldPosition();
+  Vector3f relativeA = p.point.localA - p.firstCollider->getWorldPosition();
+  Vector3f relativeB = p.point.localB - p.secondCollider->getWorldPosition();
   Vector3f angVelocityA = physA.getAngularVelocity().cross(relativeA);
   Vector3f angVelocityB = physB.getAngularVelocity().cross(relativeB);
 
