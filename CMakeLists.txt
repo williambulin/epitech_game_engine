@@ -28,6 +28,8 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/CollisionSystem.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/PhysicsObject.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/PhysicsObject.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/GameObject.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/GameObject.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Shapes/AABB.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Shapes/AABB.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Shapes/OBB.hpp

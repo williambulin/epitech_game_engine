@@ -4,8 +4,9 @@
 #include <GL/glut.h>  // GLUT, include glu.h and gl.h
 #include "Physics/Shapes/AABB.hpp"
 #include "Physics/Collision.hpp"
+#include "Physics/CollisionSystem.hpp"
 #include <math.h> /* sin */
-
+#include <iostream>
 /* Global variables */
 char  title[]      = "3D Shapes";
 float angleCube    = 0.0f;  // Rotational angle for cube [NEW]
@@ -31,6 +32,12 @@ float deltaAngle = 0.0f;
 float deltaMove = 0;
 int xOrigin = -1;
 
+AABB rect(Vector3f(x1, yy1, z1), Vector3f(x2, y2, z2));
+AABB rect2(Vector3f(-1.0f, 2.0f, -6.0f), Vector3f(1.0f, 4.0f, -4.0f));
+
+GameObject object1(std::make_shared<AABB>(rect));
+
+CollisionSystem collisionSystem;
 
 /* Called back when timer expired [NEW] */
 void timer(int value) {
@@ -135,21 +142,20 @@ void display() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // Clear color and depth buffers
   glMatrixMode(GL_MODELVIEW);                          // To operate on model-view matrix
 
-  AABB rect(Vector3f(x1, yy1, z1), Vector3f(x2, y2, z2));
   auto points = rect.getPoints(Transform(), true);
-  AABB rect2(Vector3f(-1.0f, 2.0f, -6.0f), Vector3f(1.0f, 4.0f, -4.0f));
   auto points2 = rect2.getPoints(Transform(), true);
   CollisionInfo info;
-  if (Collision::collide(rect, Transform(), rect2, Transform(), info) == true) {
-    std::cout << info.point.normal.x << " | " << info.point.normal.y << " | " << info.point.normal.z << " | " << info.point.penetration << std::endl;
+  //if (Collision::collide(rect, Transform(), rect2, Transform(), info) == true) {
+
+/*     std::cout << info.point.normal.x << " | " << info.point.normal.y << " | " << info.point.normal.z << " | " << info.point.penetration << std::endl;
     if (info.point.normal.x == 1) {
       x1 -= 0.1;
       x2 -= 0.1;
     } else if (info.point.normal.y == 1) {
       yy1 -= 0.1;
       y2 -= 0.1;
-    }
-  }
+    } */
+  //}
   // Render a color-cube consisting of 6 quads with different colors
   glLoadIdentity();                          // Reset the model-view matrix
   	gluLookAt(	x, 1.0f, z,
@@ -272,6 +278,7 @@ void mouseButton(int button, int state, int x, int y) {
 
 /* Main function: GLUT runs as a console application starting at main() */
 int main(int argc, char **argv) {
+
   glutInit(&argc, argv);             // Initialize GLUT
   glutInitDisplayMode(GLUT_DOUBLE);  // Enable double buffered mode
   glutInitWindowSize(640, 480);      // Set the window's initial width & height

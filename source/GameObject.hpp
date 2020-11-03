@@ -5,15 +5,18 @@
 #include "Physics/ICollisionShape.hpp"
 #include "Physics/Shapes/AABB.hpp"
 #include "Physics/Transform.hpp"
-#include "PhysicsObject.hpp"
+#include "Physics/PhysicsObject.hpp"
 
 class GameObject {
 public:
-  virtual void onCollisionBegin(std::shared_ptr<GameObject> otherObject) {
+
+  explicit GameObject(std::shared_ptr<ICollisionShape> collider);
+
+  void onCollisionBegin(std::shared_ptr<GameObject> otherObject) {
 		//std::cout << "OnCollisionBegin event occured!\n";
 	}
 
-	virtual void onCollisionEnd(std::shared_ptr<GameObject> otherObject) {
+	void onCollisionEnd(std::shared_ptr<GameObject> otherObject) {
 		//std::cout << "OnCollisionEnd event occured!\n";
 	}
 

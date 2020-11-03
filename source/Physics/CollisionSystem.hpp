@@ -8,12 +8,13 @@
 
 class CollisionSystem {
 public:
-  void addCollider(GameObject &collider);
+  explicit CollisionSystem();
+  void addCollider(std::shared_ptr<GameObject> collider);
   void collisionDections();
   void collisionResolution();
 
   void ImpulseResolveCollision(CollisionInfo &p) const;
 private:
-  std::vector<GameObject> &m_colliders;
+  std::vector<std::shared_ptr<GameObject>> m_colliders;
   std::vector<CollisionInfo> m_collisions;
 };

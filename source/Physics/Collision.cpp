@@ -6,11 +6,12 @@
 #include "Collision.hpp"
 
 bool Collision::collide(AABB &firstCollider, Transform modelMatrixFirstCollider, AABB &secondCollider, Transform modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
-  // apply transformation
-  Vector3f minFirstCollider  = firstCollider.getMin();
-  Vector3f maxFirstCollider  = firstCollider.getMax();
-  Vector3f minSecondCollider = secondCollider.getMin();
-  Vector3f maxSecondCollider = secondCollider.getMax();
+  auto firstPoints = firstCollider.getPoints(modelMatrixFirstCollider);
+  auto secondPoints = secondCollider.getPoints(modelMatrixSecondCollider);
+  Vector3f minFirstCollider  = firstPoints.front();
+  Vector3f maxFirstCollider  = firstPoints.back();
+  Vector3f minSecondCollider = secondPoints.front();
+  Vector3f maxSecondCollider = secondPoints.back();
 
   if (maxFirstCollider.x > minSecondCollider.x && minFirstCollider.x < maxSecondCollider.x && maxFirstCollider.y > minSecondCollider.y && minFirstCollider.y < maxSecondCollider.y && maxFirstCollider.z > minSecondCollider.z && minFirstCollider.z < maxSecondCollider.z) {
     static const Vector3f faces[6] = {
