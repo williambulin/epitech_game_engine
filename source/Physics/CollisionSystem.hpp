@@ -14,6 +14,8 @@ public:
   void collisionResolution();
 
   void ImpulseResolveCollision(CollisionInfo &p) const;
+  void IntegrateVelocity(float dt);
+
 private:
   std::vector<std::shared_ptr<GameObject>> m_colliders;
   std::vector<CollisionInfo> m_collisions;
