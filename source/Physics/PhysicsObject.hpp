@@ -80,9 +80,9 @@ protected:
   Vector3f inverseInertia{0.0f, 0.0f, 0.0f};
 	Matrix<float, 3, 3> m_inverseInteriaTensor{
     std::array<std::array<float, 3>, 3> {
-    std::array<float, 3>{1.0f, 0.0f, 0.0f},
-    std::array<float, 3>{0.0f, 1.0f, 0.0f},
-    std::array<float, 3>{0.0f, 0.0f, 1.0f},
+    std::array<float, 3>{0.0f, 0.0f, 0.0f},
+    std::array<float, 3>{0.0f, 0.0f, 0.0f},
+    std::array<float, 3>{0.0f, 0.0f, 0.0f},
     }
   };
 };

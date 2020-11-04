@@ -5,7 +5,6 @@
 
 AABB::AABB(const Vector3f &min, const Vector3f &max) noexcept : ICollisionShape(ShapeType::AABB), m_min{min}, m_max{max} {
   this->m_shapeType = ShapeType::AABB;
-  //std::cout << "in aabb: " << static_cast<std::underlying_type<ShapeType>::type>(m_shapeType) << std::endl;
 }
 
 AABB::AABB(const AABB &second) noexcept : ICollisionShape(ShapeType::AABB), m_min{second.m_min}, m_max{second.m_max} {}
@@ -25,9 +24,7 @@ auto AABB::getPoints(Transform transform, bool forceInvalidate) -> std::vector<V
   points.push_back(m_max);
 
   for (auto &point : points) {
-    //std::cout << "Point avant = " << point.x << " | " << point.y << " | " << point.z << std::endl;
     point = transform.m_modelMatrix * point;
-    //std::cout << "Point apres = " << point.x << " | " << point.y << " | " << point.z << std::endl;
   }
  
   float max_x = (*std::max_element(points.begin(),

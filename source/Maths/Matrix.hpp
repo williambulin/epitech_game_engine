@@ -191,16 +191,12 @@ const Vector<T, height> &Matrix<T, width, height>::operator[](std::size_t i) con
 template <class T, std::size_t width, std::size_t height>
 Vector<T, height> Matrix<T, width, height>::operator*(const Vector<T, width> &v) const {
   Vector<T, height> ret{};
-  //std::cout << "Point avant multiply = " << v[0] << " | " << v[1] << " | " << v[2] << " | " << v[3] << std::endl;
-  //std::cout << "Matrix : " << std::endl;
   for (int i = 0; i < height; ++i) {
     ret[i] = 0.0f;
     for (int j = 0; j < width; ++j) {
-      //std::cout << "Matrix " << i << " " << j << ": " << m_matrix[i][j] << " * " << v[j] << std::endl;
       ret[i] += (m_matrix[j][i] * v[j]);
     }
   }
-  //std::cout << "Point apres multiply = " << ret[0] << " | " << ret[1] << " | " << ret[2] << " | " <<ret[3] << std::endl;
   return ret;
 }
 template <class T, std::size_t width, std::size_t height>
