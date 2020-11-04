@@ -40,7 +40,6 @@ GameObject object2(std::make_shared<AABB>(rect2));
 
 std::shared_ptr<GameObject> ptr_object1 = std::make_shared<GameObject>(object1);
 std::shared_ptr<GameObject> ptr_object2 = std::make_shared<GameObject>(object2);
-
 CollisionSystem collisionSystem;
 
 /* Called back when timer expired [NEW] */
@@ -148,9 +147,9 @@ void display() {
   ptr_object1->m_modelMatrix.m_modelMatrix.setTranslation(Vector3f(x1, yy1, z1));
 
   auto points = rect.getPoints(ptr_object1->m_modelMatrix, true);
-/*   for(auto point: points) {
-    std::cout << "Point = " << point.x << " | " << point.y << " | " << point.z << std::endl;
-  } */
+  //for(auto point: points) {
+  //  std::cout << "Point = " << point.x << " | " << point.y << " | " << point.z << std::endl;
+  //}
   auto points2 = rect2.getPoints(Transform(), true);
   CollisionInfo info;
   collisionSystem.collisionDections();
@@ -290,6 +289,8 @@ void mouseButton(int button, int state, int x, int y) {
 
 /* Main function: GLUT runs as a console application starting at main() */
 int main(int argc, char **argv) {
+
+  ptr_object1->m_physicObject.applyLinearImpulse(Vector3f(-0.2f, 0.0f, 0.0f));
 
   collisionSystem.addCollider(ptr_object1);
   collisionSystem.addCollider(ptr_object2);
