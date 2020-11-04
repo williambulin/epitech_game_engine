@@ -104,6 +104,25 @@ void CollisionSystem::ImpulseResolveCollision(CollisionInfo &p) const {
 
   physA.applyAngularImpulse(relativeA.cross(fullImpulse * -1));
   physB.applyAngularImpulse(relativeB.cross(fullImpulse));
+}
 
+void CollisionSystem::IntegrateVelocity(float dt) {
+  float dampingFactor = 1.0f - 0.95f ;
+  float frameDamping = powf ( dampingFactor , dt );
 
+  for (auto object : m_colliders) {
+    PhysicsObject objectCollider = object->m_physicObject;
+    if ( object == nullptr ) {
+      continue ;
+    }
+    Transform &transform = object->m_modelMatrix;
+    // Position Stuff
+    Vector3 position = transform.m_modelMatrix.getTranslation();
+    Vector3 linearVel = objectCollider.getLinearVelocity();
+    position += linearVel * dt;
+    transform.m_modelMatrix.setTranslation(position);
+    // Linear Damping
+    linearVel = linearVel * frameDamping ;
+    objectCollider.setLinearVelocity(linearVel);
+  }
 }
