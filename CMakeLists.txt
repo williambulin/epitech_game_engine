@@ -11,11 +11,10 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif ()
 
 
-add_executable(
-  epitech_game_engine
+set(
+  COMMON_SOURCES
   ${CMAKE_CURRENT_LIST_DIR}/source/Extension/Language/Keywords.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Extension/Language/Platform.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/source/main.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Global/ApplicationBase.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Global/ApplicationBase.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Core.cpp
@@ -41,14 +40,32 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Quaternion.hpp
 )
 
+add_executable(
+  epitech_game_engine
+  ${COMMON_SOURCES}
+  ${CMAKE_CURRENT_LIST_DIR}/source/main.cpp
+)
+
+add_executable(
+  epitech_collision_test
+  ${COMMON_SOURCES}
+  ${CMAKE_CURRENT_LIST_DIR}/source/mainTestCollision.cpp
+)
+
 target_include_directories(
   epitech_game_engine PRIVATE
 
   ${CMAKE_CURRENT_LIST_DIR}/source
 )
 
+target_include_directories(
+  epitech_collision_test PRIVATE
+
+  ${CMAKE_CURRENT_LIST_DIR}/source
+)
+
 target_link_libraries(
-  epitech_game_engine PRIVATE
+  epitech_collision_test PRIVATE
   GL
   glut
   GLU
