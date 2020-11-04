@@ -108,7 +108,7 @@ void CollisionSystem::ImpulseResolveCollision(CollisionInfo &p) const {
 
 void CollisionSystem::IntegrateVelocity(float dt) {
   float dampingFactor = 1.0f - 0.95f ;
-  float frameDamping = powf ( dampingFactor , dt );
+  float frameDamping = powf(dampingFactor , dt);
 
   for (auto object : m_colliders) {
     PhysicsObject objectCollider = object->m_physicObject;
