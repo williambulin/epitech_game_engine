@@ -66,66 +66,64 @@ bool Input::combinationKeyStroke(std::vector<int> comb) {
 }
 
 void Input::startTriggeringInput() {
-  while (1) {
-    for (auto it = _keys.begin(); it != _keys.end(); it++) {
-      if ((*it)->isDestroy() == true) {
-        _keys.erase(it);
-        break;
-      }
+  for (auto it = _keys.begin(); it != _keys.end(); it++) {
+    if ((*it)->isDestroy() == true) {
+      _keys.erase(it);
+      break;
     }
-    _mouse->resetState();
-    while (PeekMessage(&_msg, _dummyHWND, 0, 0, PM_REMOVE)) {
-      TranslateMessage(&_msg);
-      DispatchMessage(&_msg);
-      unsigned        size = sizeof(RAWINPUT);
-      static RAWINPUT raw[sizeof(RAWINPUT)];
-      GetRawInputData((HRAWINPUT)_msg.lParam, RID_INPUT, raw, &size, sizeof(RAWINPUTHEADER));
-      _mouse->setWheel(GET_WHEEL_DELTA_WPARAM(_msg.wParam));
-      if (raw->header.dwType == RIM_TYPEMOUSE)
-        _mouse->setMousePosition(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
-      switch (_msg.message) {
-        case WM_LBUTTONDBLCLK:
-          _mouse->stateChanges(Mouse::INPUT_e::Left, Mouse::STATE_e::DBClick);
-          break;
-        case WM_RBUTTONDBLCLK:
-          _mouse->stateChanges(Mouse::INPUT_e::Right, Mouse::STATE_e::DBClick);
-          break;
-        case WM_LBUTTONDOWN:
-          _mouse->stateChanges(Mouse::INPUT_e::Left, Mouse::STATE_e::Pressed);
-          break;
-        case WM_LBUTTONUP:
-          _mouse->stateChanges(Mouse::INPUT_e::Left, Mouse::STATE_e::Released);
-          break;
-        case WM_RBUTTONDOWN:
-          _mouse->stateChanges(Mouse::INPUT_e::Right, Mouse::STATE_e::Pressed);
-          break;
-        case WM_RBUTTONUP:
-          _mouse->stateChanges(Mouse::INPUT_e::Right, Mouse::STATE_e::Released);
-          break;
-        case WM_MBUTTONDOWN:
-          _mouse->stateChanges(Mouse::INPUT_e::Middle, Mouse::STATE_e::Pressed);
-          break;
-        case WM_MBUTTONUP:
-          _mouse->stateChanges(Mouse::INPUT_e::Middle, Mouse::STATE_e::Released);
-          break;
+  }
+  _mouse->resetState();
+  while (PeekMessage(&_msg, _dummyHWND, 0, 0, PM_REMOVE)) {
+    TranslateMessage(&_msg);
+    DispatchMessage(&_msg);
+    unsigned        size = sizeof(RAWINPUT);
+    static RAWINPUT raw[sizeof(RAWINPUT)];
+    GetRawInputData((HRAWINPUT)_msg.lParam, RID_INPUT, raw, &size, sizeof(RAWINPUTHEADER));
+    _mouse->setWheel(GET_WHEEL_DELTA_WPARAM(_msg.wParam));
+    if (raw->header.dwType == RIM_TYPEMOUSE)
+      _mouse->setMousePosition(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+    switch (_msg.message) {
+      case WM_LBUTTONDBLCLK:
+        _mouse->stateChanges(Mouse::INPUT_e::Left, Mouse::STATE_e::DBClick);
+        break;
+      case WM_RBUTTONDBLCLK:
+        _mouse->stateChanges(Mouse::INPUT_e::Right, Mouse::STATE_e::DBClick);
+        break;
+      case WM_LBUTTONDOWN:
+        _mouse->stateChanges(Mouse::INPUT_e::Left, Mouse::STATE_e::Pressed);
+        break;
+      case WM_LBUTTONUP:
+        _mouse->stateChanges(Mouse::INPUT_e::Left, Mouse::STATE_e::Released);
+        break;
+      case WM_RBUTTONDOWN:
+        _mouse->stateChanges(Mouse::INPUT_e::Right, Mouse::STATE_e::Pressed);
+        break;
+      case WM_RBUTTONUP:
+        _mouse->stateChanges(Mouse::INPUT_e::Right, Mouse::STATE_e::Released);
+        break;
+      case WM_MBUTTONDOWN:
+        _mouse->stateChanges(Mouse::INPUT_e::Middle, Mouse::STATE_e::Pressed);
+        break;
+      case WM_MBUTTONUP:
+        _mouse->stateChanges(Mouse::INPUT_e::Middle, Mouse::STATE_e::Released);
+        break;
 
-        case WM_KEYUP:
-          releasedKeys(_msg.wParam);
-          break;
-        case WM_KEYDOWN:
-          switch (_msg.wParam) {
-            case 0x1B:
-              DestroyWindow(_dummyHWND);
-              exit(0);
-            default:
-              addKeypressed(_msg.wParam);
-              break;
-          }
-          break;
-        case WM_DESTROY:
-          PostQuitMessage(0);
-          break;
-      }
+      case WM_KEYUP:
+        releasedKeys(_msg.wParam);
+        break;
+      case WM_KEYDOWN:
+        switch (_msg.wParam) {
+          case 0x1B:
+            DestroyWindow(_dummyHWND);
+            exit(0);
+          default:
+            addKeypressed(_msg.wParam);
+            break;
+        }
+        break;
+      case WM_DESTROY:
+        PostQuitMessage(0);
+        break;
     }
   }
 }

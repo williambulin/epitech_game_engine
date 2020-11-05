@@ -23,7 +23,11 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/source/Core.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Inputs/Input.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Inputs/Input.hpp
-)
+  ${CMAKE_CURRENT_LIST_DIR}/source/Inputs/Key.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Inputs/Key.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Inputs/Mouse.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Inputs/Mouse.hpp
+  )
 
 target_include_directories(
   epitech_game_engine PRIVATE
