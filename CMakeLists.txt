@@ -4,30 +4,71 @@ project(epitech_game_engine)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
+set(CMAKE_CXX_FLAGS "-g3")
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weverything -Wno-unknown-argument -Wno-c++98-compat -Wno-c++17-extensions -Wno-c++98-compat-pedantic -Wno-global-constructors -Wno-exit-time-destructors -Wno-c99-extensions")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a")
 endif ()
 
 
-add_executable(
-  epitech_game_engine
-
+set(
+  COMMON_SOURCES
   ${CMAKE_CURRENT_LIST_DIR}/source/Extension/Language/Keywords.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Extension/Language/Platform.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/source/main.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Global/ApplicationBase.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Global/ApplicationBase.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Core.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Core.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Collision.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Collision.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Transform.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Transform.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/CollisionSystem.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/CollisionSystem.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/PhysicsObject.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/PhysicsObject.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/GameObject.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/GameObject.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Shapes/AABB.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Shapes/AABB.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Shapes/OBB.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Shapes/OBB.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Shapes/Sphere.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Shapes/Sphere.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Vectors.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Matrix.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Quaternion.hpp
+)
 
+add_executable(
+  epitech_game_engine
+  ${COMMON_SOURCES}
+  ${CMAKE_CURRENT_LIST_DIR}/source/main.cpp
+)
+
+add_executable(
+  epitech_collision_test
+  ${COMMON_SOURCES}
+  ${CMAKE_CURRENT_LIST_DIR}/source/mainTestCollision.cpp
 )
 
 target_include_directories(
   epitech_game_engine PRIVATE
 
   ${CMAKE_CURRENT_LIST_DIR}/source
+)
+
+target_include_directories(
+  epitech_collision_test PRIVATE
+
+  ${CMAKE_CURRENT_LIST_DIR}/source
+)
+
+target_link_libraries(
+  epitech_collision_test PRIVATE
+  GL
+  glut
+  GLU
 )
 
 if(EXISTS "${CMAKE_BINARY_DIR}/compile_commands.json")
