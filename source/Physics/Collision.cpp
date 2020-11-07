@@ -1,6 +1,4 @@
-#include <math.h> /* fabs */
 #include <iostream>
-#include <algorithm>
 #include <cfloat>
 
 #include "Collision.hpp"

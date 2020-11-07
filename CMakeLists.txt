@@ -37,6 +37,7 @@ set(
   ${CMAKE_CURRENT_LIST_DIR}/source/Physics/Shapes/Sphere.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Vectors.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Matrix.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Quaternion.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Quaternion.hpp
 )
 

@@ -1,4 +1,3 @@
-#include <Maths/Quaternion.hpp>
 #include "Physics/PhysicsObject.hpp"
 
 PhysicsObject::PhysicsObject(std::shared_ptr<ICollisionShape> parentCollider, std::shared_ptr<Transform> parentTransform) :
