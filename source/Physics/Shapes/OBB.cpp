@@ -1,8 +1,8 @@
 #include "OBB.hpp"
 
-OBB::OBB(Vector3f &min, Vector3f &max) noexcept : m_min{min}, m_max{max} {}
+OBB::OBB(const Vector3f &min, const Vector3f &max) noexcept : ICollisionShape(ShapeType::OBB), m_min{min}, m_max{max} {}
 
-OBB::OBB(const OBB &second) noexcept : m_min{second.m_min}, m_oldTransform{second.m_oldTransform}, m_max{second.m_max}, m_pointsCache{second.m_pointsCache} {}
+OBB::OBB(const OBB &second) noexcept : ICollisionShape(ShapeType::OBB), m_min{second.m_min}, m_oldTransform{second.m_oldTransform}, m_max{second.m_max}, m_pointsCache{second.m_pointsCache} {}
 
 auto OBB::getPoints(Transform transform, bool forceInvalidate) -> std::vector<Vector3f> {
   if (!forceInvalidate && transform == m_oldTransform && m_pointsCache.size() > 0) {
@@ -17,7 +17,11 @@ auto OBB::getPoints(Transform transform, bool forceInvalidate) -> std::vector<Ve
   points.push_back(Vector3f{m_min.x, m_min.y, m_max.z});
   points.push_back(Vector3f{m_max.x, m_min.y, m_max.z});
   points.push_back(m_max);
-  // apply transform
+
+  for (auto &point : points) {
+    point = transform.m_modelMatrix * point;
+  }
+ 
   m_pointsCache  = points;
   m_oldTransform = transform;
   return points;

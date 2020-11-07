@@ -6,7 +6,7 @@
 
 class OBB final : public ICollisionShape {
 public:
-  explicit OBB(Vector3f &min, Vector3f &max) noexcept;
+  explicit OBB(const Vector3f &min, const Vector3f &max) noexcept;
 
   explicit OBB(const OBB &second) noexcept;
 
