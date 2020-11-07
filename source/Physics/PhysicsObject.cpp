@@ -15,7 +15,7 @@ void PhysicsObject::applyAngularImpulse(const Vector3f& force) {
 }
 
 void PhysicsObject::applyLinearImpulse(const Vector3f& force) {
-	m_linearVelocity /= Vector3f(2.0f, 2.0f, 2.0f); 
+	//m_linearVelocity /= Vector3f(2.0f, 2.0f, 2.0f); 
 	m_linearVelocity += force * m_inverseMass;
 }
 

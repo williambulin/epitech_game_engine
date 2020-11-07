@@ -218,6 +218,7 @@ void display() {
   }
   nbLoop++;
   //exit(0);
+  //exit(0);
   // angleCube -= 0.15f;
 }
 
@@ -317,8 +318,8 @@ void mouseButton(int button, int state, int x, int y) {
 /* Main function: GLUT runs as a console application starting at main() */
 int main(int argc, char **argv) {
 
-  ptr_object1->m_physicObject.applyLinearImpulse(Vector3f(-35.0f, 35.0f, 0.0f));
-  //ptr_object1->m_physicObject.applyAngularImpulse(Vector3f(-35.0f, 35.0f, 0.0f));
+  ptr_object1->m_physicObject.applyLinearImpulse(Vector3f(-25.0f, 25.0f, 0.0f));
+  ptr_object1->m_physicObject.applyAngularImpulse(Vector3f(0.0f, 0.0f, 52.0f));
   ptr_object4->m_physicObject.applyLinearImpulse(Vector3f(0.0f, 15.0f, 0.0f));
 
   collisionSystem.addCollider(ptr_object1);

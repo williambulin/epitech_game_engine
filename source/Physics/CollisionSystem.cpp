@@ -135,15 +135,18 @@ void CollisionSystem::IntegrateVelocity(float dt) {
     objectCollider.setLinearVelocity(linearVel);
 
     //first implem angular
-    /* Quaternion orientation = Quaternion::fromMatrix(transform.m_modelMatrix.getRotation());
+    Quaternion orientation = Quaternion::fromMatrix(transform.m_modelMatrix.getRotation());
     Vector3f angVel = objectCollider.getAngularVelocity();
     
     Vector3f tempVec = angVel * dt * 0.5f;
+    Quaternion tmp2(tempVec.x, tempVec.y, tempVec.z, 0.0f);
+    Quaternion tmp = (Quaternion (tempVec.x, tempVec.y, tempVec.z, 0.0f) * orientation);
     orientation = orientation + (Quaternion (tempVec.x, tempVec.y, tempVec.z, 0.0f) * orientation);
+
     orientation.normalize();
     transform.m_modelMatrix.setRotation(orientation.toMatrix3());
     // Damp the angular velocity too
     angVel = angVel * frameDamping;
-    objectCollider.setAngularVelocity(angVel); */
+    objectCollider.setAngularVelocity(angVel);
   }
 }

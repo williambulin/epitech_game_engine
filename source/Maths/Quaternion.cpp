@@ -1,7 +1,6 @@
 #include "Quaternion.hpp"
 
 Quaternion::Quaternion(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {
-  normalize();
 }
 
 
@@ -106,12 +105,12 @@ Quaternion Quaternion::slerp(Quaternion a, Quaternion b, float blend) {
   return Quaternion{coeff1 * a.x + coeff2 * b.x, coeff1 * a.y + coeff2 * b.y, coeff1 * a.z + coeff2 * b.z, coeff1 * a.w + coeff2 * b.w};
 }
 Quaternion Quaternion::operator*(const Quaternion& b) const {
-  return Quaternion(
-  w * b.w - x * b.x - y * b.y - z * b.z,
-  w * b.x + x * b.w + y * b.z - z * b.y,
-  w * b.y - x * b.z + y * b.w + z * b.x,
-  w * b.z + x * b.y - y * b.x + z * b.w
-  );
+				return Quaternion(
+					(x * b.w) + (w * b.x) + (y * b.z) - (z * b.y),
+					(y * b.w) + (w * b.y) + (z * b.x) - (x * b.z),
+					(z * b.w) + (w * b.z) + (x * b.y) - (y * b.x),
+					(w * b.w) - (x * b.x) - (y * b.y) - (z * b.z)
+				);
 }
 
 Quaternion  Quaternion::operator+(const Quaternion &a)	const {
@@ -122,15 +121,28 @@ Quaternion Quaternion::conjugate() const {
   return Quaternion(-x, -y, -z, w);
 }
 Matrix<float, 3, 3> Quaternion::toMatrix3() const {
-  const float         xy       = x * y;
-  const float         xz       = x * z;
-  const float         xw       = x * w;
-  const float         yz       = y * z;
-  const float         yw       = y * w;
-  const float         zw       = z * w;
-  const float         xSquared = x * x;
-  const float         ySquared = y * y;
-  const float         zSquared = z * z;
-  Matrix<float, 3, 3> ret{{{1 - 2 * (ySquared + zSquared), 2 * (xy - zw), 2 * (xz + yw)}, {2 * (xy + zw), 1 - 2 * (xSquared + zSquared), 2 * (yz - xw)}, {2 * (xz - yw), 2 * (yz + xw), 1 - 2 * (xSquared + ySquared)}}};
-  return ret;
+  Matrix<float, 3, 3> mat;
+
+	float yy = y*y;
+	float zz = z*z;
+	float xy = x*y;
+	float zw = z*w;
+	float xz = x*z;
+	float yw = y*w;
+	float xx = x*x;
+	float yz = y*z;
+	float xw = x*w;
+
+	mat[0][0] = 1 - 2 * yy - 2 * zz;
+	mat[0][1] = 2 * xy + 2 * zw;
+	mat[0][2] = 2 * xz - 2 * yw;
+
+	mat[1][0] = 2 * xy - 2 * zw;
+	mat[1][1] = 1 - 2 * xx - 2 * zz;
+	mat[1][2] = 2 * yz + 2 * xw;
+
+	mat[2][0] = 2 * xz + 2 * yw;
+	mat[2][1] = 2 * yz - 2 * xw;
+	mat[2][2] = 1 - 2 * xx - 2 * yy;
+  return mat;
 }

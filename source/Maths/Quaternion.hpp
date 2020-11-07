@@ -4,7 +4,7 @@
 #include "Matrix.hpp"
 
 class Quaternion {
-private:
+public:
   float x;
   float y;
   float z;
