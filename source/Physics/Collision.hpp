@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cmath>
-#include <optional>
 #include <memory>
 
 #include "Maths/Vectors.hpp"

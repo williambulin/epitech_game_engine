@@ -36,17 +36,14 @@ void CollisionSystem::collisionDections() {
           m_collisions.push_back(info);
         }
       } else if ((*i)->m_collider->m_shapeType == ShapeType::SPHERE && (*j)->m_collider->m_shapeType == ShapeType::SPHERE) {
-        CollisionInfo info;
         if (Collision::collide((Sphere &)*(*i)->m_collider, (*i)->m_modelMatrix, (Sphere &)*(*j)->m_collider, (*j)->m_modelMatrix, info) == true) {
           m_collisions.push_back(info);
         }
       } else if ((*i)->m_collider->m_shapeType == ShapeType::AABB && (*j)->m_collider->m_shapeType == ShapeType::SPHERE) {
-        CollisionInfo info;
         if (Collision::collide((AABB &)*(*i)->m_collider, (*i)->m_modelMatrix, (Sphere &)*(*j)->m_collider, (*j)->m_modelMatrix, info) == true) {
           m_collisions.push_back(info);
         }
       } else if ((*i)->m_collider->m_shapeType == ShapeType::SPHERE && (*j)->m_collider->m_shapeType == ShapeType::AABB) {
-        CollisionInfo info;
         if (Collision::collide((AABB &)*(*j)->m_collider, (*j)->m_modelMatrix, (Sphere &)*(*i)->m_collider, (*i)->m_modelMatrix, info) == true) {
           m_collisions.push_back(info);
         }
@@ -108,11 +105,14 @@ void CollisionSystem::ImpulseResolveCollision(CollisionInfo &p) const {
 
   Vector3f fullImpulse = p.point.normal * j;
   Vector3f fullImpulseTemp = fullImpulse * -1;
-  physA.applyLinearImpulse(fullImpulse * -1);
-  physB.applyLinearImpulse(fullImpulse);
-
-  physA.applyAngularImpulse(relativeA.cross(fullImpulse * -1));
-  physB.applyAngularImpulse(relativeB.cross(fullImpulse));
+  if (!physA.getIsRigid()) {
+    physA.applyLinearImpulse(fullImpulse * -1);
+    physA.applyAngularImpulse(relativeA.cross(fullImpulse * -1));
+  }
+  if (!physB.getIsRigid()) {
+    physB.applyLinearImpulse(fullImpulse);
+    physB.applyAngularImpulse(relativeB.cross(fullImpulse));
+  }
 }
 
 void CollisionSystem::IntegrateVelocity(float dt) {
@@ -133,5 +133,20 @@ void CollisionSystem::IntegrateVelocity(float dt) {
     // Linear Damping
     linearVel = linearVel * frameDamping;
     objectCollider.setLinearVelocity(linearVel);
+
+    //first implem angular
+    Quaternion orientation = Quaternion::fromMatrix(transform.m_modelMatrix.getRotation());
+    Vector3f angVel = objectCollider.getAngularVelocity();
+    
+    Vector3f tempVec = angVel * dt * 0.5f;
+    Quaternion tmp2(tempVec.x, tempVec.y, tempVec.z, 0.0f);
+    Quaternion tmp = (Quaternion (tempVec.x, tempVec.y, tempVec.z, 0.0f) * orientation);
+    orientation = orientation + (Quaternion (tempVec.x, tempVec.y, tempVec.z, 0.0f) * orientation);
+
+    orientation.normalize();
+    transform.m_modelMatrix.setRotation(orientation.toMatrix3());
+    // Damp the angular velocity too
+    angVel = angVel * frameDamping;
+    objectCollider.setAngularVelocity(angVel);
   }
 }
