@@ -5,9 +5,10 @@ PhysicsObject::PhysicsObject(std::shared_ptr<ICollisionShape> parentCollider, st
   m_modelMatrix(parentTransform),
   m_collider(parentCollider)
 {
-  m_inverseMass = 1.0f;
-	m_elasticity	= 0.8f;
-	m_friction	= 0.8f;
+    m_inverseMass = 1.0f;
+	m_elasticity  = 0.8f;
+	m_friction	  = 0.8f;
+	m_isRigid     = false;
 }
 
 void PhysicsObject::applyAngularImpulse(const Vector3f& force) {
@@ -15,6 +16,7 @@ void PhysicsObject::applyAngularImpulse(const Vector3f& force) {
 }
 
 void PhysicsObject::applyLinearImpulse(const Vector3f& force) {
+	m_linearVelocity /= Vector3f(2.0f, 2.0f, 2.0f); 
 	m_linearVelocity += force * m_inverseMass;
 }
 

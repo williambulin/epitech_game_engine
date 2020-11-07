@@ -47,9 +47,10 @@ bool Collision::collide(AABB &firstCollider, Transform modelMatrixFirstCollider,
 }
 
 bool Collision::collide(const Sphere &firstCollider, Transform modelMatrixFirstCollider, const Sphere &secondCollider, Transform modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
-  // apply transformation
+  auto firstCenter = firstCollider.getPoints(modelMatrixFirstCollider);
+  auto secondCenter = secondCollider.getPoints(modelMatrixSecondCollider);
   float    radii = firstCollider.getRadius() + secondCollider.getRadius();
-  Vector3f delta = secondCollider.getCenter() - firstCollider.getCenter();
+  Vector3f delta = secondCenter - firstCenter;
 
   float deltaLength = delta.length();
   if (deltaLength < radii) {
@@ -65,9 +66,12 @@ bool Collision::collide(const Sphere &firstCollider, Transform modelMatrixFirstC
 }
 
 bool Collision::collide(AABB &firstCollider, Transform modelMatrixFirstCollider, const Sphere &secondCollider, Transform modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
-  // apply transform
-  Vector3f boxHalfSize       = (firstCollider.getMax() - firstCollider.getMin()) * 0.5f;
-  Vector3f delta             = secondCollider.getCenter() - (firstCollider.getMin() + firstCollider.getMax()) * 0.5f;
+  auto firstPoints = firstCollider.getPoints(modelMatrixFirstCollider, true);
+  auto secondCenter = secondCollider.getPoints(modelMatrixSecondCollider);
+  Vector3f minFirstCollider  = firstPoints.front();
+  Vector3f maxFirstCollider  = firstPoints.back();
+  Vector3f boxHalfSize       = (maxFirstCollider - minFirstCollider) * 0.5f;
+  Vector3f delta             = secondCenter - (minFirstCollider + maxFirstCollider) * 0.5f;
   Vector3f closestPointOnBox = delta.clamp((boxHalfSize * -1), boxHalfSize);
   Vector3f localPoint        = delta - closestPointOnBox;
   float    distance          = localPoint.length();
