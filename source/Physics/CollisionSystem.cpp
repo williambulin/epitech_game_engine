@@ -105,11 +105,14 @@ void CollisionSystem::ImpulseResolveCollision(CollisionInfo &p) const {
 
   Vector3f fullImpulse = p.point.normal * j;
   Vector3f fullImpulseTemp = fullImpulse * -1;
-  physA.applyLinearImpulse(fullImpulse * -1);
-  physB.applyLinearImpulse(fullImpulse);
-
-  physA.applyAngularImpulse(relativeA.cross(fullImpulse * -1));
-  physB.applyAngularImpulse(relativeB.cross(fullImpulse));
+  if (!physA.getIsRigid()) {
+    physA.applyLinearImpulse(fullImpulse * -1);
+    physA.applyAngularImpulse(relativeA.cross(fullImpulse * -1));
+  }
+  if (!physB.getIsRigid()) {
+    physB.applyLinearImpulse(fullImpulse);
+    physB.applyAngularImpulse(relativeB.cross(fullImpulse));
+  }
 }
 
 void CollisionSystem::IntegrateVelocity(float dt) {

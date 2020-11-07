@@ -37,6 +37,14 @@ public:
 				return m_inverseMass;
 			}
 
+			void setIsRigid(bool isRigid) {
+				m_isRigid = isRigid;
+			}
+
+			float getIsRigid() const {
+				return m_isRigid;
+			}
+
 			void applyAngularImpulse(const Vector3f& force);
 			void applyLinearImpulse(const Vector3f& force);
 			
