@@ -5,6 +5,7 @@
 
 #include "Physics/ICollisionShape.hpp"
 #include "Physics/Transform.hpp"
+#include "Maths/Quaternion.hpp"
 
 class PhysicsObject {
 public:
@@ -37,6 +38,14 @@ public:
 				return m_inverseMass;
 			}
 
+			void setIsRigid(bool isRigid) {
+				m_isRigid = isRigid;
+			}
+
+			float getIsRigid() const {
+				return m_isRigid;
+			}
+
 			void applyAngularImpulse(const Vector3f& force);
 			void applyLinearImpulse(const Vector3f& force);
 			
@@ -62,13 +71,15 @@ public:
 			Matrix<float, 3, 3> getInertiaTensor() const {
 				return m_inverseInteriaTensor;
 			}
-protected:
+private:
   const std::shared_ptr<ICollisionShape> m_collider;
   std::shared_ptr<Transform>             m_modelMatrix;
 
-  float m_inverseMass;
-  float m_elasticity;
-  float m_friction;
+  float m_inverseMass = 1.0f;
+  float m_elasticity = 0.8f;
+  float m_friction = 0.8f;
+
+  bool m_isRigid = false;
 
   // linear stuff
   Vector3f m_linearVelocity{0.0f, 0.0f, 0.0f};
@@ -80,9 +91,9 @@ protected:
   Vector3f inverseInertia{0.0f, 0.0f, 0.0f};
 	Matrix<float, 3, 3> m_inverseInteriaTensor{
     std::array<std::array<float, 3>, 3> {
-    std::array<float, 3>{0.0f, 0.0f, 0.0f},
-    std::array<float, 3>{0.0f, 0.0f, 0.0f},
-    std::array<float, 3>{0.0f, 0.0f, 0.0f},
+    std::array<float, 3>{1.0f, 0.0f, 0.0f},
+    std::array<float, 3>{0.0f, 1.0f, 0.0f},
+    std::array<float, 3>{0.0f, 0.0f, 1.0f},
     }
   };
 };

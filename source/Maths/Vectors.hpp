@@ -5,6 +5,7 @@
 #include <array>
 #include <numeric>
 #include <algorithm>
+#include <cmath>
 
 template <class T, std::size_t width, std::size_t height>
 class Matrix;
