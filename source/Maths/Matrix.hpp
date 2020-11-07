@@ -302,7 +302,9 @@ public:
   [[nodiscard]] static Matrix4<T> translate(const Vector3<T> &vec);
   [[nodiscard]] static Matrix4<T> perspectiveRH(T fovy, T aspect, T near, T far);
   [[nodiscard]] Vector3f getTranslation() const;
+  [[nodiscard]] Matrix<T, 3, 3> getRotation() const;
   void setTranslation(const Vector3<T> &vec);
+  void setRotation(const Matrix<T, 3, 3> &matrix);
 };
 
 template <class T>
@@ -356,6 +358,31 @@ void Matrix4<T>::setTranslation(const Vector3<T> &vec) {
 template <class T>
 Vector3f Matrix4<T>::getTranslation() const {
   return Vector3f {this->m_matrix[3][0], this->m_matrix[3][1], this->m_matrix[3][2]};
+}
+
+template <class T>
+void Matrix4<T>::setRotation(const Matrix<T, 3, 3> &matrix) {
+  this->m_matrix[0][0] = matrix[0][0];
+  this->m_matrix[0][1] = matrix[0][1];
+  this->m_matrix[0][2] = matrix[0][2];
+
+  this->m_matrix[1][0] = matrix[1][0];
+  this->m_matrix[1][1] = matrix[1][1];
+  this->m_matrix[1][2] = matrix[1][2];
+
+  this->m_matrix[2][0] = matrix[2][0];
+  this->m_matrix[2][1] = matrix[2][1];
+  this->m_matrix[2][2] = matrix[2][2];
+}
+
+template <class T>
+Matrix<T, 3, 3> Matrix4<T>::getRotation() const {
+  return Matrix<T, 3, 3>{
+    std::array<std::array<T, 3>, 3> {
+    std::array<T, 3>{this->m_matrix[0][0], this->m_matrix[0][1], this->m_matrix[0][2]},
+    std::array<T, 3>{this->m_matrix[1][0], this->m_matrix[1][1], this->m_matrix[1][2]},
+    std::array<T, 3>{this->m_matrix[2][0], this->m_matrix[2][1], this->m_matrix[2][2]},}
+    };
 }
 
 template <class T>

@@ -5,6 +5,7 @@
 
 #include "Physics/ICollisionShape.hpp"
 #include "Physics/Transform.hpp"
+#include "Maths/Quaternion.hpp"
 
 class PhysicsObject {
 public:
