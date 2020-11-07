@@ -21,9 +21,9 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/source/Global/ApplicationBase.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Global/ApplicationBase.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Matrix.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Quaternion.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Quaternion.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Maths/Vectors.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/source/Model/Converter/Assimp.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Model/Converter/Assimp.hpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Model/AnimatedModel.cpp
   ${CMAKE_CURRENT_LIST_DIR}/source/Model/AnimatedModel.hpp

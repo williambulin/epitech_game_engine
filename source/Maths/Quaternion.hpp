@@ -20,7 +20,3 @@ public:
   [[nodiscard]] static Quaternion   nlerp(Quaternion a, Quaternion b, float blend);
   [[nodiscard]] static Quaternion   slerp(Quaternion a, Quaternion b, float blend);
 };
-
-Quaternion::Quaternion(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {
-  normalize();
-}

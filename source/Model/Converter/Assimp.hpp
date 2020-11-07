@@ -11,21 +11,32 @@
 #include "../../Maths/Quaternion.hpp"
 #include "../../Maths/Vectors.hpp"
 
-class FromAssimp final {
-public:
+namespace FromAssimp {
   template <class T>
-  static Matrix4<T> mat4(const aiMatrix4x4t<T> &);
+  inline Matrix4<T> mat4(const aiMatrix4x4t<T> &m) {
+    return Matrix4<T>{std::vector<std::vector<T>>{{m.a1, m.b1, m.c1, m.d1}, {m.a2, m.b2, m.c2, m.d2}, {m.a3, m.b3, m.c3, m.d3}, {m.a4, m.b4, m.c4, m.d4}}};
+  }
 
-  static Quaternion quat(const aiQuaterniont<float> &);
+  inline Quaternion quat(const aiQuaterniont<float> &q) {
+    return Quaternion{q.x, q.y, q.z, q.w};
+  }
 
-  static std::string str(const aiString &);
+  inline std::string str(const aiString &s) {
+    return std::string{s.C_Str()};
+  }
 
   template <class T>
-  static Vector2<T> vec2(const aiVector2t<T> &);
+  inline Vector2<T> vec2(const aiVector2t<T> &v) {
+    return Vector2<T>{v.x, v.y};
+  }
 
   template <class T>
-  static Vector2<T> vec2(const aiVector3t<T> &);
+  inline Vector2<T> vec2(const aiVector3t<T> &v) {
+    return Vector2<T>{v.x, v.y};
+  }
 
   template <class T>
-  static Vector3<T> vec3(const aiVector3t<T> &);
+  inline Vector3<T> vec3(const aiVector3t<T> &v) {
+    return Vector3<T>{v.x, v.y, v.z};
+  }
 };

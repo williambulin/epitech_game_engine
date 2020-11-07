@@ -26,8 +26,7 @@ AnimatedModel::AnimatedModel(const std::string &path) {
   loadAnimation(data);
 }
 
-AnimatedModel::AnimatedModel(const AnimatedModel &copy) {
-  Model::Model(copy);
+AnimatedModel::AnimatedModel(const AnimatedModel &copy) : Model{copy} {
   this->m_jointsId     = copy.getJointsId();
   this->m_jointsWeight = copy.getJointsWeight();
 }

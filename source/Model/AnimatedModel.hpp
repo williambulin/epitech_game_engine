@@ -9,7 +9,6 @@
 #include "../Maths/Matrix.hpp"
 #include "../Maths/Quaternion.hpp"
 #include "../Maths/Vectors.hpp"
-#include "Converter/Assimp.hpp"
 #include "IAnimatedModel.hpp"
 #include "Model.hpp"
 
