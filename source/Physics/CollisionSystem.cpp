@@ -36,17 +36,14 @@ void CollisionSystem::collisionDections() {
           m_collisions.push_back(info);
         }
       } else if ((*i)->m_collider->m_shapeType == ShapeType::SPHERE && (*j)->m_collider->m_shapeType == ShapeType::SPHERE) {
-        CollisionInfo info;
         if (Collision::collide((Sphere &)*(*i)->m_collider, (*i)->m_modelMatrix, (Sphere &)*(*j)->m_collider, (*j)->m_modelMatrix, info) == true) {
           m_collisions.push_back(info);
         }
       } else if ((*i)->m_collider->m_shapeType == ShapeType::AABB && (*j)->m_collider->m_shapeType == ShapeType::SPHERE) {
-        CollisionInfo info;
         if (Collision::collide((AABB &)*(*i)->m_collider, (*i)->m_modelMatrix, (Sphere &)*(*j)->m_collider, (*j)->m_modelMatrix, info) == true) {
           m_collisions.push_back(info);
         }
       } else if ((*i)->m_collider->m_shapeType == ShapeType::SPHERE && (*j)->m_collider->m_shapeType == ShapeType::AABB) {
-        CollisionInfo info;
         if (Collision::collide((AABB &)*(*j)->m_collider, (*j)->m_modelMatrix, (Sphere &)*(*i)->m_collider, (*i)->m_modelMatrix, info) == true) {
           m_collisions.push_back(info);
         }

@@ -62,13 +62,15 @@ public:
 			Matrix<float, 3, 3> getInertiaTensor() const {
 				return m_inverseInteriaTensor;
 			}
-protected:
+private:
   const std::shared_ptr<ICollisionShape> m_collider;
   std::shared_ptr<Transform>             m_modelMatrix;
 
-  float m_inverseMass;
-  float m_elasticity;
-  float m_friction;
+  float m_inverseMass = 1.0f;
+  float m_elasticity = 0.8f;
+  float m_friction = 0.8f;
+
+  bool m_isRigid = false;
 
   // linear stuff
   Vector3f m_linearVelocity{0.0f, 0.0f, 0.0f};

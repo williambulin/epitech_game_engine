@@ -15,6 +15,7 @@ public:
   [[nodiscard]] auto  getCenter() const noexcept -> Vector3f;
   void                setRadius(const float &radius) noexcept;
   [[nodiscard]] float getRadius() const noexcept;
+  [[nodiscard]] auto getPoints(Transform transform) const noexcept -> Vector3f;  // Called by collide(...)
 
   [[nodiscard]] bool operator==(const Sphere &second) const noexcept;
 

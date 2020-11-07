@@ -3,6 +3,7 @@
  */
 #include <GL/glut.h>  // GLUT, include glu.h and gl.h
 #include "Physics/Shapes/AABB.hpp"
+#include "Physics/Shapes/Sphere.hpp"
 #include "Physics/Collision.hpp"
 #include "Physics/CollisionSystem.hpp"
 #include <math.h> /* sin */
@@ -35,12 +36,18 @@ int xOrigin = -1;
 
 AABB rect(Vector3f(-1.0f, -1.0f, -6.0f), Vector3f(1.0f, 1.0f, -4.0f));
 AABB rect2(Vector3f(-1.0f, 2.0f, -6.0f), Vector3f(1.0f, 4.0f, -4.0f));
+Sphere sphere1(Vector3f(-6.0f, 6.0f, -6.0f), 2.0f);
+Sphere sphere2(Vector3f(-6.0f, 0.0f, -6.0f), 2.0f);
 
 GameObject object1(std::make_shared<AABB>(rect));
 GameObject object2(std::make_shared<AABB>(rect2));
+GameObject object3(std::make_shared<Sphere>(sphere1));
+GameObject object4(std::make_shared<Sphere>(sphere2));
 
 std::shared_ptr<GameObject> ptr_object1 = std::make_shared<GameObject>(object1);
 std::shared_ptr<GameObject> ptr_object2 = std::make_shared<GameObject>(object2);
+std::shared_ptr<GameObject> ptr_object3 = std::make_shared<GameObject>(object3);
+std::shared_ptr<GameObject> ptr_object4 = std::make_shared<GameObject>(object4);
 CollisionSystem collisionSystem;
 
 /* Called back when timer expired [NEW] */
@@ -153,10 +160,12 @@ void display() {
   collisionSystem.collisionDections();
   collisionSystem.collisionResolution();
   collisionSystem.IntegrateVelocity(0.001f);
-  std::cout << "rect moving translation in main= " << ptr_object1->m_modelMatrix.m_modelMatrix.getTranslation().x << " | " << ptr_object1->m_modelMatrix.m_modelMatrix.getTranslation().y << " | " << ptr_object1->m_modelMatrix.m_modelMatrix.getTranslation().z << std::endl;
-  std::cout << "rect shouldnt moving in main= " << ptr_object2->m_modelMatrix.m_modelMatrix.getTranslation().x << " | " << ptr_object2->m_modelMatrix.m_modelMatrix.getTranslation().y << " | " << ptr_object2->m_modelMatrix.m_modelMatrix.getTranslation().z << std::endl;
+  //std::cout << "rect moving translation in main= " << ptr_object1->m_modelMatrix.m_modelMatrix.getTranslation().x << " | " << ptr_object1->m_modelMatrix.m_modelMatrix.getTranslation().y << " | " << ptr_object1->m_modelMatrix.m_modelMatrix.getTranslation().z << std::endl;
+  //std::cout << "rect shouldnt moving in main= " << ptr_object2->m_modelMatrix.m_modelMatrix.getTranslation().x << " | " << ptr_object2->m_modelMatrix.m_modelMatrix.getTranslation().y << " | " << ptr_object2->m_modelMatrix.m_modelMatrix.getTranslation().z << std::endl;
   auto points = rect.getPoints(ptr_object1->m_modelMatrix, true);
   auto points2 = rect2.getPoints(ptr_object2->m_modelMatrix, true);
+  auto points3 = sphere1.getPoints(ptr_object3->m_modelMatrix);
+  auto points4 = sphere2.getPoints(ptr_object4->m_modelMatrix);
   //ptr_object1->m_modelMatrix.m_modelMatrix.setTranslation(Vector3f(x1, yy1, z1));
   /*if (Collision::collide(rect, ptr_object1->m_modelMatrix, rect2, Transform(), info) == true) {
     std::cout << info.point.normal.x << " | " << info.point.normal.y << " | " << info.point.normal.z << " | " << info.point.penetration << std::endl;
@@ -173,21 +182,32 @@ void display() {
   	gluLookAt(	x, 1.0f, z,
 			x+lx, 1.0f,  z+lz,
 			0.0f, 1.0f,  0.0f);
-  glPushMatrix();
   glRotatef(alpha, 1, 0, 0);  // rotate alpha around the x axis
   glRotatef(beta, 0, 1, 0);                  // rotate beta around the y axis
   glRotatef(gamma2, 0, 0, 1);                 // rotate gamma around the z axis
 
   drawAABB(points, 0.0f, 1.0f, 0.0f);
-  glPopMatrix();
 
 
   glTranslatef(0.0f, 0.0f, -6.0f);           // Move right and into the screen
 
   drawAABB(points2, 0.0f, 0.0f, 1.0f);
 
-  //drawAABB(points2, 0.5f, 0.5f, 0.5f);
+  glPushMatrix();
+  glTranslatef(points3.x, points3.y, points3.z);           // Move right and into the screen
+  glColor3f(0.0f, 0.0f, 1.0f);
+  GLUquadric *quadric = gluNewQuadric();
+  gluQuadricTexture(quadric, true);
+  gluSphere(quadric, sphere1.getRadius(), 20, 20);
+  glPopMatrix();
 
+  glPushMatrix();
+  glTranslatef(points4.x, points4.y, points4.z);           // Move right and into the screen
+  glColor3f(0.0f, 1.0f, 0.0f);
+  GLUquadric *quadric2 = gluNewQuadric();
+  gluQuadricTexture(quadric, true);
+  gluSphere(quadric2, sphere2.getRadius(), 20, 20);
+  glPopMatrix();
 
   glutSwapBuffers();  // Swap the front and back frame buffers (double buffering)
   if (ptr_object1->m_modelMatrix.m_modelMatrix.getTranslation().x > 7) {
@@ -298,10 +318,15 @@ void mouseButton(int button, int state, int x, int y) {
 /* Main function: GLUT runs as a console application starting at main() */
 int main(int argc, char **argv) {
 
-  ptr_object1->m_physicObject.applyLinearImpulse(Vector3f(-10.0f, 10.0f, 0.0f));
+  ptr_object1->m_physicObject.applyLinearImpulse(Vector3f(-25.0f, 25.0f, 0.0f));
+  ptr_object4->m_physicObject.applyLinearImpulse(Vector3f(0.0f, 15.0f, 0.0f));
 
+  object3.m_physicObject.getInverseMass();
+  object4.m_physicObject.getInverseMass();
   collisionSystem.addCollider(ptr_object1);
   collisionSystem.addCollider(ptr_object2);
+  collisionSystem.addCollider(ptr_object3);
+  collisionSystem.addCollider(ptr_object4);
   ptr_object1->m_modelMatrix.m_modelMatrix.setTranslation(Vector3f(x1, yy1, z1));
   glutInit(&argc, argv);             // Initialize GLUT
   glutInitDisplayMode(GLUT_DOUBLE);  // Enable double buffered mode
