@@ -12,8 +12,6 @@ void Sphere::setCenter(const Vector3f &center) noexcept {
 }
 
 auto Sphere::getPoints(Transform transform) const noexcept -> Vector3f {
-  //add rotation
-  Vector3f multiply = transform.m_modelMatrix.getTranslation();
   return (transform.m_modelMatrix * m_center);
 }
 
