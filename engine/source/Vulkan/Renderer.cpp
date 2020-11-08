@@ -96,8 +96,8 @@ void Vulkan::Renderer::update(float, std::uint64_t) {
 
   // Update uniform buffers
   UniformBufferData ubo{
-  .view       = Matrix4<float>::lookAt(Vector3f{2.0f, 2.0f, 2.0f}, Vector3f{0.0f, 0.0f, 0.0f}, Vector3f{0.0f, 0.0f, 1.0f}),
-  .projection = Matrix4<float>::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),  // glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),
+  .view       = ml::mat4::lookAt(ml::vec3{2.0f, 2.0f, 2.0f}, ml::vec3{0.0f, 0.0f, 0.0f}, ml::vec3{0.0f, 0.0f, 1.0f}),
+  .projection = ml::mat4::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),  // glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),
   };
 
   ubo.projection[1][1] *= -1;
