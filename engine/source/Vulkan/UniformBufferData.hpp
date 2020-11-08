@@ -9,6 +9,6 @@ namespace Vulkan {
 
 struct Vulkan::UniformBufferData {
   alignas(16) glm::mat4 model;
-  alignas(16) glm::mat4 view;
+  alignas(16) Matrix4<float> view;
   alignas(16) Matrix4<float> projection;
 };
