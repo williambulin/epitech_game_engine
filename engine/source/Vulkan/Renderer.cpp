@@ -79,14 +79,6 @@ auto Vulkan::Renderer::createModel(const std::string &path) const -> std::unique
 }
 
 void Vulkan::Renderer::update(float, std::uint64_t) {
-  // static std::vector<std::unique_ptr<Drawable>> drawables{};
-
-  // if (drawables.empty()) {
-  //   drawables.emplace_back(std::make_unique<Drawable>(m_device, m_physicalDevice, m_commandPool, m_graphicsQueue, glm::vec3{1.0, 0.0, 0.5}, "viking_room"));
-  //   drawables.emplace_back(std::make_unique<Drawable>(m_device, m_physicalDevice, m_commandPool, m_graphicsQueue, glm::vec3{-1.0, -1.0, -1.0}, "disk"));
-  //   drawables.emplace_back(std::make_unique<Drawable>(m_device, m_physicalDevice, m_commandPool, m_graphicsQueue, glm::vec3{1.0, 0.0, 0.0}, "viking_room"));
-  // }
-
   auto drawableEntities{m_admin.getEntitiesWithComponents<Components::Transform, Components::Model>()};
 
   static std::size_t currentFrame{0};
@@ -105,7 +97,7 @@ void Vulkan::Renderer::update(float, std::uint64_t) {
   // Update uniform buffers
   UniformBufferData ubo{
   .view       = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-  .projection = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),
+  .projection = Matrix4<float>::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),  // glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),
   };
 
   ubo.projection[1][1] *= -1;
