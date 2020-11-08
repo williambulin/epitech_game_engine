@@ -2,6 +2,8 @@
 !*/
 !*.cpp
 !*.hpp
+!*.c
+!*.h
 !CMakeLists.txt
 !.gitignore
 !compile_flags.txt
