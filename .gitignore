@@ -7,3 +7,5 @@
 !compile_flags.txt
 !LICENSE
 build/**
+!shaders/**
+!resources/**
