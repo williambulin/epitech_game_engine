@@ -1,4 +1,8 @@
 "command":
 "C:\\PROGRA~2\\MICROS~1\\2019\\COMMUN~1\\VC\\Tools\\MSVC\\1427~1.291\\bin\\Hostx64\\x64\\cl.exe
 -I.\\..\\..\\source
+-IC:\\ProgramData\\VcPkg\\installed\\x64-windows\\include
+-IC:\\ProgramData\\VcPkg\\installed\\x64-windows\\include\\irrlicht
+-IC:\\ProgramData\\VcPkg\\installed\\x64-windows\\include\\kubazip
+-IC:\\ProgramData\\VcPkg\\installed\\x64-windows\\include\\poly2tri
 -MDd

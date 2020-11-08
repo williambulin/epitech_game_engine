@@ -53,19 +53,31 @@ OBJ::OBJ(const std::string &path) {
   // sort the data based on face indexes
   for (std::vector<std::string> &face : faces) {
     for (std::string &faceElement : face) {
-      auto start = 0U;
-      auto end   = faceElement.find("/");
-      for (auto i = 0U; i < 3 && end != std::string::npos; i++) {
-        auto faceIndex = std::stoi(faceElement.substr(start, end - start)) - 1;
+      std::istringstream faceStream(faceElement);
+      std::string        faceIndexStr;
+      for (auto i = 0U; std::getline(faceStream, faceIndexStr, '/'); i++) {
+        if (faceIndexStr.empty())
+          continue;
+        auto faceIndex = std::stoi(faceIndexStr) - 1;
         if (i == 0)
           m_vertices.push_back(vertices[faceIndex]);
         else if (i == 1)
           m_texcoords.push_back(texcoords[faceIndex]);
-        else
+        else if (i == 2)
           m_normals.push_back(normals[faceIndex]);
-        start = end + 1;
-        end   = faceElement.find("/");
       }
+    }
+  }
+
+  // if some normals are missing, compute them
+  if (m_normals.size() < m_vertices.size()) {
+    m_normals.clear();
+    for (auto i = 0U; i < m_vertices.size(); i += 3) {
+      Vector3<float> a{m_vertices[i + 1] - m_vertices[i]};
+      Vector3<float> normal = a.cross(m_vertices[i + 2] - m_vertices[i]);
+      normal.normalize();
+      for (auto j = 0; j < 3; j++)
+        m_normals.push_back(normal);
     }
   }
 }

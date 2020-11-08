@@ -5,8 +5,8 @@
 
 #include "IModel.hpp"
 
-class OBJ : public IModel {
-protected:
+class OBJ final : public IModel {
+private:
   Vertices  m_vertices{};
   Normals   m_normals{};
   Texcoords m_texcoords{};

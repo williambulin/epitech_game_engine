@@ -350,7 +350,7 @@ Vector3<T>::Vector3(T a, T b, T c) : Vector<T, 3>{std::array<T, 3>{a, b, c}},
                                      z{this->m_array[2]} {}
 template <class T>
 Vector3<T> Vector3<T>::cross(const Vector3<T> &b) const {
-  return Vector<T, 3>(y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x);
+  return Vector3<T>{y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x};
 }
 template <class T>
 Vector3<T>::Vector3(const std::array<T, 3> &array) : Vector<T, 3>{array},
