@@ -3,6 +3,7 @@
  */
 #include <GL/glut.h>  // GLUT, include glu.h and gl.h
 #include "Physics/Shapes/AABB.hpp"
+#include "Physics/Shapes/OBB.hpp"
 #include "Physics/Shapes/Sphere.hpp"
 #include "Physics/Collision.hpp"
 #include "Physics/CollisionSystem.hpp"
@@ -21,6 +22,9 @@ float z1           = 0.0f;
 float x2           = 5.0f;
 float y2           = 2.0f;
 float z2           = 0.0f;
+float x3           = 5.0f;
+float y3           = -2.0f;
+float z3           = 0.0f;
 int nbLoop = 0;
 // angle of rotation for the camera direction
 float angle = 0.0;
@@ -39,18 +43,21 @@ AABB rect2(Vector3f(-1.0f, 2.0f, -6.0f), Vector3f(1.0f, 4.0f, -4.0f));
 Sphere sphere1(Vector3f(-6.0f, 6.0f, -6.0f), 2.0f);
 Sphere sphere2(Vector3f(-6.0f, 0.0f, -6.0f), 2.0f);
 AABB rectRigid(Vector3f(-1.0f, -1.0f, -6.0f), Vector3f(1.0f, 6.0f, -4.0f));
+OBB rect3(Vector3f(-0.5f, -0.5f, -5.0f), Vector3f(0.5f, 0.5f, -4.0f));
 
 GameObject object1(std::make_shared<AABB>(rect));
 GameObject object2(std::make_shared<AABB>(rect2));
 GameObject object3(std::make_shared<Sphere>(sphere1));
 GameObject object4(std::make_shared<Sphere>(sphere2));
 GameObject object5(std::make_shared<AABB>(rectRigid));
+GameObject object6(std::make_shared<OBB>(rect3));
 
 std::shared_ptr<GameObject> ptr_object1 = std::make_shared<GameObject>(object1);
 std::shared_ptr<GameObject> ptr_object2 = std::make_shared<GameObject>(object2);
 std::shared_ptr<GameObject> ptr_object3 = std::make_shared<GameObject>(object3);
 std::shared_ptr<GameObject> ptr_object4 = std::make_shared<GameObject>(object4);
 std::shared_ptr<GameObject> ptr_object5 = std::make_shared<GameObject>(object5);
+std::shared_ptr<GameObject> ptr_object6 = std::make_shared<GameObject>(object6);
 CollisionSystem collisionSystem;
 
 /* Called back when timer expired [NEW] */
@@ -170,6 +177,7 @@ void display() {
   auto points3 = sphere1.getPoints(ptr_object3->m_modelMatrix);
   auto points4 = sphere2.getPoints(ptr_object4->m_modelMatrix);
   auto points5 = rectRigid.getPoints(ptr_object5->m_modelMatrix, true);
+  auto points6 = rect3.getPoints(ptr_object6->m_modelMatrix, true);
   //ptr_object1->m_modelMatrix.m_modelMatrix.setTranslation(Vector3f(x1, yy1, z1));
   /*if (Collision::collide(rect, ptr_object1->m_modelMatrix, rect2, Transform(), info) == true) {
     std::cout << info.point.normal.x << " | " << info.point.normal.y << " | " << info.point.normal.z << " | " << info.point.penetration << std::endl;
@@ -195,6 +203,8 @@ void display() {
   drawAABB(points2, 0.0f, 0.0f, 1.0f);
 
   drawAABB(points5, 0.5f, 0.5f, 0.5f);
+
+  drawAABB(points6, 1.0f, 0.0f, 0.0f);
 
   glPushMatrix();
   glTranslatef(points3.x, points3.y, points3.z);           // Move right and into the screen
@@ -319,17 +329,21 @@ void mouseButton(int button, int state, int x, int y) {
 int main(int argc, char **argv) {
 
   ptr_object1->m_physicObject.applyLinearImpulse(Vector3f(-25.0f, 25.0f, 0.0f));
-  ptr_object1->m_physicObject.applyAngularImpulse(Vector3f(0.0f, 0.0f, 52.0f));
+  ptr_object1->m_physicObject.applyAngularImpulse(Vector3f(0.0f, 0.0f, 30.0f));
+  ptr_object6->m_physicObject.applyAngularImpulse(Vector3f(0.0f, 0.0f, 50.0f));
+  ptr_object6->m_physicObject.applyLinearImpulse(Vector3f(10.0f, 0.0f, 0.0f));
   ptr_object4->m_physicObject.applyLinearImpulse(Vector3f(0.0f, 15.0f, 0.0f));
 
-  collisionSystem.addCollider(ptr_object1);
-  collisionSystem.addCollider(ptr_object2);
-  collisionSystem.addCollider(ptr_object3);
-  collisionSystem.addCollider(ptr_object4);
-  collisionSystem.addCollider(ptr_object5);
+  //collisionSystem.addCollider(ptr_object1);
+  //collisionSystem.addCollider(ptr_object2);
+  //collisionSystem.addCollider(ptr_object3);
+  //collisionSystem.addCollider(ptr_object4);
+  //collisionSystem.addCollider(ptr_object5);
+  collisionSystem.addCollider(ptr_object6);
   ptr_object1->m_modelMatrix.m_modelMatrix.setTranslation(Vector3f(x1, yy1, z1));
   ptr_object5->m_modelMatrix.m_modelMatrix.setTranslation(Vector3f(x2, y2, z2));
   ptr_object5->m_physicObject.setIsRigid(true);
+  ptr_object6->m_modelMatrix.m_modelMatrix.setTranslation(Vector3f(x3, y3, z3));
   glutInit(&argc, argv);             // Initialize GLUT
   glutInitDisplayMode(GLUT_DOUBLE);  // Enable double buffered mode
   glutInitWindowSize(640, 480);      // Set the window's initial width & height
