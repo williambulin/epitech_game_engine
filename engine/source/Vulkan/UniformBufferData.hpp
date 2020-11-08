@@ -8,7 +8,7 @@ namespace Vulkan {
 }
 
 struct Vulkan::UniformBufferData {
-  alignas(16) glm::mat4 model;
+  alignas(16) ml::mat4 model;
   alignas(16) ml::mat4 view;
   alignas(16) ml::mat4 projection;
 };
