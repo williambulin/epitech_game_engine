@@ -13,7 +13,7 @@ public:
 public:
   virtual ~IModel() = default;
 
-  [[nodiscard]] virtual const Vertices &getVertices(void) const	  = 0;
-  [[nodiscard]] virtual const Normals &getNormals(void) const	  = 0;
-  [[nodiscard]] virtual const Texcoords &getTexcoords(void) const = 0;
+  [[nodiscard]] virtual const Vertices & getVertices() const  = 0;
+  [[nodiscard]] virtual const Normals &  getNormals() const   = 0;
+  [[nodiscard]] virtual const Texcoords &getTexcoords() const = 0;
 };
