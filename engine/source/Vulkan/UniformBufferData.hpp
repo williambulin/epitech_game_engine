@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Extension/Libraries/glm.hpp"
+#include "Maths/Matrix.hpp"
 
 namespace Vulkan {
   struct UniformBufferData;
@@ -9,5 +10,5 @@ namespace Vulkan {
 struct Vulkan::UniformBufferData {
   alignas(16) glm::mat4 model;
   alignas(16) glm::mat4 view;
-  alignas(16) glm::mat4 projection;
+  alignas(16) Matrix4<float> projection;
 };
