@@ -66,7 +66,7 @@ bool Systems::Physics::collide(AABB &firstCollider, const ml::mat4 &modelMatrixF
   Vector3f minFirstCollider  = firstPoints.front();
   Vector3f maxFirstCollider  = firstPoints.back();
   Vector3f boxHalfSize       = (maxFirstCollider - minFirstCollider) * 0.5f;
-  Vector3f delta             = secondCenter - (minFirstCollider + maxFirstCollider) * 0.5f;
+  Vector3f delta             = secondCenter - ((maxFirstCollider + minFirstCollider) * 0.5f);
   Vector3f closestPointOnBox = delta.clamp((boxHalfSize * -1), boxHalfSize);
   Vector3f localPoint        = delta - closestPointOnBox;
   float    distance          = localPoint.length();
@@ -121,7 +121,7 @@ bool Systems::Physics::collide(OBB &firstCollider, const ml::mat4 &modelMatrixFi
 }
 
 auto Systems::Physics::getEntityWorldPosition(ICollisionShape &shape, const ml::mat4 &matrix) const -> ml::vec3 {
-  return shape.getLocalPosition() + matrix.getTranslation();
+  return shape.getLocalPosition() * matrix.getTranslation();
 }
 
 bool Systems::Physics::checkCollisionExists(CollisionInfo existedOne, CollisionInfo toCompare) {
@@ -189,13 +189,13 @@ void Systems::Physics::collisionResolution() {
 
 void Systems::Physics::impulseResolveCollision(CollisionInfo &p) const {
   auto &&[physA, transformA]{m_admin.getComponents<Components::Physics, Components::Transform>(p.firstCollider)};
-  auto &&[physB, transformB]{m_admin.getComponents<Components::Physics, Components::Transform>(p.firstCollider)};
+  auto &&[physB, transformB]{m_admin.getComponents<Components::Physics, Components::Transform>(p.secondCollider)};
 
   float totalMass = physA.getInverseMass() + physB.getInverseMass();
 
   // Separate them out using projection
-  // transformA.m_modelMatrix.setTranslation(p.firstCollider->getWorldPosition() - (p.point.normal * p.point.penetration * (physA.getInverseMass() / totalMass)));
-  // transformB.m_modelMatrix.setTranslation(p.secondCollider->getWorldPosition() - (p.point.normal * p.point.penetration * (physB.getInverseMass() / totalMass)));
+  transformA.matrix.setTranslation(transformA.matrix.getTranslation() - (p.point.normal * p.point.penetration * (physA.getInverseMass() / totalMass)));
+  transformB.matrix.setTranslation(transformB.matrix.getTranslation() + (p.point.normal * p.point.penetration * (physB.getInverseMass() / totalMass)));
 
   Vector3f relativeA{p.point.localA - getEntityWorldPosition(*physA.m_shape.get(), transformA.matrix)};
   Vector3f relativeB{p.point.localB - getEntityWorldPosition(*physB.m_shape.get(), transformB.matrix)};
@@ -207,7 +207,7 @@ void Systems::Physics::impulseResolveCollision(CollisionInfo &p) const {
   Vector3f contactVelocity{fullVelocityB - fullVelocityA};
 
   float impulseForce = contactVelocity.dot(p.point.normal);
-
+  
   // now to work out the effect of inertia ....
   Vector3f inertiaA      = static_cast<Vector3f>(physA.getInertiaTensor() * relativeA.cross(p.point.normal)).cross(relativeA);
   Vector3f inertiaB      = static_cast<Vector3f>(physB.getInertiaTensor() * relativeA.cross(p.point.normal)).cross(relativeB);
