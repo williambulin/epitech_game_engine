@@ -2,11 +2,13 @@
 !*/
 !*.cpp
 !*.hpp
+!*.c
+!*.h
 !CMakeLists.txt
-!.clang-format
 !.gitignore
 !compile_flags.txt
 !LICENSE
-!Guidelines.md
 build/**
+!shaders/**
+!resources/**
 out/**
