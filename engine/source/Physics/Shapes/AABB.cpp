@@ -9,7 +9,7 @@ AABB::AABB(const Vector3f &min, const Vector3f &max) noexcept : ICollisionShape(
 
 AABB::AABB(const AABB &second) noexcept : ICollisionShape(ShapeType::AABB), m_min{second.m_min}, m_max{second.m_max} {}
 
-auto AABB::getPoints(Transform transform, bool forceInvalidate) -> std::vector<Vector3f> {
+auto AABB::getPoints(const ml::mat4 &transform, bool forceInvalidate) -> std::vector<Vector3f> {
   if (!forceInvalidate && transform == m_oldTransform && m_pointsCache.size() > 0) {
     return m_pointsCache;
   }
@@ -24,7 +24,7 @@ auto AABB::getPoints(Transform transform, bool forceInvalidate) -> std::vector<V
   points.push_back(m_max);
 
   for (auto &point : points) {
-    point = transform.m_modelMatrix * point;
+    point = transform * point;
   }
 
   float max_x = (*std::max_element(points.begin(),
@@ -101,5 +101,5 @@ bool AABB::operator==(const AABB &second) const noexcept {
 
 // TODO IMPLEMENT
 Vector3f AABB::getLocalPosition() {
-  return Vector3f{1, 1, 1};
+  return Vector3f{1.0f, 1.0f, 1.0f};
 }

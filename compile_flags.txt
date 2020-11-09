@@ -12,4 +12,5 @@
 -Wno-exit-time-destructors
 -Wno-c99-extensions
 -std=c++2a
+-Wno-everything
 -MDd
