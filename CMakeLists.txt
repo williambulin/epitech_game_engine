@@ -11,12 +11,13 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-everything")
 endif ()
 
-include(C:/vcpkg/scripts/buildsystems/vcpkg.cmake)
+if (WIN32)
+  include(C:/vcpkg/scripts/buildsystems/vcpkg.cmake)
 
-find_package(glfw3 CONFIG REQUIRED)
-find_package(glm CONFIG REQUIRED)
-find_package(Vulkan REQUIRED)
-
+  find_package(glfw3 CONFIG REQUIRED)
+  find_package(glm CONFIG REQUIRED)
+  find_package(Vulkan REQUIRED)
+endif()
 # find engine/source -name "*.*pp" | sed 's/engine/\$\{CMAKE_CURRENT_LIST_DIR\}\/engine/g'
 add_library(
   engine
@@ -168,14 +169,24 @@ target_include_directories(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source
 )
 
+if (WIN32)
 find_package(GLUT REQUIRED)
-
 target_link_libraries(
   demo_physics PRIVATE
   OpenGL32
   GLUT::GLUT
   GLU32
 )
+endif()
+
+if (UNIX)
+target_link_libraries(
+  demo_physics PRIVATE
+  GL
+  glut
+  GLU
+)
+endif()
 
 if (EXISTS "${CMAKE_BINARY_DIR}/compile_commands.json")
   file(STRINGS ${CMAKE_BINARY_DIR}/compile_commands.json COMPILE_COMMANDS_FLAGS REGEX "^.*command.*main\.cpp.*$")
