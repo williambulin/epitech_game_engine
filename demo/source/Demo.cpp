@@ -1,6 +1,8 @@
 #include "Game.hpp"
 #include "Components/Model.hpp"
 #include "Components/Movement.hpp"
+#include "Components/Physics.hpp"
+#include "Systems/Physics.hpp"
 
 #include <iostream>
 #include <chrono>
@@ -10,6 +12,8 @@ class Demo final : public Game {
 public:
   explicit Demo(Vulkan::Renderer &renderer, ECS::Admin &admin) : Game{renderer, admin} {
     std::cout << "Created Demo" << '\n';
+
+    m_admin.createSystem<Systems::Physics>();
 
     // using (auto entity{m_admin.createEntity()}) {
     //   // Transform
@@ -31,6 +35,11 @@ public:
       // Model
       auto &model{m_admin.createComponent<Components::Model>(entity, renderer, "../resources/viking_room.obj", "../resources/viking_room.png")};
       (void)model;
+
+      // Physics
+      auto &physics{m_admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
+      (void)physics;
+      physics.applyLinearImpulse(ml::vec3{10.0f, 0.0f, 0.0f});
     }
 
     // using (auto entity{m_admin.createEntity()}) {
