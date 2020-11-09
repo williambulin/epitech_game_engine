@@ -124,8 +124,57 @@ target_link_libraries(
   ${Vulkan_LIBRARIES}
 )
 
+add_executable(
+  demo_physics
 
-if(EXISTS "${CMAKE_BINARY_DIR}/compile_commands.json")
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Model.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Movement.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Transform.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/Admin.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ClassId.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/Entity.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ISystem.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/System.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/TypeId.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Keywords.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Platform.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Math.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Matrix.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Quaternion.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Quaternion.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Vectors.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/ICollisionShape.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/AABB.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/AABB.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/OBB.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/OBB.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Raycasting.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Sphere.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Sphere.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/ShapeType.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Physics.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Physics.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/mainTestCollision.cpp
+)
+
+target_include_directories(
+  demo_physics PRIVATE
+
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source
+)
+
+find_package(GLUT REQUIRED)
+
+target_link_libraries(
+  demo_physics PRIVATE
+  OpenGL32
+  GLUT::GLUT
+  GLU32
+)
+
+if (EXISTS "${CMAKE_BINARY_DIR}/compile_commands.json")
   file(STRINGS ${CMAKE_BINARY_DIR}/compile_commands.json COMPILE_COMMANDS_FLAGS REGEX "^.*command.*main\.cpp.*$")
   string(REGEX REPLACE "^.*clang-cl\.exe" "" COMPILE_COMMANDS_FLAGS "${COMPILE_COMMANDS_FLAGS}")
   string(REGEX REPLACE "-std:.*$" "" COMPILE_COMMANDS_FLAGS "${COMPILE_COMMANDS_FLAGS}")
