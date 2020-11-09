@@ -303,10 +303,10 @@ public:
   explicit Matrix4(const std::vector<std::vector<T>> &array);
   Matrix4(const Matrix<T, 4, 4> &v);
   [[nodiscard]] static Matrix4<T> lookAt(const Vector<T, 3> &eye, const Vector<T, 3> &center, const Vector<T, 3> &up);
-  [[nodiscard]] static Matrix4<T> perspective(T angle, T ratio, T near, T far);
+  [[nodiscard]] static Matrix4<T> perspective(T angle, T ratio, T nnear, T ffar);
   [[nodiscard]] Matrix4<T>        scale(T a, T b, T c);
   [[nodiscard]] static Matrix4<T> translate(const Vector3<T> &vec);
-  [[nodiscard]] static Matrix4<T> perspectiveRH(T fovy, T aspect, T near, T far);
+  [[nodiscard]] static Matrix4<T> perspectiveRH(T fovy, T aspect, T nnear, T ffar);
   [[nodiscard]] Vector3f          getTranslation() const;
   [[nodiscard]] Matrix<T, 3, 3>   getRotation() const;
   void                            setTranslation(const Vector3<T> &vec);
@@ -315,19 +315,29 @@ public:
 
 template <class T>
 Matrix4<T> Matrix4<T>::lookAt(const Vector<T, 3> &eye, const Vector<T, 3> &center, const Vector<T, 3> &up) {
-  T X, y = up, z = eye - center, XDotEye, yDotEye, zDotEye;
+  Vector3<T> X{0.0f, 0.0f, 0.0f}, y{up}, z{eye - center}, XDotEye{0.0f, 0.0f, 0.0f}, yDotEye{0.0f, 0.0f, 0.0f}, zDotEye{0.0f, 0.0f, 0.0f};
   z.normalize();
   X = y.cross(z);
   y = z.cross(X);
   X.normalize();
   y.normalize();
-  return Matrix4<T>({{{X[0], X[1], X[2], -X.dot(eye)}, {y[0], y[1], y[2], -y.dot(eye)}, {z[0], z[1], z[2], -z.dot(eye)}, {0, 0, 0, 1.0f}}});
+  return Matrix4<T>(std::array<std::array<T, 4>, 4>{
+  std::array<T, 4>{X[0], y[0], z[0], 0.0f},
+  std::array<T, 4>{X[1], y[1], z[1], 0.0f},
+  std::array<T, 4>{X[2], y[2], z[2], 0.0f},
+  std::array<T, 4>{-X.dot(eye), -y.dot(eye), -z.dot(eye), 1.0f},
+  });
 }
-
 template <class T>
-Matrix4<T> Matrix4<T>::perspective(T angle, T ratio, T near, T far) {
-  float tan_half_angle = tanf(angle / 2);
-  return Matrix4<T>{{{1 / (ratio * tan_half_angle), 0, 0, 0}, {0, 1 / tan_half_angle, 0, 0}, {0, 0, -(far + near) / (far - near), -(2 * far * near) / (far - near)}, {0, 0, -1, 0}}};
+Matrix4<T> Matrix4<T>::perspective(T fovy, T aspect, T zNear, T zFar) {
+  const T tanHalfFovy = tan(fovy / static_cast<T>(2));
+
+  return Matrix4<T>(std::array<std::array<T, 4>, 4>{
+  std::array<T, 4>{static_cast<T>(1) / (aspect * tanHalfFovy), 0.0f, 0.0f, 0.0f},
+  std::array<T, 4>{0.0f, static_cast<T>(1) / (tanHalfFovy), 0.0f, 0.0f},
+  std::array<T, 4>{0.0f, 0.0f, -(zFar / (zFar - zNear)), -static_cast<T>(1)},
+  std::array<T, 4>{0.0f, 0.0f, -(zFar * zNear) / (zFar - zNear), 0.0f},
+  });
 }
 
 template <class T>
@@ -346,10 +356,12 @@ Matrix4<T>::Matrix4(T x, T y, T z, T w) : Matrix<T, 4, 4>{} {
   this->m_matrix[2][2] = z;
   this->m_matrix[3][3] = w;
 }
+
 template <class T>
 Matrix4<T> Matrix4<T>::scale(T a, T b, T c) {
   return *this * Matrix4<T>{a, b, c};
 }
+
 template <class T>
 Matrix4<T> Matrix4<T>::translate(const Vector3<T> &vec) {
   Matrix4<T> ret{1};
