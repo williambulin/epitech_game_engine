@@ -11,6 +11,9 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-everything")
 endif ()
 
+find_package(portaudio CONFIG REQUIRED)
+find_package(SndFile CONFIG REQUIRED)
+
 if (WIN32)
   include(C:/vcpkg/scripts/buildsystems/vcpkg.cmake)
 
@@ -22,6 +25,16 @@ endif()
 add_library(
   engine
 
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioGroup.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioListener.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioListener.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioManager.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioManager.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioSource.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioSource.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioStream.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioStream.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/main.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Model.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Movement.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.cpp
