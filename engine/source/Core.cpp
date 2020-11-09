@@ -7,18 +7,18 @@
 #include <chrono>
 
 bool Core::start() {
-  ECS::Admin       admin{};
   Windows::Window  window{};
-  Vulkan::Renderer renderer{admin, window};
-  auto             game{loadGame(renderer, admin)};
+  auto             admin{std::make_unique<ECS::Admin>()};
+  Vulkan::Renderer renderer{*(admin.get()), window};
+  auto             game{loadGame(renderer, *(admin.get()))};
 
   float         deltatime{0.0f};
   std::uint64_t tickCount{0};
   while (window.isWindowOpen()) {
     window.processMessages();
 
-    admin.cacheSystems();
-    admin.updateSystems(deltatime, tickCount);
+    admin->cacheSystems();
+    admin->updateSystems(deltatime, tickCount);
 
     if (!game->update(deltatime, tickCount))
       return false;
@@ -28,5 +28,7 @@ bool Core::start() {
     ++tickCount;
   }
 
+  game.reset();
+  admin.reset();
   return true;
 }
