@@ -2,7 +2,7 @@
 #include "Model/OBJ.hpp"
 
 Vulkan::Model::Model(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue, const std::string &path) {
-  constexpr bool useOBJ{false};
+  constexpr bool useOBJ{true};
   if constexpr (useOBJ) {
     OBJ obj{path};
 
