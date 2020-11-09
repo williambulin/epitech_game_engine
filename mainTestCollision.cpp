@@ -202,9 +202,23 @@ void display() {
 
   for (auto &&[entity, transform, physics] : admin.getEntitiesWithComponents<Components::Transform, Components::Physics>()) {
     auto &shape{physics.m_shape};
-    if (shape->m_shapeType == ShapeType::AABB) {
-      AABB &aabb{reinterpret_cast<AABB &>(*shape.get())};
-      drawAABB(aabb.getPoints(transform.matrix), 1.0f, 0.0f, 0.0f);
+    switch (shape->m_shapeType) {
+      case ShapeType::AABB: {
+        AABB &aabb{reinterpret_cast<AABB &>(*shape.get())};
+        drawAABB(aabb.getPoints(transform.matrix), 1.0f, 0.0f, 0.0f);
+        break;
+      }
+      case ShapeType::SPHERE: {
+        Sphere &sphere{reinterpret_cast<Sphere &>(*shape.get())};
+        glPushMatrix();
+        glTranslatef(sphere.getPoints(transform.matrix).x, sphere.getPoints(transform.matrix).y, sphere.getPoints(transform.matrix).z);  // Move right and into the screen
+        glColor3f(0.0f, 0.0f, 1.0f);
+        GLUquadric *quadric = gluNewQuadric();
+        gluQuadricTexture(quadric, true);
+        gluSphere(quadric, sphere1.getRadius(), 20, 20);
+        glPopMatrix();
+        break;
+      }
     }
   }
 
@@ -215,14 +229,6 @@ void display() {
   // drawAABB(points5, 0.5f, 0.5f, 0.5f);
 
   // drawAABB(points6, 1.0f, 0.0f, 0.0f);
-
-  // glPushMatrix();
-  // glTranslatef(points3.x, points3.y, points3.z);  // Move right and into the screen
-  // glColor3f(0.0f, 0.0f, 1.0f);
-  // GLUquadric *quadric = gluNewQuadric();
-  // gluQuadricTexture(quadric, true);
-  // gluSphere(quadric, sphere1.getRadius(), 20, 20);
-  // glPopMatrix();
 
   // glPushMatrix();
   // glTranslatef(points4.x, points4.y, points4.z);  // Move right and into the screen
@@ -346,7 +352,7 @@ int main(int argc, char **argv) {
     translate.matrix.setTranslation(Vector3f{-3.0f, 0.0f, 0.0f});
 
     auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(Vector3f(-1.0f, -1.0f, -6.0f), Vector3f(1.0f, 1.0f, -4.0f)))};
-    physics.applyLinearImpulse(Vector3f{5.0f, 0.0f, 0.0f});
+    physics.applyLinearImpulse(Vector3f{30.0f, 0.0f, 0.0f});
   }
 
   glutInit(&argc, argv);             // Initialize GLUT

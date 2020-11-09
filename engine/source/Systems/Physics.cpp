@@ -238,6 +238,7 @@ void Systems::Physics::integrateVelocity(float dt) {
     Vector3f position{transform.matrix.getTranslation()};
     Vector3f linearVel{physics.getLinearVelocity()};
     position += linearVel * dt;
+
     transform.matrix.setTranslation(position);
     // Linear Damping
     linearVel = linearVel * frameDamping;
