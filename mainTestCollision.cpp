@@ -1,7 +1,3 @@
-/*
- * OGL01Shape3D.cpp: 3D Shapes
- */
-
 #include "ECS/Admin.hpp"
 #include "Components/Transform.hpp"
 #include "Components/Physics.hpp"
@@ -14,6 +10,15 @@
 ECS::Admin  admin{};
 ECS::Entity entity{};
 
+class Colored {
+public:
+  Vector3f color{1.0f, 1.0f, 0.0f};
+};
+
+/*
+ * OGL01Shape3D.cpp: 3D Shapes
+ */
+
 #include <GL/glut.h>  // GLUT, include glu.h and gl.h
 #include "Physics/Shapes/AABB.hpp"
 #include "Physics/Shapes/OBB.hpp"
@@ -21,22 +26,20 @@ ECS::Entity entity{};
 #include <math.h> /* sin */
 #include <iostream>
 /* Global variables */
-char  title[]      = "3D Shapes";
-float angleCube    = 0.0f;  // Rotational angle for cube [NEW]
-float alpha        = 0.0f;  // Rotational angle for cube [NEW]
-float gamma2       = 0.0f;  // Rotational angle for cube [NEW]
-float beta         = 0.0f;  // Rotational angle for cube [NEW]
-int   refreshMills = 15;    // refresh interval in milliseconds [NEW]
-float x1           = 3.0f;
-float yy1          = 0.0f;
-float z1           = 0.0f;
-float x2           = 5.0f;
-float y2           = 2.0f;
-float z2           = 0.0f;
-float x3           = 5.0f;
-float y3           = -2.0f;
-float z3           = 0.0f;
-int   nbLoop       = 0;
+char  title[]   = "3D Shapes";
+float angleCube = 0.0f;  // Rotational angle for cube [NEW]
+float alpha     = 0.0f;  // Rotational angle for cube [NEW]
+float gamma2    = 0.0f;  // Rotational angle for cube [NEW]
+float beta      = 0.0f;  // Rotational angle for cube [NEW]
+float x1        = 3.0f;
+float yy1       = 0.0f;
+float z1        = 0.0f;
+float x2        = 5.0f;
+float y2        = 2.0f;
+float z2        = 0.0f;
+float x3        = 5.0f;
+float y3        = -2.0f;
+float z3        = 0.0f;
 // angle of rotation for the camera direction
 float angle = 0.0;
 // actual vector representing the camera's direction
@@ -48,19 +51,6 @@ float z = 12.0f;
 float deltaAngle = 0.0f;
 float deltaMove  = 0;
 int   xOrigin    = -1;
-
-AABB   rect(Vector3f(-1.0f, -1.0f, -6.0f), Vector3f(1.0f, 1.0f, -4.0f));
-AABB   rect2(Vector3f(-1.0f, 2.0f, -6.0f), Vector3f(1.0f, 4.0f, -4.0f));
-Sphere sphere1(Vector3f(-6.0f, 6.0f, -6.0f), 2.0f);
-Sphere sphere2(Vector3f(-6.0f, 0.0f, -6.0f), 2.0f);
-AABB   rectRigid(Vector3f(-1.0f, -1.0f, -6.0f), Vector3f(1.0f, 6.0f, -4.0f));
-OBB    rect3(Vector3f(-0.5f, -0.5f, -5.0f), Vector3f(0.5f, 0.5f, -4.0f));
-
-/* Called back when timer expired [NEW] */
-void timer(int value) {
-  glutPostRedisplay();                    // Post re-paint request to activate display()
-  glutTimerFunc(refreshMills, timer, 0);  // next timer call milliseconds later
-}
 
 /* Initialize OpenGL Graphics */
 void initGL() {
@@ -153,100 +143,6 @@ void drawAABB(std::vector<Vector3f> points, float red, float green, float blue) 
   // dram my cube
 }
 
-void display() {
-  static auto previous{std::chrono::high_resolution_clock::now()};
-  auto        delta{std::chrono::high_resolution_clock::now() - previous};
-
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // Clear color and depth buffers
-  glMatrixMode(GL_MODELVIEW);                          // To operate on model-view matrix
-
-  float dt{std::chrono::duration_cast<std::chrono::nanoseconds>(delta).count() / 1000000.0f};
-  std::cout << dt << '\n';
-  std::cout << 1.0f / dt << '\n';
-
-  admin.cacheSystems();
-  admin.updateSystems(dt, 0);
-
-  // for(auto point: points) {
-  //  std::cout << "Point = " << point.x << " | " << point.y << " | " << point.z << std::endl;
-  //}
-  // CollisionInfo info;
-  // collisionSystem.collisionDections();
-  // collisionSystem.collisionResolution();
-  // collisionSystem.IntegrateVelocity(0.001f);
-  // std::cout << "rect moving translation in main= " << ptr_object1->m_modelMatrix.m_modelMatrix.getTranslation().x << " | " << ptr_object1->m_modelMatrix.m_modelMatrix.getTranslation().y << " | " << ptr_object1->m_modelMatrix.m_modelMatrix.getTranslation().z << std::endl;
-  // std::cout << "rect shouldnt moving in main= " << ptr_object2->m_modelMatrix.m_modelMatrix.getTranslation().x << " | " << ptr_object2->m_modelMatrix.m_modelMatrix.getTranslation().y << " | " << ptr_object2->m_modelMatrix.m_modelMatrix.getTranslation().z << std::endl;
-  // auto points  = rect.getPoints(ptr_object1->m_modelMatrix, true);
-  // auto points2 = rect2.getPoints(ptr_object2->m_modelMatrix, true);
-  // auto points3 = sphere1.getPoints(ptr_object3->m_modelMatrix);
-  // auto points4 = sphere2.getPoints(ptr_object4->m_modelMatrix);
-  // auto points5 = rectRigid.getPoints(ptr_object5->m_modelMatrix, true);
-  // auto points6 = rect3.getPoints(ptr_object6->m_modelMatrix, true);
-  // ptr_object1->m_modelMatrix.m_modelMatrix.setTranslation(Vector3f(x1, yy1, z1));
-  /*if (Collision::collide(rect, ptr_object1->m_modelMatrix, rect2, Transform(), info) == true) {
-    std::cout << info.point.normal.x << " | " << info.point.normal.y << " | " << info.point.normal.z << " | " << info.point.penetration << std::endl;
-    if (info.point.normal.x == 1) {
-      x1 -= 0.1;
-      x2 -= 0.1;
-    } else if (info.point.normal.y == 1) {
-      yy1 -= 0.1;
-      y2 -= 0.1;
-    }
-  }*/
-  // Render a color-cube consisting of 6 quads with different colors
-  glLoadIdentity();  // Reset the model-view matrix
-  gluLookAt(x, 1.0f, z, x + lx, 1.0f, z + lz, 0.0f, 1.0f, 0.0f);
-  glRotatef(alpha, 1, 0, 0);   // rotate alpha around the x axis
-  glRotatef(beta, 0, 1, 0);    // rotate beta around the y axis
-  glRotatef(gamma2, 0, 0, 1);  // rotate gamma around the z axis
-
-  for (auto &&[entity, transform, physics] : admin.getEntitiesWithComponents<Components::Transform, Components::Physics>()) {
-    auto &shape{physics.m_shape};
-    switch (shape->m_shapeType) {
-      case ShapeType::AABB: {
-        AABB &aabb{reinterpret_cast<AABB &>(*shape.get())};
-        drawAABB(aabb.getPoints(transform.matrix), 1.0f, 0.0f, 0.0f);
-        break;
-      }
-      case ShapeType::SPHERE: {
-        Sphere &sphere{reinterpret_cast<Sphere &>(*shape.get())};
-        glPushMatrix();
-        glTranslatef(sphere.getPoints(transform.matrix).x, sphere.getPoints(transform.matrix).y, sphere.getPoints(transform.matrix).z);  // Move right and into the screen
-        glColor3f(0.0f, 0.0f, 1.0f);
-        GLUquadric *quadric = gluNewQuadric();
-        gluQuadricTexture(quadric, true);
-        gluSphere(quadric, sphere1.getRadius(), 20, 20);
-        glPopMatrix();
-        break;
-      }
-    }
-  }
-
-  // drawAABB(points, 0.0f, 1.0f, 0.0f);
-
-  // drawAABB(points2, 0.0f, 0.0f, 1.0f);
-
-  // drawAABB(points5, 0.5f, 0.5f, 0.5f);
-
-  // drawAABB(points6, 1.0f, 0.0f, 0.0f);
-
-  // glPushMatrix();
-  // glTranslatef(points4.x, points4.y, points4.z);  // Move right and into the screen
-  // glColor3f(0.0f, 1.0f, 0.0f);
-  // GLUquadric *quadric2 = gluNewQuadric();
-  // gluQuadricTexture(quadric, true);
-  // gluSphere(quadric2, sphere2.getRadius(), 20, 20);
-  // glPopMatrix();
-
-  glutSwapBuffers();  // Swap the front and back frame buffers (double buffering)
-
-  nbLoop++;
-  // exit(0);
-  // exit(0);
-  // angleCube -= 0.15f;
-  previous = std::chrono::high_resolution_clock::now();
-}
-
 /* Handler for window re-size event. Called back when the window first appears and
    whenever the window is re-sized with its new width and height */
 void reshape(GLsizei width, GLsizei height) {  // GLsizei for non-negative integer
@@ -335,16 +231,70 @@ void mouseButton(int button, int state, int x, int y) {
   }
 }
 
+void display() {
+  static auto previous{std::chrono::high_resolution_clock::now()};
+  auto        delta{std::chrono::high_resolution_clock::now() - previous};
+  previous = std::chrono::high_resolution_clock::now();
+
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // Clear color and depth buffers
+  glMatrixMode(GL_MODELVIEW);                          // To operate on model-view matrix
+
+  // Render a color-cube consisting of 6 quads with different colors
+  glLoadIdentity();  // Reset the model-view matrix
+  gluLookAt(x, 1.0f, z, x + lx, 1.0f, z + lz, 0.0f, 1.0f, 0.0f);
+  glRotatef(alpha, 1, 0, 0);   // rotate alpha around the x axis
+  glRotatef(beta, 0, 1, 0);    // rotate beta around the y axis
+  glRotatef(gamma2, 0, 0, 1);  // rotate gamma around the z axis
+
+  float dt{std::chrono::duration_cast<std::chrono::nanoseconds>(delta).count() / 1000000000.0f};
+  std::cout << dt << " ms\t|\t" << 1.0f / dt << " FPS" << std::string(16, ' ') << '\r';
+
+  admin.cacheSystems();
+  admin.updateSystems(dt, 0);
+
+  for (auto &&[entity, transform, physics] : admin.getEntitiesWithComponents<Components::Transform, Components::Physics>()) {
+    Vector3f color{1.0f, 0.0f, 0.0f};
+    if (admin.hasComponent<Colored>(entity)) {
+      auto &colored{admin.getComponent<Colored>(entity)};
+      color = colored.color;
+    }
+
+    auto &shape{physics.m_shape};
+    switch (shape->m_shapeType) {
+      case ShapeType::AABB:
+        using (AABB &aabb{reinterpret_cast<AABB &>(*shape.get())}) {
+          drawAABB(aabb.getPoints(transform.matrix), color.x, color.y, color.z);
+        }
+        break;
+      case ShapeType::SPHERE:
+        using (Sphere &sphere{reinterpret_cast<Sphere &>(*shape.get())}) {
+          glPushMatrix();
+          glTranslatef(sphere.getPoints(transform.matrix).x, sphere.getPoints(transform.matrix).y, sphere.getPoints(transform.matrix).z);  // Move right and into the screen
+          glColor3f(color.x, color.y, color.z);
+          GLUquadric *quadric = gluNewQuadric();
+          gluQuadricTexture(quadric, true);
+          gluSphere(quadric, sphere.getRadius(), 20, 20);
+          glPopMatrix();
+        }
+        break;
+    }
+  }
+
+  glutSwapBuffers();  // Swap the front and back frame buffers (double buffering)
+  glutPostRedisplay();
+}
+
 /* Main function: GLUT runs as a console application starting at main() */
 int main(int argc, char **argv) {
-  admin.createSystem<Systems::Physics>();
-
   using (auto entity{admin.createEntity()}) {
     auto &translate{admin.createComponent<Components::Transform>(entity)};
     translate.matrix.setTranslation(Vector3f{3.0f, 0.0f, 0.0f});
 
     auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(Vector3f(-1.0f, -1.0f, -6.0f), Vector3f(1.0f, 1.0f, -4.0f)))};
     physics.applyLinearImpulse(Vector3f{0.0f, -5.0f, 0.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = Vector3f{0.25f, 0.5f, 1.0f};
   }
 
   using (auto entity{admin.createEntity()}) {
@@ -355,9 +305,22 @@ int main(int argc, char **argv) {
     physics.applyLinearImpulse(Vector3f{30.0f, 0.0f, 0.0f});
   }
 
+  using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(Vector3f{3.0f, 5.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Sphere>(Vector3f(-1.0f, -1.0f, -6.0f), 1.0f))};
+    physics.applyLinearImpulse(Vector3f{-15.0f, -15.0f, 0.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = Vector3f{0.5f, 1.0f, 0.25f};
+  }
+
+  admin.createSystem<Systems::Physics>();
+
   glutInit(&argc, argv);             // Initialize GLUT
   glutInitDisplayMode(GLUT_DOUBLE);  // Enable double buffered mode
-  glutInitWindowSize(640, 480);      // Set the window's initial width & height
+  glutInitWindowSize(1600, 900);     // Set the window's initial width & height
   glutInitWindowPosition(50, 50);    // Position the window's initial top-left corner
   glutCreateWindow(title);           // Create window with the given title
   glutDisplayFunc(display);          // Register callback handler for window re-paint event
