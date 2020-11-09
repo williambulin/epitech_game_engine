@@ -31,7 +31,9 @@ OBJ::OBJ(const std::string &path) {
       continue;
     std::vector<std::string> data;
     for (std::string dataPart; line >> dataPart;)
-      data.push_back(dataPart);
+      if (!dataPart.empty())
+        data.push_back(dataPart);
+
 
     // fill vectors with the data
     if (index == "f") {
@@ -40,12 +42,13 @@ OBJ::OBJ(const std::string &path) {
       std::vector<float> dataFloat;
       for (std::string &dataPart : data)
         dataFloat.push_back(std::stof(dataPart));
-      if (index == "v" && dataFloat.size() == 3)
+      if (index == "v" && dataFloat.size() == 3) {
         vertices.push_back(Vector3<float>(dataFloat));
-      else if (index == "vn" && dataFloat.size() == 3)
+      } else if (index == "vn" && dataFloat.size() == 3) {
         normals.push_back(Vector3<float>(dataFloat));
-      else if (index == "vt" && dataFloat.size() == 2)
+      } else if (index == "vt" && (dataFloat.size() == 2 || dataFloat.size() == 3)) {
         texcoords.push_back(Vector2<float>(dataFloat));
+      }
     }
   }
   file.close();
