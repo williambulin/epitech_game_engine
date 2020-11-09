@@ -11,8 +11,8 @@ void Sphere::setCenter(const Vector3f &center) noexcept {
   return m_center;
 }
 
-auto Sphere::getPoints(Transform transform) const noexcept -> Vector3f {
-  return (transform.m_modelMatrix * m_center);
+auto Sphere::getPoints(const ml::mat4 &transform) const noexcept -> Vector3f {
+  return (transform * m_center);
 }
 
 void Sphere::setRadius(const float &radius) noexcept {

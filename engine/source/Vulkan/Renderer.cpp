@@ -99,6 +99,8 @@ void Vulkan::Renderer::update(float, std::uint64_t) {
   .model      = ml::mat4{},
   .view       = ml::mat4::lookAt(ml::vec3{2.0f, 2.0f, 2.0f}, ml::vec3{0.0f, 0.0f, 0.0f}, ml::vec3{0.0f, 0.0f, 1.0f}),
   .projection = ml::mat4::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),  // glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),
+  // .view       = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+  // .projection = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),
   };
 
   ubo.projection[1][1] *= -1;
@@ -106,7 +108,7 @@ void Vulkan::Renderer::update(float, std::uint64_t) {
   std::uint32_t currentObject{0};
   for (auto &&[ent, transform, model] : drawableEntities) {
     // Update the data in the Uniform Buffer
-    ubo.model = transform.toModelMatrix();
+    ubo.model = transform.matrix;
 
     m_swapchain->m_uniformBuffers[currentObject]->cpy(std::addressof(ubo), sizeof(ubo));
 
