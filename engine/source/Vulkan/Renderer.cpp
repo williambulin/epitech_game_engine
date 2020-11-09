@@ -79,14 +79,6 @@ auto Vulkan::Renderer::createModel(const std::string &path) const -> std::unique
 }
 
 void Vulkan::Renderer::update(float, std::uint64_t) {
-  // static std::vector<std::unique_ptr<Drawable>> drawables{};
-
-  // if (drawables.empty()) {
-  //   drawables.emplace_back(std::make_unique<Drawable>(m_device, m_physicalDevice, m_commandPool, m_graphicsQueue, glm::vec3{1.0, 0.0, 0.5}, "viking_room"));
-  //   drawables.emplace_back(std::make_unique<Drawable>(m_device, m_physicalDevice, m_commandPool, m_graphicsQueue, glm::vec3{-1.0, -1.0, -1.0}, "disk"));
-  //   drawables.emplace_back(std::make_unique<Drawable>(m_device, m_physicalDevice, m_commandPool, m_graphicsQueue, glm::vec3{1.0, 0.0, 0.0}, "viking_room"));
-  // }
-
   auto drawableEntities{m_admin.getEntitiesWithComponents<Components::Transform, Components::Model>()};
 
   static std::size_t currentFrame{0};
@@ -104,8 +96,11 @@ void Vulkan::Renderer::update(float, std::uint64_t) {
 
   // Update uniform buffers
   UniformBufferData ubo{
-  .view       = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-  .projection = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),
+  .model      = ml::mat4{},
+  .view       = ml::mat4::lookAt(ml::vec3{2.0f, 2.0f, 2.0f}, ml::vec3{0.0f, 0.0f, 0.0f}, ml::vec3{0.0f, 0.0f, 1.0f}),
+  .projection = ml::mat4::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),  // glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),
+  // .view       = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+  // .projection = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),
   };
 
   ubo.projection[1][1] *= -1;
@@ -113,7 +108,7 @@ void Vulkan::Renderer::update(float, std::uint64_t) {
   std::uint32_t currentObject{0};
   for (auto &&[ent, transform, model] : drawableEntities) {
     // Update the data in the Uniform Buffer
-    ubo.model = transform.toModelMatrix();
+    ubo.model = transform.matrix;
 
     m_swapchain->m_uniformBuffers[currentObject]->cpy(std::addressof(ubo), sizeof(ubo));
 
