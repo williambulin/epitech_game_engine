@@ -348,7 +348,7 @@ template <class T, uint32_t size>
 size_t Vector<T, size>::hash() const {
   size_t seed = 0;
   for (int i = 0; i < size; ++i)
-    seed ^= std::hash(m_array[i]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= std::hash<T>()(m_array[i]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
   return seed;
 }
 
@@ -426,7 +426,7 @@ public:
 };
 
 template <class T>
-Vector2<T>::Vector2(T a, T b) : Vector<T, 2>{{a, b}},
+Vector2<T>::Vector2(T a, T b) : Vector<T, 2>{std::array<T, 2>{a, b}},
                                 x{this->m_array[0]},
                                 y{this->m_array[1]} {}
 

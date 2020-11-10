@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Extension/Language/Library.hpp"
 #include "Maths/Vectors.hpp"
 #include "Physics/ICollisionShape.hpp"
 #include "Components/Transform.hpp"
@@ -7,9 +8,8 @@
 // Deduire les deux autres points puis la hitbox
 class AABB final : public ICollisionShape {
 public:
-  explicit AABB(const ml::vec3 &min, const ml::vec3 &max) noexcept;
-
-  explicit AABB(const AABB &second) noexcept;
+  DLLATTRIB explicit AABB(const ml::vec3 &min, const ml::vec3 &max) noexcept;
+  DLLATTRIB explicit AABB(const AABB &second) noexcept;
 
   [[nodiscard]] auto getPoints(const ml::mat4 &transform, bool forceInvalidate = false) -> std::vector<ml::vec3>;  // Called by collide(...)
 

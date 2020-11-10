@@ -1,21 +1,28 @@
 #include "Game.hpp"
 
 #include <memory>
+#include <chrono>
 
 bool Game::start() {
-  float         deltatime{0.0f};
   std::uint64_t tickCount{0};
   while (m_window->isWindowOpen()) {
+    static auto previous{std::chrono::high_resolution_clock::now()};
+    auto        delta{std::chrono::high_resolution_clock::now() - previous};
+    previous = std::chrono::high_resolution_clock::now();
+
+    float dt{std::chrono::duration_cast<std::chrono::nanoseconds>(delta).count() / 1000000000.0f};
+    // std::cout << dt << " ms\t|\t" << 1.0f / dt << " FPS" << std::string(16, ' ') << '\r';
+
     m_window->processMessages();
 
     m_admin->cacheSystems();
-    m_admin->updateSystems(deltatime, tickCount);
+    m_admin->updateSystems(dt, tickCount);
 
-    if (!update(deltatime, tickCount))
+    if (!update(dt, tickCount))
       return false;
 
     // Update the renderer system
-    m_renderer->update(deltatime, tickCount);
+    m_renderer->update(dt, tickCount);
     ++tickCount;
   }
 }
