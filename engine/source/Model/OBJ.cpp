@@ -43,11 +43,11 @@ OBJ::OBJ(const std::string &path) {
       for (std::string &dataPart : data)
         dataFloat.push_back(std::stof(dataPart));
       if (index == "v" && dataFloat.size() == 3) {
-        vertices.push_back(Vector3<float>(dataFloat));
+        vertices.push_back(Vector3<float>{dataFloat});
       } else if (index == "vn" && dataFloat.size() == 3) {
-        normals.push_back(Vector3<float>(dataFloat));
+        normals.push_back(Vector3<float>{dataFloat});
       } else if (index == "vt" && (dataFloat.size() == 2 || dataFloat.size() == 3)) {
-        texcoords.push_back(Vector2<float>(dataFloat));
+        texcoords.push_back(Vector2<float>{dataFloat[0], 1.0f - dataFloat[1]});
       }
     }
   }
