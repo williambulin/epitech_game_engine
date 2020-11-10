@@ -15,8 +15,8 @@ AudioManager::AudioManager() {
 
 AudioManager::~AudioManager() {
   auto err = Pa_Terminate();
-  if (err != paNoError)
-    throw std::runtime_error{"AudioManager::~AudioManager => Pa_Initialize() returned error " + std::string{Pa_GetErrorText(err)}};
+  // if (err != paNoError)
+  //   throw std::runtime_error{"AudioManager::~AudioManager => Pa_Initialize() returned error " + std::string{Pa_GetErrorText(err)}};
 }
 
 void AudioManager::createAudioGroup(const std::string &audioGroupName, const AudioGroup &audioGroup) noexcept {

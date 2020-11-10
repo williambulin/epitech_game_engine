@@ -13,8 +13,11 @@
 
 #include <vulkan/vulkan.h>
 
+#undef VK_MAKE_VERSION
 #define VK_MAKE_VERSION(major, minor, patch) (((static_cast<std::uint32_t>(major)) << 22) | ((static_cast<std::uint32_t>(minor)) << 12) | (static_cast<std::uint32_t>(patch)))
-#define VK_NULL_HANDLE                       nullptr
+
+#undef VK_NULL_HANDLE
+#define VK_NULL_HANDLE nullptr
 
 #pragma clang diagnostic pop
 #pragma warning(pop)
