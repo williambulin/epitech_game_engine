@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Extension/Libraries/Vulkan.hpp"
+#include "Extension/Language/Library.hpp"
 
 #include <stdexcept>
 #include <string>
@@ -46,8 +47,8 @@ private:
 public:
   void transitionLayout(VkImageLayout imageLayout, VkImageLayout newImageLayout);
 
-  explicit Image(VkDevice device, VkPhysicalDevice physicalDevice, VkCommandPool commandPool, VkQueue graphicsQueue, const std::string &path);
-  explicit Image(VkDevice device, VkPhysicalDevice physicalDevice, VkCommandPool commandPool, VkQueue graphicsQueue, std::uint32_t width, std::uint32_t height, VkFormat format, VkImageTiling imageTiling, VkImageUsageFlags imageUsageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkImageAspectFlags imageAspectFlags, std::uint32_t mipLevels = 1);
-  explicit Image(VkDevice device, VkPhysicalDevice physicalDevice, VkCommandPool commandPool, VkQueue graphicsQueue, VkImage image, const Swapchain &swapchain);
-  ~Image();
+  DLLATTRIB explicit Image(VkDevice device, VkPhysicalDevice physicalDevice, VkCommandPool commandPool, VkQueue graphicsQueue, const std::string &path);
+  DLLATTRIB explicit Image(VkDevice device, VkPhysicalDevice physicalDevice, VkCommandPool commandPool, VkQueue graphicsQueue, std::uint32_t width, std::uint32_t height, VkFormat format, VkImageTiling imageTiling, VkImageUsageFlags imageUsageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkImageAspectFlags imageAspectFlags, std::uint32_t mipLevels = 1);
+  DLLATTRIB explicit Image(VkDevice device, VkPhysicalDevice physicalDevice, VkCommandPool commandPool, VkQueue graphicsQueue, VkImage image, const Swapchain &swapchain);
+  DLLATTRIB ~Image();
 };

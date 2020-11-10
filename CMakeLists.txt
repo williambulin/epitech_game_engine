@@ -100,6 +100,12 @@ add_library(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Windows/Window.hpp
 )
 
+target_compile_definitions(
+  engine PRIVATE
+
+  SHARED_LIBRARY_EXPORT
+)
+
 target_include_directories(
   engine PRIVATE
 
@@ -122,6 +128,12 @@ add_executable(
   demo
 
   ${CMAKE_CURRENT_LIST_DIR}/demo/source/Demo.cpp
+)
+
+target_compile_definitions(
+  demo PRIVATE
+
+  SHARED_LIBRARY_IMPORT
 )
 
 target_include_directories(
