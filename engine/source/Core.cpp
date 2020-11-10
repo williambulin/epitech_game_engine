@@ -12,19 +12,25 @@ bool Core::start() {
   Vulkan::Renderer renderer{admin, window};
   auto             game{loadGame(renderer, admin)};
 
-  float         deltatime{0.0f};
   std::uint64_t tickCount{0};
   while (window.isWindowOpen()) {
+    static auto previous{std::chrono::high_resolution_clock::now()};
+    auto        delta{std::chrono::high_resolution_clock::now() - previous};
+    previous = std::chrono::high_resolution_clock::now();
+
+    float dt{std::chrono::duration_cast<std::chrono::nanoseconds>(delta).count() / 1000000000.0f};
+    // std::cout << dt << " ms\t|\t" << 1.0f / dt << " FPS" << std::string(16, ' ') << '\r';
+
     window.processMessages();
 
     admin.cacheSystems();
-    admin.updateSystems(deltatime, tickCount);
+    admin.updateSystems(dt, tickCount);
 
-    if (!game->update(deltatime, tickCount))
+    if (!game->update(dt, tickCount))
       return false;
 
-    // Update the renderer system (TODO: Merge as ECS::System)
-    renderer.update(deltatime, tickCount);
+    // Update the renderer system
+    renderer.update(dt, tickCount);
     ++tickCount;
   }
 

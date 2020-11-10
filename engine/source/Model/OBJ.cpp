@@ -8,6 +8,8 @@
 
 #include "../Maths/Vectors.hpp"
 
+#include <iostream>
+
 static const std::vector<std::string> supportedIndexes = {"v", "vn", "vt", "f"};
 
 OBJ::OBJ(const std::string &path) {
@@ -34,9 +36,8 @@ OBJ::OBJ(const std::string &path) {
       if (!dataPart.empty())
         data.push_back(dataPart);
 
-
     // fill vectors with the data
-    if (index == "f") {
+    if (index == "f" && data.size() == 3) {
       faces.push_back(data);
     } else {
       std::vector<float> dataFloat;
@@ -58,16 +59,18 @@ OBJ::OBJ(const std::string &path) {
     for (std::string &faceElement : face) {
       std::istringstream faceStream(faceElement);
       std::string        faceIndexStr;
-      for (auto i = 0U; std::getline(faceStream, faceIndexStr, '/'); i++) {
+      for (auto i = 0U; std::getline(faceStream, faceIndexStr, '/');) {
         if (faceIndexStr.empty())
           continue;
         auto faceIndex = std::stoi(faceIndexStr) - 1;
-        if (i == 0)
+        if (i == 0) {
           m_vertices.push_back(vertices[faceIndex]);
-        else if (i == 1)
+        } else if (i == 1) {
           m_texcoords.push_back(texcoords[faceIndex]);
-        else if (i == 2)
+        } else if (i == 2) {
           m_normals.push_back(normals[faceIndex]);
+        }
+        i++;
       }
     }
   }
