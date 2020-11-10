@@ -23,6 +23,7 @@ public:
 #include "Physics/Shapes/AABB.hpp"
 #include "Physics/Shapes/OBB.hpp"
 #include "Physics/Shapes/Sphere.hpp"
+#include "Physics/Shapes/Capsule.hpp"
 #include <math.h> /* sin */
 #include <iostream>
 /* Global variables */
@@ -389,8 +390,13 @@ void display() {
           glPopMatrix();
         }
         break;
+      case ShapeType::CAPSULE:
+        using (Capsule &capsule{reinterpret_cast<Capsule &>(*shape.get())}) {
+          auto points = capsule.getPoints(transform.matrix);
+          drawCapsule(glm::vec3(points[0].x, points[0].y, points[0].z), glm::vec3(points[1].x, points[1].y, points[1].z), capsule.getRadius());
+        }
+        break;
     }
-    drawCapsule(glm::vec3(3.0f, 3.0f, -4.0f), glm::vec3(3.0f, -3.0f, -4.0f), 2.0f);
   }
 
   glutSwapBuffers();  // Swap the front and back frame buffers (double buffering)
@@ -423,6 +429,17 @@ int main(int argc, char **argv) {
     translate.matrix.setTranslation(Vector3f{-6.0f, -3.0f, 0.0f});
 
     auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Sphere>(Vector3f(-1.0f, -1.0f, -4.0f), 3.0f))};
+    physics.applyLinearImpulse(Vector3f{10.0f, 0.0f, 0.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = Vector3f{0.5f, 1.0f, 0.25f};
+  }
+
+   using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(Vector3f{0.0f, 0.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Capsule>(Vector3f(3.0f, 3.0f, -4.0f), Vector3f(3.0f, -3.0f, -4.0f), 2.0f))};
     physics.applyLinearImpulse(Vector3f{10.0f, 0.0f, 0.0f});
 
     auto &colored{admin.createComponent<Colored>(entity)};

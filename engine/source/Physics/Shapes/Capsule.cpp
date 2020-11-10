@@ -4,7 +4,7 @@ Capsule::Capsule(const Vector3f &start, const Vector3f &end, const float &radius
 
 Capsule::Capsule(const Capsule &second) noexcept : ICollisionShape(ShapeType::CAPSULE), m_start{second.m_start}, m_end{second.m_end}, m_radius{second.m_radius} {}
 
-auto Capsule::getPoints(const ml::mat4 &transform, bool forceInvalidate = false) -> std::vector<Vector3f> {
+auto Capsule::getPoints(const ml::mat4 &transform, bool forceInvalidate) -> std::vector<Vector3f> {
   if (!forceInvalidate && transform == m_oldTransform && m_pointsCache.size() > 0)
     return m_pointsCache;
 
