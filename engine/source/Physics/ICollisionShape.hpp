@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include "Maths/Math.hpp"
 #include "Maths/Vectors.hpp"
 #include "Physics/ShapeType.hpp"
 
@@ -10,7 +11,7 @@ public:
   explicit ICollisionShape(ShapeType t) noexcept : m_shapeType(t) {}
   virtual ~ICollisionShape() = default;
 
-  virtual Vector3f getLocalPosition() = 0;
+  virtual ml::vec3 getLocalPosition() = 0;
 
   ShapeType m_shapeType;
 };
