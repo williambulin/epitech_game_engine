@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weverything -Wno-unknown-argument -Wno-c++98-compat -Wno-c++17-extensions -Wno-c++98-compat-pedantic -Wno-global-constructors -Wno-exit-time-destructors -Wno-c99-extensions")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a")
-  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-everything")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-everything")
 endif ()
 
 if (WIN32)
@@ -24,7 +24,7 @@ find_package(LibSndFile CONFIG REQUIRED)
 
 # find engine/source -name "*.*pp" | sed 's/engine/\$\{CMAKE_CURRENT_LIST_DIR\}\/engine/g'
 add_library(
-  engine
+  engine SHARED
 
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioGroup.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioListener.cpp
@@ -41,8 +41,6 @@ add_library(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Transform.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Core.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Core.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/Admin.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ClassId.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/Entity.hpp
@@ -56,12 +54,10 @@ add_library(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Libraries/tiny_obj_loader.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Libraries/Vulkan.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Libraries/WinApi.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Game.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Game.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/GameHost.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/GameHostLoader.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Global/ApplicationBase.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Global/ApplicationBase.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/main.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Math.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Matrix.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Quaternion.cpp
@@ -114,6 +110,9 @@ target_include_directories(
 target_link_libraries(
   engine PRIVATE
 
+  portaudio
+  portaudio_static
+  sndfile-shared
   glfw
   glm
   ${Vulkan_LIBRARIES}
@@ -137,11 +136,11 @@ target_link_libraries(
   demo PRIVATE
 
   engine
-  glfw
-  glm
   portaudio
   portaudio_static
   sndfile-shared
+  glfw
+  glm
   ${Vulkan_LIBRARIES}
 )
 
