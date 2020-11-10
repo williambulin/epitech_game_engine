@@ -50,6 +50,7 @@ public:
   Vector<T, size> &             operator*=(const float &v);
   Vector<T, size> &             operator*=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   Vector<T, size> &             operator/=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
+  Vector<T, size> &             operator/=(const float &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   [[nodiscard]] Vector<T, size> lerp(const Vector<T, size> &_end, float percent) const;
   [[nodiscard]] T               length() const;
   [[nodiscard]] T               dot(const Vector<T, size> &b) const;
@@ -245,6 +246,17 @@ inline Vector<T, size> &Vector<T, size>::operator/=(const Vector<T, size> &v) {
     if (*other_data == 0.0f)
       throw std::runtime_error{"try to divide by 0"};
     *this_data /= *other_data;
+  }
+  return *this;
+}
+
+template <class T, uint32_t size>
+inline Vector<T, size> &Vector<T, size>::operator/=(const float &v) {
+  T *      this_data  = m_array.data();
+  for (int i = 0; i < size; ++i, ++this_data) {
+    if (v == 0.0f)
+      throw std::runtime_error{"try to divide by 0"};
+    *this_data /= v;
   }
   return *this;
 }

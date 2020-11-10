@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Extension/Language/Library.hpp"
+
 #include <string>
 #include <vector>
 #include <map>
@@ -16,16 +18,16 @@ private:
   Environnement m_environnement{};
 
 public:
-  explicit ApplicationBase(int argc = 0, char **argv = nullptr, char **env = nullptr);
+  DLLATTRIB explicit ApplicationBase(int argc = 0, char **argv = nullptr, char **env = nullptr);
   ApplicationBase(const ApplicationBase &) = delete;
-  virtual ~ApplicationBase()               = default;
+  DLLATTRIB virtual ~ApplicationBase()     = default;
 
   auto operator=(const ApplicationBase &) -> ApplicationBase & = delete;
 
-  [[nodiscard]] auto getApplicationName() const -> const Argument &;
-  [[nodiscard]] auto getArguments() const -> const Arguments &;
-  [[nodiscard]] auto getEnvironnement() const -> const Environnement &;
+  [[nodiscard]] DLLATTRIB auto getApplicationName() const -> const Argument &;
+  [[nodiscard]] DLLATTRIB auto getArguments() const -> const Arguments &;
+  [[nodiscard]] DLLATTRIB auto getEnvironnement() const -> const Environnement &;
 
-  [[nodiscard]] int          run();
-  [[nodiscard]] virtual bool start() = 0;
+  [[nodiscard]] DLLATTRIB int          run();
+  [[nodiscard]] DLLATTRIB virtual bool start() = 0;
 };
