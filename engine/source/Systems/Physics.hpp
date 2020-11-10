@@ -11,6 +11,8 @@
 
 #include "Maths/Math.hpp"
 
+#include "Extension/Language/Library.hpp"
+
 namespace Systems {
   class Physics;
 }
@@ -31,7 +33,7 @@ public:
   int          framesLeft{5};
 
 public:
-  void addContactPoint(const ml::vec3 &localA, const ml::vec3 &localB, const ml::vec3 &normal, float p) {
+  inline void addContactPoint(const ml::vec3 &localA, const ml::vec3 &localB, const ml::vec3 &normal, float p) {
     point.localA      = localA;
     point.localB      = localB;
     point.normal      = normal;
@@ -46,26 +48,22 @@ private:
   std::vector<CollisionInfo> m_collisions;
 
 private:
-  void               collisionDections();
-  void               collisionResolution();
-  void               impulseResolveCollision(CollisionInfo &p) const;
-  void               integrateVelocity(float dt);
-  [[nodiscard]] bool checkCollisionExists(CollisionInfo existedOne, CollisionInfo toCompare);
+  void                      collisionDections();
+  void                      collisionResolution();
+  void                      impulseResolveCollision(CollisionInfo &p) const;
+  void                      integrateVelocity(float dt);
+  [[nodiscard]] bool        checkCollisionExists(CollisionInfo existedOne, CollisionInfo toCompare);
   [[nodiscard]] static auto closestPointOnLineSegment(ml::vec3 A, ml::vec3 B, ml::vec3 Point) -> ml::vec3;
-  [[nodiscard]] auto getEntityWorldPosition(ICollisionShape &shape, const ml::mat4 &matrix) const -> ml::vec3;
+  [[nodiscard]] auto        getEntityWorldPosition(ICollisionShape &shape, const ml::mat4 &matrix) const -> ml::vec3;
 
   [[nodiscard]] static bool collide(AABB &firstCollider, const ml::mat4 &modelMatrixFirstCollider, AABB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;
   [[nodiscard]] static bool collide(const Sphere &firstCollider, const ml::mat4 &modelMatrixFirstCollider, const Sphere &secondCollider, const ml::mat4 &modelMatrixSecondcollider, CollisionInfo &collisionInfo) noexcept;
   [[nodiscard]] static bool collide(AABB &firstCollider, const ml::mat4 &modelMatrixFirstCollider, const Sphere &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;
-  [[nodiscard]] static bool collide(OBB &firstCollider, const ml::mat4 &modelMatrixFirstCollider, OBB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;  // https://gist.github.com/eliasdaler/502b54fcf1b515bcc50360ce874e81bc
+  [[nodiscard]] static bool collide(OBB &firstCollider, const ml::mat4 &modelMatrixFirstCollider, OBB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;          // https://gist.github.com/eliasdaler/502b54fcf1b515bcc50360ce874e81bc
   [[nodiscard]] static bool collide(Capsule &firstCollider, const ml::mat4 &modelMatrixFirstCollider, Capsule &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;  // https://wickedengine.net/2020/04/26/capsule-collision-detection/
 
 public:
-  explicit Physics(ECS::Admin &admin) : ECS::System<Components::Transform, Components::Physics>{admin} {}
+  DLLATTRIB explicit Physics(ECS::Admin &admin) : ECS::System<Components::Transform, Components::Physics>{admin} {}
 
-  void update(float dt, std::uint64_t) final {
-    collisionDections();
-    collisionResolution();
-    integrateVelocity(dt);
-  }
+  DLLATTRIB void update(float dt, std::uint64_t) final;
 };

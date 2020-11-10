@@ -1,14 +1,15 @@
 
 #pragma once
 
+#include "Extension/Language/Library.hpp"
 #include "Maths/Vectors.hpp"
 #include "Physics/ICollisionShape.hpp"
 #include "Components/Transform.hpp"
 
 class Sphere final : public ICollisionShape {
 public:
-  explicit Sphere(ml::vec3 center, float radius) noexcept;
-  explicit Sphere(const Sphere &second) noexcept;
+  DLLATTRIB explicit Sphere(ml::vec3 center, float radius) noexcept;
+  DLLATTRIB explicit Sphere(const Sphere &second) noexcept;
 
   void                setCenter(const ml::vec3 &center) noexcept;
   [[nodiscard]] auto  getCenter() const noexcept -> ml::vec3;

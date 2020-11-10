@@ -13,7 +13,7 @@ public:
   explicit Demo(int argc = 0, char **argv = nullptr, char **env = nullptr) : Game{argc, argv, env} {
     std::cout << "Created Demo" << '\n';
 
-    m_admin.createSystem<Systems::Physics>();
+    m_admin->createSystem<Systems::Physics>();
 
     auto audio{m_audioManager->createAudioSource("../resources/some.wav")};
     audio->setVolume(100);
@@ -42,7 +42,7 @@ public:
       (void)model;
 
       // Physics
-      auto &physics{m_admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
+      auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
       (void)physics;
       // physics.applyLinearImpulse(ml::vec3{10.0f, 0.0f, 0.0f});
       physics.applyAngularImpulse(ml::vec3{0.0f, 0.0f, 100.0f});
