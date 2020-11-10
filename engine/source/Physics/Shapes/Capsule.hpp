@@ -10,18 +10,18 @@ public:
   DLLATTRIB explicit Capsule(const ml::vec3 &start, const ml::vec3 &end, const float &radius) noexcept;
   DLLATTRIB explicit Capsule(const Capsule &second) noexcept;
 
-  [[nodiscard]] auto getPoints(const ml::mat4 &transform, bool forceInvalidate = false) -> std::vector<ml::vec3>;  // Called by collide(...)
+  [[nodiscard]] DLLATTRIB auto getPoints(const ml::mat4 &transform, bool forceInvalidate = false) -> std::vector<ml::vec3>;  // Called by collide(...)
 
-  void               setStart(const ml::vec3 &start) noexcept;
-  [[nodiscard]] auto getStart() const noexcept -> ml::vec3;
-  void               setEnd(const ml::vec3 &end) noexcept;
-  [[nodiscard]] auto getEnd() const noexcept -> ml::vec3;
-  void               setRadius(const float &radius) noexcept;
-  [[nodiscard]] auto getRadius() const noexcept -> float;
+  DLLATTRIB void               setStart(const ml::vec3 &start) noexcept;
+  [[nodiscard]] DLLATTRIB auto getStart() const noexcept -> ml::vec3;
+  DLLATTRIB void               setEnd(const ml::vec3 &end) noexcept;
+  [[nodiscard]] DLLATTRIB auto getEnd() const noexcept -> ml::vec3;
+  DLLATTRIB void               setRadius(const float &radius) noexcept;
+  [[nodiscard]] DLLATTRIB auto getRadius() const noexcept -> float;
 
-  [[nodiscard]] bool operator==(const Capsule &second) const noexcept;
+  [[nodiscard]] DLLATTRIB bool operator==(const Capsule &second) const noexcept;
 
-  ml::vec3 getLocalPosition() override;
+  DLLATTRIB ml::vec3 getLocalPosition() override;
 
 private:
   ml::vec3              m_start{0.0f, 0.0f, 0.0f};

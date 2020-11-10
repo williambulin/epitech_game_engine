@@ -19,12 +19,13 @@ bool Game::start() {
     m_admin->updateSystems(dt, tickCount);
 
     if (!update(dt, tickCount))
-      return false;
+      break;
 
     // Update the renderer system
     m_renderer->update(dt, tickCount);
     ++tickCount;
   }
+  return true;
 }
 
 Game::Game(int argc, char **argv, char **env) : ApplicationBase{argc, argv, env} {
