@@ -7,6 +7,7 @@
 #include "Physics/Shapes/AABB.hpp"
 #include "Physics/Shapes/Sphere.hpp"
 #include "Physics/Shapes/OBB.hpp"
+#include "Physics/Shapes/Capsule.hpp"
 
 #include "Maths/Math.hpp"
 
