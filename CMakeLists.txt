@@ -77,6 +77,8 @@ add_library(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Raycasting.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Sphere.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Sphere.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Capsule.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Capsule.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/ShapeType.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Physics.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Physics.hpp
@@ -167,6 +169,8 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/AABB.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/OBB.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/OBB.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Capsule.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Capsule.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Raycasting.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Sphere.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Sphere.hpp
