@@ -8,12 +8,12 @@
 
 class Demo final : public Game {
 public:
-  explicit Demo(int argc, char **argv, char **env) : Game{argc, argv, env} {
+  explicit Demo(int argc = 0, char **argv = nullptr, char **env = nullptr) : Game{argc, argv, env} {
     std::cout << "Created Demo" << '\n';
 
-    // auto audio{audioManager.createAudioSource("../resources/some.wav")};
-    // audio->setVolume(100);
-    // audio->play();
+    auto audio{m_audioManager->createAudioSource("../resources/some.wav")};
+    audio->setVolume(100);
+    audio->play();
 
     // using (auto entity{m_admin.createEntity()}) {
     //   // Transform

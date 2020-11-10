@@ -21,6 +21,12 @@ bool Game::start() {
 }
 
 Game::Game(int argc, char **argv, char **env) : ApplicationBase{argc, argv, env} {
+  m_audioManager = std::make_unique<AudioManager>();
+  if (m_audioManager == nullptr)
+    throw std::runtime_error{"Couldn't create AudioManager"};
+
+  m_audioManager->startStream();
+
   m_window = std::make_unique<Windows::Window>();
   if (m_window == nullptr)
     throw std::runtime_error{"Couldn't create Windows::Window"};
@@ -32,12 +38,6 @@ Game::Game(int argc, char **argv, char **env) : ApplicationBase{argc, argv, env}
   m_renderer = std::make_unique<Vulkan::Renderer>(*(m_admin.get()), *(m_window.get()));
   if (m_renderer == nullptr)
     throw std::runtime_error{"Couldn't create Vulkan::Renderer"};
-
-  m_audioManager = std::make_unique<AudioManager>();
-  if (m_audioManager == nullptr)
-    throw std::runtime_error{"Couldn't create AudioManager"};
-
-  m_audioManager->startStream();
 }
 
 Game::~Game() {

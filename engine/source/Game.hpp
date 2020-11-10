@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Extension/Language/Library.hpp"
 #include "Vulkan/Renderer.hpp"
 #include "ECS/Admin.hpp"
 #include "ECS/System.hpp"
@@ -15,10 +16,10 @@ protected:
   std::unique_ptr<AudioManager>     m_audioManager{nullptr};
 
 public:
-  [[nodiscard]] bool start() final;
+  [[nodiscard]] DLLATTRIB bool start() final;
 
   [[nodiscard]] virtual bool update(float frametime, std::uint64_t tickCount) = 0;
 
-  explicit Game(int argc = 0, char **argv = nullptr, char **env = nullptr);
-  virtual ~Game();
+  DLLATTRIB explicit Game(int argc = 0, char **argv = nullptr, char **env = nullptr);
+  DLLATTRIB ~Game() override;
 };
