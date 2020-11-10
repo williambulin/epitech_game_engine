@@ -8,8 +8,12 @@
 
 class Demo final : public Game {
 public:
-  explicit Demo(Vulkan::Renderer &renderer, ECS::Admin &admin) : Game{renderer, admin} {
+  explicit Demo(Vulkan::Renderer &renderer, ECS::Admin &admin, AudioManager &audioManager) : Game{renderer, admin, audioManager} {
     std::cout << "Created Demo" << '\n';
+
+    auto audio{audioManager.createAudioSource("../resources/some.wav")};
+    audio->setVolume(100);
+    audio->play();
 
     // using (auto entity{m_admin.createEntity()}) {
     //   // Transform

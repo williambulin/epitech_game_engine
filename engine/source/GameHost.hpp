@@ -8,6 +8,6 @@ using HostGame = HOST_GAME;
 using HostGame = Game;
 #endif
 
-std::unique_ptr<Game> loadGame(Vulkan::Renderer &renderer, ECS::Admin &admin) {
-  return std::make_unique<HostGame>(renderer, admin);
+std::unique_ptr<Game> loadGame(Vulkan::Renderer &renderer, ECS::Admin &admin, AudioManager &audioManager) {
+  return std::make_unique<HostGame>(renderer, admin, audioManager);
 }

@@ -1,7 +1,5 @@
 -TP
--DGLFW_DLL
 -I.\\engine\\source
--IC:\\VulkanSDK\\1.2.148.0\\Include
 -IC:\\vcpkg\\installed\\x64-windows\\include
 -Weverything
 -Wno-unknown-argument
