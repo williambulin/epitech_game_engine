@@ -1,7 +1,5 @@
 -TP
--DGLFW_DLL
 -I.\\engine\\source
--IC:\\VulkanSDK\\1.2.148.0\\Include
 -IC:\\vcpkg\\installed\\x64-windows\\include
 -Weverything
 -Wno-unknown-argument
@@ -12,4 +10,5 @@
 -Wno-exit-time-destructors
 -Wno-c99-extensions
 -std=c++2a
+-Wno-everything
 -MDd

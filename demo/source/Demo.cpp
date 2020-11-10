@@ -8,8 +8,12 @@
 
 class Demo final : public Game {
 public:
-  explicit Demo(Vulkan::Renderer &renderer, ECS::Admin &admin) : Game{renderer, admin} {
+  explicit Demo(int argc = 0, char **argv = nullptr, char **env = nullptr) : Game{argc, argv, env} {
     std::cout << "Created Demo" << '\n';
+
+    auto audio{m_audioManager->createAudioSource("../resources/some.wav")};
+    audio->setVolume(100);
+    audio->play();
 
     // using (auto entity{m_admin.createEntity()}) {
     //   // Transform
@@ -23,13 +27,13 @@ public:
 
     // glm::perspective(0, 0, 0, 0);
 
-    using (auto entity{m_admin.createEntity()}) {
+    using (auto entity{m_admin->createEntity()}) {
       // Transform
-      auto &transform{m_admin.createComponent<Components::Transform>(entity)};
+      auto &transform{m_admin->createComponent<Components::Transform>(entity)};
       (void)transform;
 
       // Model
-      auto &model{m_admin.createComponent<Components::Model>(entity, renderer, "../resources/viking_room.obj", "../resources/viking_room.png")};
+      auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/viking_room.obj", "../resources/viking_room.png")};
       (void)model;
     }
 
@@ -54,5 +58,7 @@ public:
   }
 };
 
-#define HOST_GAME Demo
-#include "GameHost.hpp"
+int main(int argc, char **argv, char **env) {
+  Demo demo{argc, argv, env};
+  return demo.run();
+}

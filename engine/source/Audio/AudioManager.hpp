@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 
+#include "Extension/Language/Library.hpp"
 #include "AudioSource.hpp"
 #include "AudioGroup.hpp"
 #include "portaudio.h"
@@ -20,24 +21,24 @@ private:
   AudioSources m_AudioSources{};
 
 public:
-  AudioManager();
-  ~AudioManager();
+  DLLATTRIB AudioManager();
+  DLLATTRIB ~AudioManager();
 
   // Creating audio groups
-  void    createAudioGroup(const std::string &audioGroupName, const AudioGroup &audioGroup) noexcept;
-  void    createAudioGroup(const std::string &audioGroupName, const int volume = 100) noexcept;
+  DLLATTRIB void createAudioGroup(const std::string &audioGroupName, const AudioGroup &audioGroup) noexcept;
+  DLLATTRIB void createAudioGroup(const std::string &audioGroupName, const int volume = 100) noexcept;
 
   // Creating and handling AudioSources
-  void                                          addAudioSource(const std::shared_ptr<AudioSource> &audioSource) noexcept;
-  [[nodiscard]] std::shared_ptr<AudioSource> &  createAudioSource(const std::string &fileName, const std::string &groupName = "Master") noexcept;
-  void                                          removeAudioSourceById(const int id) noexcept;
+  DLLATTRIB void          addAudioSource(const std::shared_ptr<AudioSource> &audioSource) noexcept;
+  [[nodiscard]] DLLATTRIB std::shared_ptr<AudioSource> &createAudioSource(const std::string &fileName, const std::string &groupName = "Master") noexcept;
+  DLLATTRIB void                                        removeAudioSourceById(const int id) noexcept;
 
   // Group handling
-  void    setAudioGroupVolume(const int volume, const std::string &groupName);
-  void    startStream();
-  void    stopStream();
+  DLLATTRIB void setAudioGroupVolume(const int volume, const std::string &groupName);
+  DLLATTRIB void startStream();
+  DLLATTRIB void stopStream();
 
 private:
-  int m_currentId = 0;
-  PaStream *m_stream = nullptr;
+  int       m_currentId = 0;
+  PaStream *m_stream    = nullptr;
 };
