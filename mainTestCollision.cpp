@@ -87,6 +87,118 @@ void processSpecialKeys(int key, int xx, int yy) {
   }
 }
 
+glm::vec3 GetAnyPerpendicularUnitVector(const glm::vec3& vec)
+{
+  if (vec.y != 0.0f || vec.z != 0.0f)
+    return glm::vec3(1, 0, 0);
+  else
+    return glm::vec3(0, 1, 0);
+}
+
+void drawTriangle(const glm::vec3 p0, const glm::vec3 p1, const glm::vec3 p2)
+{
+  float vertices[] =
+    {
+        p0.x, p0.y, p0.z, // top corner
+        p1.x, p1.y, p1.z, // bottom left corner
+        p2.x, p2.y, p2.z // bottom right corner
+    };
+
+  glEnableClientState( GL_VERTEX_ARRAY ); // tell OpenGL that you're using a vertex array for fixed-function attribute
+  glVertexPointer( 3, GL_FLOAT, 0, vertices ); // point to the vertices to be used
+  glDrawArrays( GL_TRIANGLES, 0, 3 ); // draw the vertixes
+  glDisableClientState( GL_VERTEX_ARRAY ); // tell OpenGL that you're finished using the vertex arrayattribute
+}
+
+void drawCapsule(glm::vec3 start, glm::vec3 end, float radius)
+{
+  const glm::vec3 axis   = end - start;
+  const float     length = glm::length(axis);
+  const glm::vec3 localZ = axis / length;
+  const glm::vec3 localX = GetAnyPerpendicularUnitVector(localZ);
+  const glm::vec3 localY = glm::cross(localZ, localX);
+
+  using glm::cos;
+  using glm::sin;
+  constexpr float pi = glm::pi<float>();
+
+  const glm::vec3 startP(0.0f);
+  const glm::vec3 endP(1.0f);
+  const float     resolution = 16.0f;
+
+  const glm::vec3 step = (endP - startP) / resolution;
+
+  auto cylinder = [localX, localY, localZ, start, length, radius](const float u,
+                                                      const float v) {
+    return start                                  //
+           + localX * cos(2.0f * pi * u) * radius //
+           + localY * sin(2.0f * pi * u) * radius //
+           + localZ * v * length;                   //
+
+  };
+
+  auto sphereStart = [localX, localY, localZ, start, radius](const float u,
+                                                 const float v) -> glm::vec3 {
+    const float latitude = (pi / 2.0f) * (v - 1);
+
+    return start                                                  //
+           + localX * cos(2.0f * pi * u) * cos(latitude) * radius //
+           + localY * sin(2.0f * pi * u) * cos(latitude) * radius //
+           + localZ * sin(latitude) * radius;
+  };
+
+  auto sphereEnd = [localX, localY, localZ, end, radius](const float u, const float v) {
+    const float latitude = (pi / 2.0f) * v;
+    return end                                                    //
+           + localX * cos(2.0f * pi * u) * cos(latitude) * radius //
+           + localY * sin(2.0f * pi * u) * cos(latitude) * radius //
+           + localZ * sin(latitude) * radius;
+  };
+
+  for (float i = 0; i < resolution; ++i) {
+    for (float j = 0; j < resolution; ++j) {
+      const float u = i * step.x + startP.x;
+      const float v = j * step.y + startP.y;
+
+      const float un =
+        (i + 1 == resolution) ? endP.x : (i + 1) * step.x + startP.x;
+      const float vn =
+        (j + 1 == resolution) ? endP.y : (j + 1) * step.y + startP.y;
+
+    // Draw Cylinder
+      {
+        const glm::vec3 p0 = cylinder(u, v);
+        const glm::vec3 p1 = cylinder(u, vn);
+        const glm::vec3 p2 = cylinder(un, v);
+        const glm::vec3 p3 = cylinder(un, vn);
+
+        drawTriangle(p0, p1, p2);
+        drawTriangle(p3, p1, p2);
+      }
+
+    // Draw Sphere start
+      {
+        const glm::vec3 p0       = sphereStart(u, v);
+        const glm::vec3 p1       = sphereStart(u, vn);
+        const glm::vec3 p2       = sphereStart(un, v);
+        const glm::vec3 p3       = sphereStart(un, vn);
+        drawTriangle(p0, p1, p2);
+        drawTriangle(p3, p1, p2);
+      }
+
+    // Draw Sphere end
+      {
+        const glm::vec3 p0       = sphereEnd(u, v);
+        const glm::vec3 p1       = sphereEnd(u, vn);
+        const glm::vec3 p2       = sphereEnd(un, v);
+        const glm::vec3 p3       = sphereEnd(un, vn);
+        drawTriangle(p0, p1, p2);
+        drawTriangle(p3, p1, p2);
+      }
+    }
+  }
+}
+
 /* Handler for window-repaint event. Called back when the window first appears and
    whenever the window needs to be re-painted. */
 
@@ -278,6 +390,7 @@ void display() {
         }
         break;
     }
+    drawCapsule(glm::vec3(3.0f, 3.0f, -4.0f), glm::vec3(3.0f, -3.0f, -4.0f), 2.0f);
   }
 
   glutSwapBuffers();  // Swap the front and back frame buffers (double buffering)
