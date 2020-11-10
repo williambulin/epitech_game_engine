@@ -29,7 +29,7 @@ public:
       (void)transform;
 
       // Model
-      auto &model{m_admin.createComponent<Components::Model>(entity, renderer, "../resources/viking_room.obj", "../resources/viking_room.png")};
+      auto &model{m_admin.createComponent<Components::Model>(entity, renderer, "../../../resources/viking_room.obj", "../../../resources/viking_room.png")};
       (void)model;
     }
 

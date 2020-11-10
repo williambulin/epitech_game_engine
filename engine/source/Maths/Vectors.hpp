@@ -414,7 +414,7 @@ public:
 };
 
 template <class T>
-Vector2<T>::Vector2(T a, T b) : Vector<T, 2>{{a, b}},
+Vector2<T>::Vector2(T a, T b) : Vector<T, 2>{std::vector<T>{a, b}},
                                 x{this->m_array[0]},
                                 y{this->m_array[1]} {}
 
