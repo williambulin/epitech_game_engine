@@ -4,4 +4,4 @@
 
 #include <memory>
 
-std::unique_ptr<Game> loadGame(Vulkan::Renderer &renderer, ECS::Admin &admin);
+std::unique_ptr<Game> loadGame(Vulkan::Renderer &renderer, ECS::Admin &admin, AudioManager &audioManager);

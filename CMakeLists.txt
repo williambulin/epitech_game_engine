@@ -11,16 +11,17 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-everything")
 endif ()
 
-find_package(portaudio CONFIG REQUIRED)
-find_package(SndFile CONFIG REQUIRED)
-
 if (WIN32)
   include(C:/vcpkg/scripts/buildsystems/vcpkg.cmake)
 
   find_package(glfw3 CONFIG REQUIRED)
   find_package(glm CONFIG REQUIRED)
   find_package(Vulkan REQUIRED)
-endif()
+endif ()
+
+find_package(portaudio CONFIG REQUIRED)
+find_package(LibSndFile CONFIG REQUIRED)
+
 # find engine/source -name "*.*pp" | sed 's/engine/\$\{CMAKE_CURRENT_LIST_DIR\}\/engine/g'
 add_library(
   engine
@@ -138,6 +139,9 @@ target_link_libraries(
   engine
   glfw
   glm
+  portaudio
+  portaudio_static
+  sndfile-shared
   ${Vulkan_LIBRARIES}
 )
 
@@ -182,24 +186,56 @@ target_include_directories(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source
 )
 
+add_executable(
+  demo_audio
+
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/main.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioGroup.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioManager.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioManager.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioListener.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioListener.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioSource.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioSource.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioStream.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioStream.hpp
+)
+
+target_include_directories(
+  demo_audio PRIVATE
+
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source
+)
+
+target_link_libraries(
+  demo_audio PRIVATE
+
+  portaudio
+  portaudio_static
+  sndfile-shared
+)
+
 if (WIN32)
 find_package(GLUT REQUIRED)
+
 target_link_libraries(
   demo_physics PRIVATE
+
   OpenGL32
   GLUT::GLUT
   GLU32
 )
-endif()
+endif ()
 
 if (UNIX)
 target_link_libraries(
   demo_physics PRIVATE
+
   GL
   glut
   GLU
 )
-endif()
+endif ()
 
 if (EXISTS "${CMAKE_BINARY_DIR}/compile_commands.json")
   file(STRINGS ${CMAKE_BINARY_DIR}/compile_commands.json COMPILE_COMMANDS_FLAGS REGEX "^.*command.*main\.cpp.*$")
@@ -211,4 +247,4 @@ if (EXISTS "${CMAKE_BINARY_DIR}/compile_commands.json")
   string(REGEX REPLACE "^\n" "" COMPILE_COMMANDS_FLAGS "${COMPILE_COMMANDS_FLAGS}")
   string(REPLACE "-I.." "-I." COMPILE_COMMANDS_FLAGS "${COMPILE_COMMANDS_FLAGS}")
   file(WRITE "${CMAKE_CURRENT_LIST_DIR}/compile_flags.txt" "${COMPILE_COMMANDS_FLAGS}")
-endif()
+endif ()
