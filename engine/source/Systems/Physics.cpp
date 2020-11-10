@@ -1,5 +1,12 @@
 #include "Physics.hpp"
 
+void CollisionInfo::addContactPoint(const ml::vec3 &localA, const ml::vec3 &localB, const ml::vec3 &normal, float p) {
+  point.localA      = localA;
+  point.localB      = localB;
+  point.normal      = normal;
+  point.penetration = p;
+}
+
 bool Systems::Physics::collide(AABB &firstCollider, const ml::mat4 &modelMatrixFirstCollider, AABB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
   auto     firstPoints       = firstCollider.getPoints(modelMatrixFirstCollider, true);
   auto     secondPoints      = secondCollider.getPoints(modelMatrixSecondCollider, true);
@@ -199,8 +206,8 @@ void Systems::Physics::collisionDections() {
   auto &entities{getItems()};
   for (auto i = entities.begin(); i != entities.end(); i++) {
     for (auto j = i + 1; j != entities.end(); j++) {
-      auto &&[entityI, transformI, physicsI]{*i};
-      auto &&[entityJ, transformJ, physicsJ]{*j};
+      auto &&[entityI, physicsI, transformI]{*i};
+      auto &&[entityJ, physicsJ, transformJ]{*j};
 
       if (entityI == entityJ)
         continue;
@@ -301,7 +308,7 @@ void Systems::Physics::integrateVelocity(float dt) {
   float frameDamping  = powf(dampingFactor, dt);
 
   auto &entities{getItems()};
-  for (auto &&[entity, transform, physics] : entities) {
+  for (auto &&[entity, physics, transform] : entities) {
     // Position Stuff
     ml::vec3 position{transform.matrix.getTranslation()};
     ml::vec3 linearVel{physics.getLinearVelocity()};
