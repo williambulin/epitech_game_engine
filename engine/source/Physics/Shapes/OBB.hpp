@@ -10,16 +10,16 @@ public:
   DLLATTRIB explicit OBB(const ml::vec3 &min, const ml::vec3 &max) noexcept;
   DLLATTRIB explicit OBB(const OBB &second) noexcept;
 
-  [[nodiscard]] auto getPoints(const ml::mat4 &transform, bool forceInvalidate = false) -> std::vector<ml::vec3>;  // Called by collide(...)
+  [[nodiscard]] DLLATTRIB auto getPoints(const ml::mat4 &transform, bool forceInvalidate = false) -> std::vector<ml::vec3>;  // Called by collide(...)
 
-  void               setMin(const ml::vec3 &min) noexcept;
-  [[nodiscard]] auto getMin() const noexcept -> ml::vec3;
-  void               setMax(const ml::vec3 &max) noexcept;
-  [[nodiscard]] auto getMax() const noexcept -> ml::vec3;
+  DLLATTRIB void               setMin(const ml::vec3 &min) noexcept;
+  [[nodiscard]] DLLATTRIB auto getMin() const noexcept -> ml::vec3;
+  DLLATTRIB void               setMax(const ml::vec3 &max) noexcept;
+  [[nodiscard]] DLLATTRIB auto getMax() const noexcept -> ml::vec3;
 
-  [[nodiscard]] bool operator==(const OBB &second) const noexcept;
+  [[nodiscard]] DLLATTRIB bool operator==(const OBB &second) const noexcept;
 
-  ml::vec3 getLocalPosition() override;
+  DLLATTRIB ml::vec3 getLocalPosition() override;
 
 private:
   ml::vec3              m_min{0.0f, 0.0f, 0.0f};
