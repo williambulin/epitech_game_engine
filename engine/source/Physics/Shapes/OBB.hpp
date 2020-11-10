@@ -1,14 +1,14 @@
 #pragma once
 
+#include "Extension/Language/Library.hpp"
 #include "Maths/Vectors.hpp"
 #include "Physics/ICollisionShape.hpp"
 #include "Components/Transform.hpp"
 
 class OBB final : public ICollisionShape {
 public:
-  explicit OBB(const ml::vec3 &min, const ml::vec3 &max) noexcept;
-
-  explicit OBB(const OBB &second) noexcept;
+  DLLATTRIB explicit OBB(const ml::vec3 &min, const ml::vec3 &max) noexcept;
+  DLLATTRIB explicit OBB(const OBB &second) noexcept;
 
   [[nodiscard]] auto getPoints(const ml::mat4 &transform, bool forceInvalidate = false) -> std::vector<ml::vec3>;  // Called by collide(...)
 
