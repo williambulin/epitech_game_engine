@@ -142,14 +142,14 @@ bool Systems::Physics::collide(Capsule &firstCollider, const ml::mat4 &modelMatr
   std::vector<ml::vec3> pointsFirstCollider{firstCollider.getPoints(modelMatrixFirstCollider)};
   std::vector<ml::vec3> pointsSecondCollider{secondCollider.getPoints(modelMatrixSecondCollider)};
   // capsule A:
-  ml::vec3 a_Normal        = pointsFirstCollider.front() - pointsFirstCollider.back();
+  ml::vec3 a_Normal = pointsFirstCollider.front() - pointsFirstCollider.back();
   a_Normal.normalize();
   ml::vec3 a_LineEndOffset = a_Normal * firstCollider.getRadius();
   ml::vec3 a_A             = pointsFirstCollider.back() + a_LineEndOffset;
   ml::vec3 a_B             = pointsFirstCollider.front() - a_LineEndOffset;
 
   // capsule B:
-  ml::vec3 b_Normal        = pointsSecondCollider.front() - pointsSecondCollider.back();
+  ml::vec3 b_Normal = pointsSecondCollider.front() - pointsSecondCollider.back();
   b_Normal.normalize();
   ml::vec3 b_LineEndOffset = b_Normal * secondCollider.getRadius();
   ml::vec3 b_A             = pointsSecondCollider.back() + b_LineEndOffset;
@@ -179,16 +179,16 @@ bool Systems::Physics::collide(Capsule &firstCollider, const ml::mat4 &modelMatr
   ml::vec3 bestB = Systems::Physics::closestPointOnLineSegment(b_A, b_B, bestA);
 
   // now do the same for capsule A segment:
-  bestA = Systems::Physics::closestPointOnLineSegment(a_A, a_B, bestB);
+  bestA                       = Systems::Physics::closestPointOnLineSegment(a_A, a_B, bestB);
   ml::vec3 penetration_normal = bestA - bestB;
-  float len = penetration_normal.length();
+  float    len                = penetration_normal.length();
   penetration_normal /= len;  // normalize
   float penetration_depth = firstCollider.getRadius() + secondCollider.getRadius() - len;
   if (penetration_depth > 0) {
     ml::vec3 collisionNormal = penetration_normal;
     float    penetration     = penetration_depth;
-    ml::vec3 localA = ml::vec3(0.0f, 0.0f, 0.0f);
-    ml::vec3 localB = ml::vec3(0.0f, 0.0f, 0.0f);
+    ml::vec3 localA          = ml::vec3(0.0f, 0.0f, 0.0f);
+    ml::vec3 localB          = ml::vec3(0.0f, 0.0f, 0.0f);
     collisionInfo.addContactPoint(localA, localB, collisionNormal, penetration);
     return true;
   }
@@ -325,4 +325,10 @@ void Systems::Physics::integrateVelocity(float dt) {
     angVel = angVel * frameDamping;
     physics.setAngularVelocity(angVel);
   }
+}
+
+void Systems::Physics::update(float dt, std::uint64_t) {
+  collisionDections();
+  collisionResolution();
+  integrateVelocity(dt);
 }

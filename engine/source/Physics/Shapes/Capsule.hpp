@@ -1,14 +1,14 @@
 #pragma once
 
+#include "Extension/Language/Library.hpp"
 #include "Maths/Vectors.hpp"
 #include "Physics/ICollisionShape.hpp"
 #include "Components/Transform.hpp"
 
 class Capsule final : public ICollisionShape {
 public:
-  explicit Capsule(const ml::vec3 &start, const ml::vec3 &end, const float &radius) noexcept;
-
-  explicit Capsule(const Capsule &second) noexcept;
+  DLLATTRIB explicit Capsule(const ml::vec3 &start, const ml::vec3 &end, const float &radius) noexcept;
+  DLLATTRIB explicit Capsule(const Capsule &second) noexcept;
 
   [[nodiscard]] auto getPoints(const ml::mat4 &transform, bool forceInvalidate = false) -> std::vector<ml::vec3>;  // Called by collide(...)
 
