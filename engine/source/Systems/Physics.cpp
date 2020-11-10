@@ -88,36 +88,61 @@ ml::vec3 getNormal(const ml::vec3 &v) {
   return ml::vec3(-v.y, v.x, v.z);
 }
 
-ml::vec3 getPerpendicularAxis(const std::vector<ml::vec3> &vertices, std::size_t index) {
-  ml::vec3 tmp(vertices[index + 1]);
-  tmp = tmp - vertices[index];
-  tmp.normalize();
-  return getNormal(tmp);
-}
+bool queryFaceCollisions(OBB &reference, OBB &incident, CollisionInfo &results) {
+  for (int i = 0; i < reference.m_faces.size(); i++) {
+    ml::vec3 axis       = std::get<OBB::NORMAL>(reference.m_faces[i]);
+    ml::vec3 planePoint = reference.getSupport(axis);
+    float    distance   = axis.dot(planePoint);
+    //            Plane plane = new Plane(axis, planePoint);
 
-// axes for which we'll test stuff. Two for each box, because testing for parallel axes isn't needed
-std::vector<ml::vec3> getPerpendicularAxes(const std::vector<ml::vec3> &vertices1, const std::vector<ml::vec3> &vertices2) {
-  std::vector<ml::vec3> axes;
-  axes.push_back(getPerpendicularAxis(vertices1, 0));
-  axes.push_back(getPerpendicularAxis(vertices1, 0));
-  axes.push_back(getPerpendicularAxis(vertices1, 0));
-  axes.push_back(getPerpendicularAxis(vertices1, 0));
-  axes.push_back(getPerpendicularAxis(vertices1, 0));
-  axes.push_back(getPerpendicularAxis(vertices1, 0));
-  axes.push_back(getPerpendicularAxis(vertices1, 0));
-  axes.push_back(getPerpendicularAxis(vertices1, 0));
-  axes.push_back(getPerpendicularAxis(vertices1, 0));
-  axes[1] = getPerpendicularAxis(vertices1, 1);
-  axes[2] = getPerpendicularAxis(vertices2, 0);
-  axes[3] = getPerpendicularAxis(vertices2, 1);
-  return axes;
+    ml::vec3 negatedNormal = axis * -1.0f;
+    Vector3f support       = incident.getSupport(negatedNormal);
+
+    distance = axis.dot(planePoint) - distance;
+    if (distance > 0) {
+      return false;
+    }
+    results.addContactPoint(ml::vec3(0.0f, 0.0f, 0.0f), ml::vec3(0.0f, 0.0f, 0.0f), axis, distance);
+    // results.setPenetration(distance);
+    // results.setEnterNormal(axis);
+    // results.setReferenceFace(i);
+  }
+  return true;
 }
 
 bool Systems::Physics::collide(OBB &firstCollider, const ml::mat4 &modelMatrixFirstCollider, OBB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
-  std::vector<ml::vec3> verticesFirstCollider{firstCollider.getPoints(modelMatrixFirstCollider)};
-  std::vector<ml::vec3> verticesSecondCollider{secondCollider.getPoints(modelMatrixSecondCollider)};
-  std::vector<ml::vec3> axes{getPerpendicularAxes(verticesFirstCollider, verticesSecondCollider)};
-  return true;
+  auto firstPoints  = firstCollider.getPoints(modelMatrixFirstCollider, true);
+  auto secondPoints = secondCollider.getPoints(modelMatrixSecondCollider, true);
+  if (!queryFaceCollisions(firstCollider, secondCollider, collisionInfo)) {
+    return true;
+  }
+  if (!queryFaceCollisions(secondCollider, firstCollider, collisionInfo)) {
+    return true;
+  }
+ /* if (!queryEdgeCollisions(island.getColliderA(), island.getColliderB(), results, Type.EDGE)) {
+    return results;
+  }
+
+  if (results.getType() == Type.FACE_OF_A.ordinal()) {
+    getFaceContactPoints(island.getColliderA(), island.getColliderB(), results);
+  } else if (results.getType() == Type.FACE_OF_B.ordinal()) {
+    getFaceContactPoints(island.getColliderB(), island.getColliderA(), results);
+  } else {
+    getEdgeContactPoint(island.getColliderA(), island.getColliderB(), results);
+  }
+
+  Vector3f offset = new Vector3f();
+  island.getColliderB().getPosition().sub(island.getColliderA().getPosition(), offset);
+  if (results.getEnterNormal().dot(offset) > 0) {
+    results.getEnterNormal().negate();
+  }
+
+  results.setCollided();
+
+  return results;
+}
+return true;
+* /
 }
 
 auto Systems::Physics::getEntityWorldPosition(ICollisionShape &shape, const ml::mat4 &matrix) const -> ml::vec3 {
@@ -142,14 +167,14 @@ bool Systems::Physics::collide(Capsule &firstCollider, const ml::mat4 &modelMatr
   std::vector<ml::vec3> pointsFirstCollider{firstCollider.getPoints(modelMatrixFirstCollider)};
   std::vector<ml::vec3> pointsSecondCollider{secondCollider.getPoints(modelMatrixSecondCollider)};
   // capsule A:
-  ml::vec3 a_Normal        = pointsFirstCollider.front() - pointsFirstCollider.back();
+  ml::vec3 a_Normal = pointsFirstCollider.front() - pointsFirstCollider.back();
   a_Normal.normalize();
   ml::vec3 a_LineEndOffset = a_Normal * firstCollider.getRadius();
   ml::vec3 a_A             = pointsFirstCollider.back() + a_LineEndOffset;
   ml::vec3 a_B             = pointsFirstCollider.front() - a_LineEndOffset;
 
   // capsule B:
-  ml::vec3 b_Normal        = pointsSecondCollider.front() - pointsSecondCollider.back();
+  ml::vec3 b_Normal = pointsSecondCollider.front() - pointsSecondCollider.back();
   b_Normal.normalize();
   ml::vec3 b_LineEndOffset = b_Normal * secondCollider.getRadius();
   ml::vec3 b_A             = pointsSecondCollider.back() + b_LineEndOffset;
@@ -179,16 +204,16 @@ bool Systems::Physics::collide(Capsule &firstCollider, const ml::mat4 &modelMatr
   ml::vec3 bestB = Systems::Physics::closestPointOnLineSegment(b_A, b_B, bestA);
 
   // now do the same for capsule A segment:
-  bestA = Systems::Physics::closestPointOnLineSegment(a_A, a_B, bestB);
+  bestA                       = Systems::Physics::closestPointOnLineSegment(a_A, a_B, bestB);
   ml::vec3 penetration_normal = bestA - bestB;
-  float len = penetration_normal.length();
+  float    len                = penetration_normal.length();
   penetration_normal /= len;  // normalize
   float penetration_depth = firstCollider.getRadius() + secondCollider.getRadius() - len;
   if (penetration_depth > 0) {
     ml::vec3 collisionNormal = penetration_normal;
     float    penetration     = penetration_depth;
-    ml::vec3 localA = ml::vec3(0.0f, 0.0f, 0.0f);
-    ml::vec3 localB = ml::vec3(0.0f, 0.0f, 0.0f);
+    ml::vec3 localA          = ml::vec3(0.0f, 0.0f, 0.0f);
+    ml::vec3 localB          = ml::vec3(0.0f, 0.0f, 0.0f);
     collisionInfo.addContactPoint(localA, localB, collisionNormal, penetration);
     return true;
   }
