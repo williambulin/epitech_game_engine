@@ -31,6 +31,7 @@ public:
     // Transform
     auto &transform{m_admin->createComponent<Components::Transform>(entity)};
     (void)transform;
+    // transform.matrix.setTranslation(ml::vec3{-3.0f, -3.0f, -3.0f});
 
     // Model
     auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/viking_room.obj", "../resources/viking_room.png")};
@@ -55,31 +56,27 @@ public:
         physics.applyAngularImpulse(ml::vec3{y / 20.0f, 0.0f, x / 20.0f});
     };
 
-    using (auto entity{m_admin.createEntity()}) {
-      // Transform
-      auto &transform{m_admin.createComponent<Components::Transform>(entity)};
-      // transform.scale = glm::vec3(0.1f);
-      transform.matrix.setTranslation(ml::vec3{-3.0f, -3.0f, -3.0f});
+    // using (auto entity{m_admin.createEntity()}) {
+    //   // Transform
+    //   auto &transform{m_admin.createComponent<Components::Transform>(entity)};
+    //   // transform.scale = glm::vec3(0.1f);
+    //   transform.matrix.setTranslation(ml::vec3{-3.0f, -3.0f, -3.0f});
 
-      // Model
-      auto &model{m_admin.createComponent<Components::Model>(entity, renderer, "../../../resources/rock.obj", "../../../resources/rock.jpg")};
-      (void)model;
-    }
-
-    // glm::perspective(0, 0, 0, 0);
-
+    //   // Model
+    //   auto &model{m_admin.createComponent<Components::Model>(entity, renderer, "../resources/rock.obj", "../resources/rock.jpg")};
+    //   (void)model;
+    // }
 
     // using (auto entity{m_admin.createEntity()}) {
     //   // Transform
     //   auto &transform{m_admin.createComponent<Components::Transform>(entity)};
-    //   // transform.scale    = glm::vec3(0.05f);
-    //   // transform.position = glm::vec3(5.0f);
+    //   // transform.scale = glm::vec3(0.1f);
     //   transform.matrix.setTranslation(ml::vec3{-3.0f, -3.0f, -3.0f});
 
-      // Model
-      auto &model{m_admin.createComponent<Components::Model>(entity, renderer, "../../../resources/disk.obj", "../../../resources/disk.png")};
-      (void)model;
-    }*/
+    //   // Model
+    //   auto &model{m_admin.createComponent<Components::Model>(entity, renderer, "../resources/disk.obj", "../resources/disk.jpg")};
+    //   (void)model;
+    // }
   }
 
   [[nodiscard]] bool update(float, std::uint64_t) final {
