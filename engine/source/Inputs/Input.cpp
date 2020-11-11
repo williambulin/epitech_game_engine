@@ -76,12 +76,15 @@ void Input::startTriggeringInput() {
   while (PeekMessage(&_msg, _dummyHWND, 0, 0, PM_REMOVE)) {
     TranslateMessage(&_msg);
     DispatchMessage(&_msg);
+
     unsigned        size = sizeof(RAWINPUT);
     static RAWINPUT raw[sizeof(RAWINPUT)];
     GetRawInputData((HRAWINPUT)_msg.lParam, RID_INPUT, raw, &size, sizeof(RAWINPUTHEADER));
+
     _mouse->setWheel(GET_WHEEL_DELTA_WPARAM(_msg.wParam));
     if (raw->header.dwType == RIM_TYPEMOUSE)
       _mouse->setMousePosition(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+
     switch (_msg.message) {
       case WM_LBUTTONDBLCLK:
         _mouse->stateChanges(Mouse::INPUT_e::Left, Mouse::STATE_e::DBClick);
