@@ -7,9 +7,11 @@
 
 class OBJ final : public IModel {
 private:
-  Vertices  m_vertices{};
-  Normals   m_normals{};
-  Texcoords m_texcoords{};
+  Vertices   m_vertices{};
+  Texcoords  m_texcoords{};
+  Normals    m_normals{};
+  Tangents   m_tangents{};
+  Bitangents m_bitangents{};
 
 public:
   explicit OBJ(const std::string &);
@@ -17,6 +19,8 @@ public:
   ~OBJ() = default;
 
   [[nodiscard]] auto getVertices() const -> const Vertices &;
-  [[nodiscard]] auto getNormals() const -> const Normals &;
   [[nodiscard]] auto getTexcoords() const -> const Texcoords &;
+  [[nodiscard]] auto getNormals() const -> const Normals &;
+  [[nodiscard]] auto getTangents() const -> const Tangents &;
+  [[nodiscard]] auto getBitangents() const -> const Bitangents &;
 };
