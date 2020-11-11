@@ -8,6 +8,8 @@
 
 #include "../Maths/Vectors.hpp"
 
+#include <iostream>
+
 static const std::vector<std::string> supportedIndexes = {"v", "vn", "vt", "f"};
 
 OBJ::OBJ(const std::string &path) {
@@ -31,21 +33,23 @@ OBJ::OBJ(const std::string &path) {
       continue;
     std::vector<std::string> data;
     for (std::string dataPart; line >> dataPart;)
-      data.push_back(dataPart);
+      if (!dataPart.empty())
+        data.push_back(dataPart);
 
     // fill vectors with the data
-    if (index == "f") {
+    if (index == "f" && data.size() == 3) {
       faces.push_back(data);
     } else {
       std::vector<float> dataFloat;
       for (std::string &dataPart : data)
         dataFloat.push_back(std::stof(dataPart));
-      if (index == "v" && dataFloat.size() == 3)
-        vertices.push_back(Vector3<float>(dataFloat));
-      else if (index == "vn" && dataFloat.size() == 3)
-        normals.push_back(Vector3<float>(dataFloat));
-      else if (index == "vt" && dataFloat.size() == 2)
-        texcoords.push_back(Vector2<float>(dataFloat));
+      if (index == "v" && dataFloat.size() == 3) {
+        vertices.push_back(Vector3<float>{dataFloat});
+      } else if (index == "vn" && dataFloat.size() == 3) {
+        normals.push_back(Vector3<float>{dataFloat});
+      } else if (index == "vt" && (dataFloat.size() == 2 || dataFloat.size() == 3)) {
+        texcoords.push_back(Vector2<float>{dataFloat[0], 1.0f - dataFloat[1]});
+      }
     }
   }
   file.close();
@@ -55,16 +59,18 @@ OBJ::OBJ(const std::string &path) {
     for (std::string &faceElement : face) {
       std::istringstream faceStream(faceElement);
       std::string        faceIndexStr;
-      for (auto i = 0U; std::getline(faceStream, faceIndexStr, '/'); i++) {
+      for (auto i = 0U; std::getline(faceStream, faceIndexStr, '/');) {
         if (faceIndexStr.empty())
           continue;
         auto faceIndex = std::stoi(faceIndexStr) - 1;
-        if (i == 0)
+        if (i == 0) {
           m_vertices.push_back(vertices[faceIndex]);
-        else if (i == 1)
+        } else if (i == 1) {
           m_texcoords.push_back(texcoords[faceIndex]);
-        else if (i == 2)
+        } else if (i == 2) {
           m_normals.push_back(normals[faceIndex]);
+        }
+        i++;
       }
     }
   }

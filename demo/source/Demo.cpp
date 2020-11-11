@@ -55,18 +55,19 @@ public:
         physics.applyAngularImpulse(ml::vec3{y / 20.0f, 0.0f, x / 20.0f});
     };
 
-    // using (auto entity{m_admin.createEntity()}) {
-    //   // Transform
-    //   auto &transform{m_admin.createComponent<Components::Transform>(entity)};
-    //   // transform.scale = glm::vec3(0.1f);
-    //   transform.matrix.setTranslation(ml::vec3{-3.0f, -3.0f, -3.0f});
+    using (auto entity{m_admin.createEntity()}) {
+      // Transform
+      auto &transform{m_admin.createComponent<Components::Transform>(entity)};
+      // transform.scale = glm::vec3(0.1f);
+      transform.matrix.setTranslation(ml::vec3{-3.0f, -3.0f, -3.0f});
 
-    //   // Model
-    //   auto &model{m_admin.createComponent<Components::Model>(entity, renderer, "../resources/rock.obj", "../resources/rock.jpg")};
-    //   (void)model;
-    // }
+      // Model
+      auto &model{m_admin.createComponent<Components::Model>(entity, renderer, "../../../resources/rock.obj", "../../../resources/rock.jpg")};
+      (void)model;
+    }
 
     // glm::perspective(0, 0, 0, 0);
+
 
     // using (auto entity{m_admin.createEntity()}) {
     //   // Transform
@@ -75,10 +76,10 @@ public:
     //   // transform.position = glm::vec3(5.0f);
     //   transform.matrix.setTranslation(ml::vec3{-3.0f, -3.0f, -3.0f});
 
-    //   // Model
-    //   auto &model{m_admin.createComponent<Components::Model>(entity, renderer, "../resources/disk.obj", "../resources/disk.png")};
-    //   (void)model;
-    // }
+      // Model
+      auto &model{m_admin.createComponent<Components::Model>(entity, renderer, "../../../resources/disk.obj", "../../../resources/disk.png")};
+      (void)model;
+    }*/
   }
 
   [[nodiscard]] bool update(float, std::uint64_t) final {
