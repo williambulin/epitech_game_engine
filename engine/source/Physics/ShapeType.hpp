@@ -4,5 +4,6 @@ enum class ShapeType {
     UNKNOWN,
     AABB,
     SPHERE,
-    OBB
+    OBB,
+    CAPSULE
 };
