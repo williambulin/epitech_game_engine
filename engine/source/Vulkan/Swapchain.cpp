@@ -177,8 +177,8 @@ Vulkan::Swapchain::Swapchain(VkCommandPool commandPool, VkQueue graphicsQueue, H
     throw std::runtime_error{"Couldn't create the render pass"};
 
   // Shaders and Pipeline
-  auto triangleVertexShaderBytes{loadShader("../../../shaders/triangle.vert.spv")};
-  auto triangleFragmentShaderBytes{loadShader("../../../shaders/triangle.frag.spv")};
+  auto triangleVertexShaderBytes{loadShader("../shaders/triangle.vert.spv")};
+  auto triangleFragmentShaderBytes{loadShader("../shaders/triangle.frag.spv")};
   auto triangleVertexShader{createShader(triangleVertexShaderBytes)};
   auto triangleFragmentShader{createShader(triangleFragmentShaderBytes)};
 
