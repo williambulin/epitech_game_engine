@@ -59,7 +59,7 @@ Quaternion Quaternion::fromMatrix(Matrix<float, 4, 4> mat) {
 }
 
 Quaternion Quaternion::fromMatrix(Matrix<float, 3, 3> mat) {
-  float w = sqrt(std::max(0.0f, (1.0f + mat[0][0] + mat[1][1] + mat[2][2]))) * 0.5f;
+  float w = sqrt(std::max(0.000000001f, (1.0f + mat[0][0] + mat[1][1] + mat[2][2]))) * 0.5f;
 
   if (w == 0.0f) {
     return (Quaternion(0, 0, 0, 1));
