@@ -25,20 +25,22 @@ auto OBB::getPoints(const ml::mat4 &transform, bool forceInvalidate) -> std::vec
 
   m_pointsCache  = points;
   m_oldTransform = transform;
+  
   m_edges        = {
-  std::array<ml::vec3, 2>{m_pointsCache[2], m_pointsCache[3]},
-  std::array<ml::vec3, 2>{m_pointsCache[3], m_pointsCache[4]},
-  std::array<ml::vec3, 2>{m_pointsCache[4], m_pointsCache[7]},
-  std::array<ml::vec3, 2>{m_pointsCache[2], m_pointsCache[7]},
-  std::array<ml::vec3, 2>{m_pointsCache[6], m_pointsCache[5]},
-  std::array<ml::vec3, 2>{m_pointsCache[5], m_pointsCache[0]},
-  std::array<ml::vec3, 2>{m_pointsCache[0], m_pointsCache[1]},
-  std::array<ml::vec3, 2>{m_pointsCache[1], m_pointsCache[6]},
-  std::array<ml::vec3, 2>{m_pointsCache[4], m_pointsCache[5]},
-  std::array<ml::vec3, 2>{m_pointsCache[6], m_pointsCache[7]},
-  std::array<ml::vec3, 2>{m_pointsCache[0], m_pointsCache[3]},
-  std::array<ml::vec3, 2>{m_pointsCache[2], m_pointsCache[1]},
+  std::tuple<std::array<ml::vec3, 2>, std::array<int, 2>>({m_pointsCache[2], m_pointsCache[3]}, {0, 3}),
+  std::tuple<std::array<ml::vec3, 2>, std::array<int, 2>>({m_pointsCache[3], m_pointsCache[4]}, {0, 4}),
+  std::tuple<std::array<ml::vec3, 2>, std::array<int, 2>>({m_pointsCache[4], m_pointsCache[7]}, {0, 2}),
+  std::tuple<std::array<ml::vec3, 2>, std::array<int, 2>>({m_pointsCache[2], m_pointsCache[7]}, {0, 5}),
+  std::tuple<std::array<ml::vec3, 2>, std::array<int, 2>>({m_pointsCache[6], m_pointsCache[5]}, {1, 2}),
+  std::tuple<std::array<ml::vec3, 2>, std::array<int, 2>>({m_pointsCache[5], m_pointsCache[0]}, {1, 4}),
+  std::tuple<std::array<ml::vec3, 2>, std::array<int, 2>>({m_pointsCache[0], m_pointsCache[1]}, {1, 3}),
+  std::tuple<std::array<ml::vec3, 2>, std::array<int, 2>>({m_pointsCache[1], m_pointsCache[6]}, {1, 5}),
+  std::tuple<std::array<ml::vec3, 2>, std::array<int, 2>>({m_pointsCache[4], m_pointsCache[5]}, {2, 4}),
+  std::tuple<std::array<ml::vec3, 2>, std::array<int, 2>>({m_pointsCache[6], m_pointsCache[7]}, {2, 5}),
+  std::tuple<std::array<ml::vec3, 2>, std::array<int, 2>>({m_pointsCache[0], m_pointsCache[3]}, {3, 4}),
+  std::tuple<std::array<ml::vec3, 2>, std::array<int, 2>>({m_pointsCache[2], m_pointsCache[1]}, {3, 5}),
   };
+
 
   m_faces = {
   std::tuple<std::array<int, 4>, std::array<int, 4>, ml::vec3>({0, 1, 2, 3}, {2, 3, 4, 7}, ml::vec3(0.0f, 0.0f, 0.0f)),

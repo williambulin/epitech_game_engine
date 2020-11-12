@@ -7,10 +7,16 @@
 class OBB final : public ICollisionShape {
 public:
   enum TupleFaces {
-    EDGES,
+    EDGESINDEX,
     VERTICES,
     NORMAL
   };
+
+  enum TupleEdges {
+    EDGES,
+    FACES,
+  };
+
   explicit OBB(const ml::vec3 &min, const ml::vec3 &max) noexcept;
 
   explicit OBB(const OBB &second) noexcept;
@@ -25,12 +31,12 @@ public:
   [[nodiscard]] bool operator==(const OBB &second) const noexcept;
 
   ml::vec3 getLocalPosition() override;
-  std::vector<std::array<ml::vec3, 2>> m_edges{};
+  std::vector<std::tuple<std::array<ml::vec3, 2>, std::array<int, 2>>> m_edges{};
   std::vector<std::tuple<std::array<int, 4>, std::array<int, 4>, ml::vec3>> m_faces{};
+  std::vector<ml::vec3> m_pointsCache{};
 private:
   ml::vec3              m_min{0.0f, 0.0f, 0.0f};
   ml::vec3              m_max{0.0f, 0.0f, 0.0f};
 
   ml::mat4              m_oldTransform{};
-  std::vector<ml::vec3> m_pointsCache{};
 };
