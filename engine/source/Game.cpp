@@ -15,6 +15,18 @@ bool Game::start() {
 
     m_window->processMessages();
 
+    for (auto &[button, state] : m_mouseButtonPool)
+      onMouseButton(button, state);
+    m_mouseButtonPool.clear();
+
+    for (auto &[x, y] : m_mouseMovePool)
+      onMouseMove(x, y);
+    m_mouseMovePool.clear();
+
+    for (auto &[key, state] : m_keyPool)
+      onKey(key, state);
+    m_keyPool.clear();
+
     m_admin->cacheSystems();
     m_admin->updateSystems(dt, tickCount);
 
@@ -38,6 +50,18 @@ Game::Game(int argc, char **argv, char **env) : ApplicationBase{argc, argv, env}
   m_window = std::make_unique<Windows::Window>();
   if (m_window == nullptr)
     throw std::runtime_error{"Couldn't create Windows::Window"};
+
+  m_window->onMouseButton = [&](Input::MouseButton button, Input::State state) {
+    m_mouseButtonPool.emplace_back(button, state);
+  };
+
+  m_window->onMouseMove = [&](float x, float y) {
+    m_mouseMovePool.emplace_back(x, y);
+  };
+
+  m_window->onKey = [&](Input::Key key, Input::State state) {
+    m_keyPool.emplace_back(key, state);
+  };
 
   m_admin = std::make_unique<ECS::Admin>();
   if (m_admin == nullptr)

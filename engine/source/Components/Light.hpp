@@ -8,7 +8,7 @@ namespace ml {
   }
 }
 
-struct ml::shader::vec3 {
+struct ml::shader::vec3 final {
   float x{0.0f};
   float y{0.0f};
   float z{0.0f};
@@ -28,27 +28,28 @@ public:
   enum class Type : std::uint32_t {
     Directional = 0,
     Point       = 1,
+    Ambient     = 2,
   };
 
-  struct GLSLStruct {
+  struct GLSLStruct final {
     alignas(16) ml::shader::vec3 position{0.0f, 0.0f, 0.0f};
     alignas(16) ml::shader::vec3 direction{0.0f, -1.0f, 0.0f};
     alignas(16) ml::shader::vec3 color{1.0f, 1.0f, 1.0f};
-    alignas(4) float strength{10.0f};
+    alignas(4) float size{1.0f};
     alignas(4) std::uint32_t type{static_cast<std::uint32_t>(Type::Point)};
   };
 
 public:
   ml::vec3 direction{0.0f, -1.0f, 0.0f};
   ml::vec3 color{1.0f, 1.0f, 1.0f};
-  float    strength{10.0f};
+  float    size{1.0f};
   Type     type{Type::Point};
 
   [[nodiscard]] inline auto toGLSLStruct() -> GLSLStruct {
     return GLSLStruct{
     .direction = direction,
     .color     = color,
-    .strength  = strength,
+    .size      = size,
     .type      = static_cast<std::uint32_t>(type),
     };
   }
