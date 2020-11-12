@@ -16,6 +16,7 @@ Vulkan::Model::Model(VkPhysicalDevice physicalDevice, VkDevice device, VkCommand
       .position        = obj.getVertices()[i],
       .color           = ml::vec3{1.0f, 1.0f, 1.0f},
       .texturePosition = obj.getTexcoords()[i],
+      .normal          = obj.getNormals()[i],
       };
 
       if (!uniqueVertices.contains(vertex)) {

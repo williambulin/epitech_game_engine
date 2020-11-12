@@ -53,6 +53,12 @@ static LRESULT CALLBACK windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
       window->m_oldY = newY;
       break;
     }
+    case WM_KEYDOWN:
+      window->onKey(static_cast<Input::Key>(wParam), Input::State::Pressed);
+      break;
+    case WM_KEYUP:
+      window->onKey(static_cast<Input::Key>(wParam), Input::State::Released);
+      break;
     case WM_DESTROY:
     case WM_CLOSE:
       window->closeWindow();
