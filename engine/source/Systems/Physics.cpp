@@ -88,6 +88,70 @@ ml::vec3 getNormal(const ml::vec3 &v) {
   return ml::vec3(-v.y, v.x, v.z);
 }
 
+bool isMinkowskiFace(ml::vec3 edgeAFaceANormal, ml::vec3 edgeAFaceBNormal, ml::vec3 edgeADirection, ml::vec3 edgeBFaceANormal, ml::vec3 edgeBFaceBNormal, ml::vec3 edgeBDirection) {
+  ml::vec3 edgeACross = edgeAFaceBNormal.cross(edgeAFaceANormal);
+  ml::vec3 edgeBCross = edgeBFaceBNormal.cross(edgeBFaceANormal);
+
+  float edgeBFaceADirection = edgeBFaceANormal.dot(edgeACross);
+  float edgeBFaceBDirection = edgeBFaceBNormal.dot(edgeACross);
+  float edgeAFaceADirection = edgeAFaceANormal.dot(edgeBCross);
+  float edgeAFaceBDirection = edgeAFaceBNormal.dot(edgeBCross);
+
+  return ((edgeBFaceADirection * edgeBFaceBDirection < 0) && (edgeAFaceADirection * edgeAFaceBDirection < 0) && (edgeBFaceADirection * edgeAFaceBDirection > 0));
+}
+
+bool queryEdgeCollisions(OBB &reference, OBB &incident, CollisionInfo &results) {
+  auto edgesA = reference.m_edges;
+  auto edgesB = reference.m_edges;
+  for (int i = 0; i < edgesA.size(); i++) {
+    auto     referenceFaceA   = reference.m_faces[std::get<OBB::FACES>(edgesA[i])[0]];
+    auto     referenceFaceB   = reference.m_faces[std::get<OBB::FACES>(edgesA[i])[1]];
+    ml::vec3 edgeAFaceANormal = std::get<OBB::NORMAL>(referenceFaceA);
+    ml::vec3 edgeAFaceBNormal = std::get<OBB::NORMAL>(referenceFaceB);
+    for (int j = 0; j < edgesB.size(); j++) {
+      auto     incidentFaceA    = incident.m_faces[std::get<OBB::FACES>(edgesB[j])[0]];
+      ml::vec3 edgeBFaceANormal = std::get<OBB::NORMAL>(incidentFaceA);
+      edgeBFaceANormal *= -1;
+      auto     incidentFaceB    = incident.m_faces[std::get<OBB::FACES>(edgesB[j])[1]];
+      ml::vec3 edgeBFaceBNormal = std::get<OBB::NORMAL>(incidentFaceB);
+      edgeBFaceBNormal *= -1;
+      // COULD BE WRONG : (B - A) * transform == (B * transform - A * transform)
+      ml::vec3 edgeADirection = std::get<OBB::EDGES>(edgesA[i])[1] - std::get<OBB::EDGES>(edgesA[i])[0];  // edgesA.get(i).getTransformedDirection(reference.getWorldTransform()).normalize();
+      edgeADirection.normalize();
+      ml::vec3 edgeBDirection = std::get<OBB::EDGES>(edgesA[j])[1] - std::get<OBB::EDGES>(edgesA[j])[0];  // edgesB.get(j).getTransformedDirection(incident.getWorldTransform()).normalize();
+      edgeBDirection.normalize();
+
+      if (isMinkowskiFace(edgeAFaceANormal, edgeAFaceBNormal, edgeADirection, edgeBFaceANormal, edgeBFaceBNormal, edgeBDirection)) {
+        ml::vec3 axis = edgeADirection.cross(edgeBDirection);
+        if (axis.length() == 0) {
+          continue;
+        }
+        axis.normalize();
+        ml::vec3 transformedPointA = std::get<OBB::EDGES>(edgesA[i])[0];
+        ml::vec3 transformedPointB = std::get<OBB::EDGES>(edgesB[i])[0];
+
+        if (axis.dot(transformedPointA - ((reference.m_pointsCache[reference.m_pointsCache.size() - 1] + reference.m_pointsCache[0]) * 0.5f)) < 0) {
+          axis *= -1;
+        }
+
+        float distance = axis.dot(transformedPointB - transformedPointA);
+        if (distance > 0) {
+          return false;
+        }
+        if(distance > results.point.penetration) {
+        /*                         results.setPenetration(distance);
+                                results.setType(collisionType.ordinal());
+                                results.setEnterNormal(axis);
+                                results.setEdgeA(i);
+                                results.setEdgeB(j); */
+        results.addContactPoint(ml::vec3(0.0f, 0.0f, 0.0f), ml::vec3(0.0f, 0.0f, 0.0f), axis, distance);
+        }
+      }
+    }
+  }
+  return true;
+}
+
 bool queryFaceCollisions(OBB &reference, OBB &incident, CollisionInfo &results) {
   for (int i = 0; i < reference.m_faces.size(); i++) {
     ml::vec3 axis       = std::get<OBB::NORMAL>(reference.m_faces[i]);
@@ -96,13 +160,15 @@ bool queryFaceCollisions(OBB &reference, OBB &incident, CollisionInfo &results) 
     //            Plane plane = new Plane(axis, planePoint);
 
     ml::vec3 negatedNormal = axis * -1.0f;
-    Vector3f support       = incident.getSupport(negatedNormal);
+    ml::vec3 support       = incident.getSupport(negatedNormal);
 
     distance = axis.dot(planePoint) - distance;
     if (distance > 0) {
       return false;
     }
-    results.addContactPoint(ml::vec3(0.0f, 0.0f, 0.0f), ml::vec3(0.0f, 0.0f, 0.0f), axis, distance);
+    if(distance > results.point.penetration) {
+      results.addContactPoint(ml::vec3(0.0f, 0.0f, 0.0f), ml::vec3(0.0f, 0.0f, 0.0f), axis, distance);
+    }
     // results.setPenetration(distance);
     // results.setEnterNormal(axis);
     // results.setReferenceFace(i);
@@ -111,6 +177,7 @@ bool queryFaceCollisions(OBB &reference, OBB &incident, CollisionInfo &results) 
 }
 
 bool Systems::Physics::collide(OBB &firstCollider, const ml::mat4 &modelMatrixFirstCollider, OBB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
+  std::cout << "obb check"<< std::endl;
   auto firstPoints  = firstCollider.getPoints(modelMatrixFirstCollider, true);
   auto secondPoints = secondCollider.getPoints(modelMatrixSecondCollider, true);
   if (!queryFaceCollisions(firstCollider, secondCollider, collisionInfo)) {
@@ -119,11 +186,11 @@ bool Systems::Physics::collide(OBB &firstCollider, const ml::mat4 &modelMatrixFi
   if (!queryFaceCollisions(secondCollider, firstCollider, collisionInfo)) {
     return true;
   }
- /* if (!queryEdgeCollisions(island.getColliderA(), island.getColliderB(), results, Type.EDGE)) {
-    return results;
+  if (!queryEdgeCollisions(secondCollider, firstCollider, collisionInfo)) {
+    return true;
   }
 
-  if (results.getType() == Type.FACE_OF_A.ordinal()) {
+ /* if (results.getType() == Type.FACE_OF_A.ordinal()) {
     getFaceContactPoints(island.getColliderA(), island.getColliderB(), results);
   } else if (results.getType() == Type.FACE_OF_B.ordinal()) {
     getFaceContactPoints(island.getColliderB(), island.getColliderA(), results);
@@ -131,7 +198,7 @@ bool Systems::Physics::collide(OBB &firstCollider, const ml::mat4 &modelMatrixFi
     getEdgeContactPoint(island.getColliderA(), island.getColliderB(), results);
   }
 
-  Vector3f offset = new Vector3f();
+  ml::vec3 offset = new ml::vec3();
   island.getColliderB().getPosition().sub(island.getColliderA().getPosition(), offset);
   if (results.getEnterNormal().dot(offset) > 0) {
     results.getEnterNormal().negate();
@@ -142,7 +209,8 @@ bool Systems::Physics::collide(OBB &firstCollider, const ml::mat4 &modelMatrixFi
   return results;
 }
 return true;
-* /
+*/
+  return false;
 }
 
 auto Systems::Physics::getEntityWorldPosition(ICollisionShape &shape, const ml::mat4 &matrix) const -> ml::vec3 {
@@ -163,7 +231,6 @@ auto Systems::Physics::closestPointOnLineSegment(ml::vec3 A, ml::vec3 B, ml::vec
 }
 
 bool Systems::Physics::collide(Capsule &firstCollider, const ml::mat4 &modelMatrixFirstCollider, Capsule &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
-  std::cout << "check collide" << std::endl;
   std::vector<ml::vec3> pointsFirstCollider{firstCollider.getPoints(modelMatrixFirstCollider)};
   std::vector<ml::vec3> pointsSecondCollider{secondCollider.getPoints(modelMatrixSecondCollider)};
   // capsule A:
@@ -256,6 +323,9 @@ void Systems::Physics::collisionDections() {
           m_collisions.push_back(info);
       } else if (physicsI.m_shape->m_shapeType == ShapeType::CAPSULE && physicsJ.m_shape->m_shapeType == ShapeType::CAPSULE) {
         if (collide(reinterpret_cast<Capsule &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<Capsule &>(*physicsI.m_shape), transformI.matrix, info) == true)
+          m_collisions.push_back(info);
+      } else if (physicsI.m_shape->m_shapeType == ShapeType::OBB && physicsJ.m_shape->m_shapeType == ShapeType::OBB) {
+        if (collide(reinterpret_cast<OBB &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<OBB &>(*physicsI.m_shape), transformI.matrix, info) == true)
           m_collisions.push_back(info);
       }
     }

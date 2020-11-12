@@ -396,6 +396,11 @@ void display() {
           drawCapsule(glm::vec3(points[0].x, points[0].y, points[0].z), glm::vec3(points[1].x, points[1].y, points[1].z), capsule.getRadius(), glm::vec3(color.x, color.y, color.z));
         }
         break;
+      case ShapeType::OBB:
+        using (OBB &obb{reinterpret_cast<OBB &>(*shape.get())}) {
+          drawAABB(obb.getPoints(transform.matrix), color.x, color.y, color.z);
+        }
+        break;
     }
   }
 
@@ -455,6 +460,30 @@ int main(int argc, char **argv) {
 
     auto &colored{admin.createComponent<Colored>(entity)};
     colored.color = ml::vec3{1.0f, 0.0f, 0.0f};
+  }
+
+  using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{-8.0f, 3.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<OBB>(ml::vec3(-1.0f, -1.0f, -6.0f), ml::vec3(1.0f, 1.0f, -4.0f)))};
+    physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
+    physics.applyAngularImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{1.0f, 0.0f, 0.0f};
+  }
+
+  using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{-8.0f, 8.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<OBB>(ml::vec3(-1.0f, -1.0f, -6.0f), ml::vec3(1.0f, 1.0f, -4.0f)))};
+    physics.applyLinearImpulse(ml::vec3{0.0f, -11.0f, 0.0f});
+    physics.applyAngularImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{0.0f, 1.0f, 0.0f};
   }
 
   admin.createSystem<Systems::Physics>();
