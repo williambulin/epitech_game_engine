@@ -6,6 +6,7 @@
 #include <numeric>
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 template <class T, std::size_t width, std::size_t height>
 class Matrix;
@@ -338,9 +339,10 @@ Vector<T, size> Vector<T, size>::clamp(const Vector<T, size> &min, const Vector<
   Vector<T, size> ret{m_array};
   T *             values     = ret.m_array.data();
   const T *       min_values = min.m_array.data();
-  const T *       max_values = min.m_array.data();
-  for (int i = 0; i < size; ++i, ++values, ++min_values, ++max_values)
-    *values = std::clamp(*values, *min_values, *max_values);
+  const T *       max_values = max.m_array.data();
+  for (int i = 0; i < size; ++i) {
+    values[i] = std::clamp(values[i], min_values[i], max_values[i]);
+  }
   return ret;
 }
 
