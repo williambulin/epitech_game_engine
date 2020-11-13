@@ -68,7 +68,7 @@ bool Systems::Physics::collide(const Sphere &firstCollider, const ml::mat4 &mode
 }
 
 bool Systems::Physics::collide(AABB &firstCollider, const ml::mat4 &modelMatrixFirstCollider, const Sphere &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
-  auto     firstPoints       = firstCollider.getPoints(modelMatrixFirstCollider, true);
+  auto     firstPoints       = firstCollider.getPoints(modelMatrixFirstCollider);
   auto     secondCenter      = secondCollider.getPoints(modelMatrixSecondCollider);
   ml::vec3 minFirstCollider  = firstPoints.front();
   ml::vec3 maxFirstCollider  = firstPoints.back();
@@ -77,7 +77,7 @@ bool Systems::Physics::collide(AABB &firstCollider, const ml::mat4 &modelMatrixF
   ml::vec3 closestPointOnBox = delta.clamp((boxHalfSize * -1), boxHalfSize);
   ml::vec3 localPoint        = delta - closestPointOnBox;
   float    distance          = localPoint.length();
-  if (distance < secondCollider.getRadius()) {  // yes , we ’re colliding !
+  if (distance < secondCollider.getRadius()) {  // yes , we ’re colliding ! 
     localPoint.normalize();
     ml::vec3 collisionNormal = localPoint;
     float    penetration     = (secondCollider.getRadius() - distance);
@@ -127,8 +127,12 @@ bool Systems::Physics::collide(OBB &firstCollider, const ml::mat4 &modelMatrixFi
   return true;
 }
 
-auto Systems::Physics::getEntityWorldPosition(ICollisionShape &shape, const ml::mat4 &matrix) const -> ml::vec3 {
+auto Systems::Physics::getEntityWorldPositionResolve(ICollisionShape &shape, const ml::mat4 &matrix) -> ml::vec3 {
   return shape.getLocalPosition() * matrix.getTranslation();
+}
+
+auto Systems::Physics::getEntityWorldPosition(ICollisionShape &shape, const ml::mat4 &matrix) -> ml::vec3 {
+  return matrix * shape.getLocalPosition();
 }
 
 bool Systems::Physics::checkCollisionExists(CollisionInfo existedOne, CollisionInfo toCompare) {
@@ -145,10 +149,8 @@ auto Systems::Physics::closestPointOnLineSegment(ml::vec3 A, ml::vec3 B, ml::vec
 }
 
 bool Systems::Physics::collide(Capsule &firstCollider, const ml::mat4 &modelMatrixFirstCollider, Capsule &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
-  std::cout << "check collide" << std::endl;
   std::vector<ml::vec3> pointsFirstCollider{firstCollider.getPoints(modelMatrixFirstCollider)};
   std::vector<ml::vec3> pointsSecondCollider{secondCollider.getPoints(modelMatrixSecondCollider)};
-  // capsule A:
   ml::vec3 a_Normal = pointsFirstCollider.front() - pointsFirstCollider.back();
   a_Normal.normalize();
   ml::vec3 a_LineEndOffset = a_Normal * firstCollider.getRadius();
@@ -182,14 +184,12 @@ bool Systems::Physics::collide(Capsule &firstCollider, const ml::mat4 &modelMatr
     bestA = a_A;
   }
 
-  // select point on capsule B line segment nearest to best potential endpoint on A capsule:
   ml::vec3 bestB = Systems::Physics::closestPointOnLineSegment(b_A, b_B, bestA);
 
-  // now do the same for capsule A segment:
   bestA                       = Systems::Physics::closestPointOnLineSegment(a_A, a_B, bestB);
   ml::vec3 penetration_normal = bestA - bestB;
   float    len                = penetration_normal.length();
-  penetration_normal /= len;  // normalize
+  penetration_normal.normalize();
   float penetration_depth = firstCollider.getRadius() + secondCollider.getRadius() - len;
   if (penetration_depth > 0) {
     ml::vec3 collisionNormal = penetration_normal;
@@ -201,6 +201,50 @@ bool Systems::Physics::collide(Capsule &firstCollider, const ml::mat4 &modelMatr
   }
   return false;
 }
+
+bool Systems::Physics::collide(Capsule &firstCollider, const ml::mat4 &modelMatrixFirstCollider, const Sphere &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
+  std::vector<ml::vec3> pointsFirstCollider{firstCollider.getPoints(modelMatrixFirstCollider)};
+  auto secondCenter{secondCollider.getPoints(modelMatrixSecondCollider)};
+
+  ml::vec3 a_Normal = pointsFirstCollider.front() - pointsFirstCollider.back();
+  a_Normal.normalize();
+  ml::vec3 a_LineEndOffset = a_Normal * firstCollider.getRadius();
+  ml::vec3 a_A             = pointsFirstCollider.back() + a_LineEndOffset;
+  ml::vec3 a_B             = pointsFirstCollider.front() - a_LineEndOffset;
+  ml::vec3 bestA           = Systems::Physics::closestPointOnLineSegment(a_A, a_B, secondCenter);
+  const ml::mat4 matrix{
+  {
+  {1.0f, 0.0f, 0.0f, 0.0f},
+  {0.0f, 1.0f, 0.0f, 0.0f},
+  {0.0f, 0.0f, 1.0f, 0.0f},
+  {0.0f, 0.0f, 0.0f, 1.0f},
+  },
+  };
+  return (collide(Sphere(bestA, firstCollider.getRadius()), matrix, Sphere(secondCenter, secondCollider.getRadius()), matrix, collisionInfo));
+}
+
+bool Systems::Physics::collide(Capsule &firstCollider, const ml::mat4 &modelMatrixFirstCollider, AABB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
+  std::vector<ml::vec3> pointsFirstCollider{firstCollider.getPoints(modelMatrixFirstCollider)};
+  auto secondPoints{secondCollider.getPoints(modelMatrixSecondCollider)};
+  auto secondCenter = Systems::Physics::getEntityWorldPosition(secondCollider, modelMatrixSecondCollider);
+  ml::vec3 a_Normal = pointsFirstCollider.front() - pointsFirstCollider.back();
+  a_Normal.normalize();
+  ml::vec3 a_LineEndOffset = a_Normal * firstCollider.getRadius();
+  ml::vec3 a_A             = pointsFirstCollider.back() + a_LineEndOffset;
+  ml::vec3 a_B             = pointsFirstCollider.front() - a_LineEndOffset;
+  ml::vec3 bestA           = Systems::Physics::closestPointOnLineSegment(a_A, a_B, secondCenter);
+  const ml::mat4 matrix{
+  {
+  {1.0f, 0.0f, 0.0f, 0.0f},
+  {0.0f, 1.0f, 0.0f, 0.0f},
+  {0.0f, 0.0f, 1.0f, 0.0f},
+  {0.0f, 0.0f, 0.0f, 1.0f},
+  },
+  };
+  AABB aabb{AABB(secondPoints.front(), secondPoints.back())};
+  return (collide(aabb, matrix, Sphere(bestA, firstCollider.getRadius()), matrix, collisionInfo));
+}
+
 
 void Systems::Physics::collisionDections() {
   auto &entities{getItems()};
@@ -237,7 +281,19 @@ void Systems::Physics::collisionDections() {
         if (collide(reinterpret_cast<AABB &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<Sphere &>(*physicsI.m_shape), transformI.matrix, info) == true)
           m_collisions.push_back(info);
       } else if (physicsI.m_shape->m_shapeType == ShapeType::CAPSULE && physicsJ.m_shape->m_shapeType == ShapeType::CAPSULE) {
-        if (collide(reinterpret_cast<Capsule &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<Capsule &>(*physicsI.m_shape), transformI.matrix, info) == true)
+        if (collide(reinterpret_cast<Capsule &>(*physicsI.m_shape), transformI.matrix, reinterpret_cast<Capsule &>(*physicsJ.m_shape), transformJ.matrix, info) == true)
+          m_collisions.push_back(info);
+      } else if (physicsI.m_shape->m_shapeType == ShapeType::CAPSULE && physicsJ.m_shape->m_shapeType == ShapeType::SPHERE) {
+        if (collide(reinterpret_cast<Capsule &>(*physicsI.m_shape), transformI.matrix, reinterpret_cast<Sphere &>(*physicsJ.m_shape), transformJ.matrix, info) == true)
+          m_collisions.push_back(info);
+      } else if (physicsI.m_shape->m_shapeType == ShapeType::SPHERE && physicsJ.m_shape->m_shapeType == ShapeType::CAPSULE) {
+        if (collide(reinterpret_cast<Capsule &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<Sphere &>(*physicsI.m_shape), transformI.matrix, info) == true)
+          m_collisions.push_back(info);
+      } else if (physicsI.m_shape->m_shapeType == ShapeType::CAPSULE && physicsJ.m_shape->m_shapeType == ShapeType::AABB) {
+        if (collide(reinterpret_cast<Capsule &>(*physicsI.m_shape), transformI.matrix, reinterpret_cast<AABB &>(*physicsJ.m_shape), transformJ.matrix, info) == true)
+          m_collisions.push_back(info);
+      } else if (physicsI.m_shape->m_shapeType == ShapeType::AABB && physicsJ.m_shape->m_shapeType == ShapeType::CAPSULE) {
+        if (collide(reinterpret_cast<Capsule &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<AABB &>(*physicsI.m_shape), transformI.matrix, info) == true)
           m_collisions.push_back(info);
       }
     }
@@ -272,8 +328,8 @@ void Systems::Physics::impulseResolveCollision(CollisionInfo &p) const {
   transformA.matrix.setTranslation(transformA.matrix.getTranslation() - (p.point.normal * p.point.penetration * (physA.getInverseMass() / totalMass)));
   transformB.matrix.setTranslation(transformB.matrix.getTranslation() + (p.point.normal * p.point.penetration * (physB.getInverseMass() / totalMass)));
 
-  ml::vec3 relativeA{p.point.localA - getEntityWorldPosition(*physA.m_shape.get(), transformA.matrix)};
-  ml::vec3 relativeB{p.point.localB - getEntityWorldPosition(*physB.m_shape.get(), transformB.matrix)};
+  ml::vec3 relativeA{p.point.localA - getEntityWorldPositionResolve(*physA.m_shape.get(), transformA.matrix)};
+  ml::vec3 relativeB{p.point.localB - getEntityWorldPositionResolve(*physB.m_shape.get(), transformB.matrix)};
   ml::vec3 angVelocityA{physA.getAngularVelocity().cross(relativeA)};
   ml::vec3 angVelocityB{physB.getAngularVelocity().cross(relativeB)};
 
@@ -309,7 +365,6 @@ void Systems::Physics::integrateVelocity(float dt) {
 
   auto &entities{getItems()};
   for (auto &&[entity, physics, transform] : entities) {
-    // Position Stuff
     ml::vec3 position{transform.matrix.getTranslation()};
     ml::vec3 linearVel{physics.getLinearVelocity()};
     position += linearVel * dt;
