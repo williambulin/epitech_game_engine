@@ -93,6 +93,9 @@ public:
   SystemIterator createSystem(Ts &&...args);
 
   template <class T>
+  [[nodiscard]] T &getSystem();
+
+  template <class T>
   void destroySystem();
 
   template <class T>
@@ -215,6 +218,14 @@ inline ECS::Admin::SystemIterator ECS::Admin::createSystem(Ts &&...ts) {
   if (!success || (*it).second == nullptr)
     throw std::runtime_error{std::string{"Couldn't create system"} + typeid(T).name()};
   return it;
+}
+
+template <class T>
+T &ECS::Admin::getSystem() {
+  const auto id{SystemIdGenerator::info<T>()};
+  if (!m_systems.contains(id))
+    throw std::runtime_error{"Couldn't get system, not found"};
+  return reinterpret_cast<T &>(*(m_systems[id].get()));
 }
 
 template <class T>
