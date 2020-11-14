@@ -307,75 +307,29 @@ void drawAABB(std::vector<ml::vec3> points, float red, float green, float blue) 
 
 float windowWidth{0};
 float windowHeight{0};
+bool  m_pressed{false};
 
-/* Handler for window re-size event. Called back when the window first appears and
-   whenever the window is re-sized with its new width and height */
-void reshape(GLsizei width, GLsizei height) {  // GLsizei for non-negative integer
-  // Compute aspect ratio of the new window
+void reshape(GLsizei width, GLsizei height) {
   if (height == 0)
-    height = 1;  // To prevent divide by 0
+    height = 1;
+
   float aspect = (float)width / (float)height;
 
-  // Set the viewport to cover the new window
   glViewport(0, 0, width, height);
 
   windowWidth  = width;
   windowHeight = height;
 }
 
-void instructions() {
-  std::cout << std::endl << std::endl << std::endl << "  press 'i' at anytime for instructions" << std::endl;
-  std::cout << "  press 'esc' at anytime to EXIT" << std::endl << std::endl;
-  std::cout << "  press '5' = ROTATE X" << std::endl;
-  std::cout << "  press '6' = ROTATE Y" << std::endl;
-  std::cout << "  press '7' = ROTATE Z" << std::endl;
-  std::cout << "  press '8' = ROTATE RESET" << std::endl;
-  std::cout << "  press 'a' = MOVE FRONT" << std::endl;
-  std::cout << "  press 'z' = MOVE BACK" << std::endl;
-}
-
-void processNormalKeys(unsigned char key, int x, int y) {
-  if (key == 27)
-    exit(0);
-  else if (key == '1') {
-    x1 -= 0.1;
-    x2 -= 0.1;
-  } else if (key == '2') {
-    x1 += 0.1;
-    x2 += 0.1;
-  } else if (key == '3') {
-    yy1 -= 0.1;
-    y2 -= 0.1;
-  } else if (key == '4') {
-    yy1 += 0.1;
-    y2 += 0.1;
-  } else if (key == '5') {
-    alpha += 0.25;
-  } else if (key == '6') {
-    beta += 0.25;
-  } else if (key == '7') {
-    gamma2 += 0.25;
-  } else if (key == '8') {
-    alpha  = 0.0f;
-    beta   = 0.0f;
-    gamma2 = 0.0f;
-  } else if (key == 'a') {
-    z1 -= 0.1;
-    z2 -= 0.1;
-  } else if (key == 'z') {
-    z1 += 0.1;
-    z2 += 0.1;
-  }
-}
+int prevX{0};
+int prevY{0};
 
 void mouseMove(int x, int y) {
-  static int prevX{x};
-  static int prevY{y};
-  int        realX{x - prevX};
-  int        realY{y - prevY};
+  int realX{x - prevX};
+  int realY{y - prevY};
 
   // if (abs(realX) < 100.0) {
-  if (m_camera.has_value()) {
+  if (m_pressed && m_camera.has_value()) {
     auto &cameraComponent{admin.getComponent<Components::Camera>(m_camera.value())};
     cameraComponent.angles += ml::vec3(static_cast<float>(-realY) * 0.033f * 9.0f, static_cast<float>(realX) * 0.033f * 9.0f, 0.0f);
     while (cameraComponent.angles.y >= 360.0f)
@@ -388,53 +342,22 @@ void mouseMove(int x, int y) {
       cameraComponent.angles.x = 89.0f;
   }
 
-  std::cout << realX << '\t' << realY << '\n';
-  // }
+  // std::cout << realX << '\t' << realY << '\n';
 
   prevX = x;
   prevY = y;
-
-  // if (xSouris == 0) {
-  //   xSouris = x;
-  //   ySouris = y;
-  //   return;
-  // }
-  // float saveX = x;
-  // float saveY = y;
-  // x           = x - xSouris;
-  // y           = y - ySouris;
-  // xSouris     = saveX;
-  // ySouris     = saveY;
-  // std::cout << x << " | " << y << std::endl;
-  // for (auto &&[entity, transform, physics] : admin.getEntitiesWithComponents<Components::Transform, Components::Physics>()) {
-  //   auto &shape{physics.m_shape};
-  //   switch (shape->m_shapeType) {
-  //     case ShapeType::OBB:
-  //       physics.applyAngularImpulse(ml::vec3{y / 20.0f, 0.0f, x / 20.0f});
-  //   }
-  // }
-  // // this will only be true when the left button is down
-  // if (xOrigin >= 0) {
-  //   // update deltaAngle
-  //   deltaAngle = (x - xOrigin) * 0.001f;
-
-  //   // update camera's direction
-  //   lx = sin(angle + deltaAngle);
-  //   lz = -cos(angle + deltaAngle);
-  // }
 }
 
 void mouseButton(int button, int state, int x, int y) {
-  // only start motion if the left button is pressed
-  /*   if (button == GLUT_LEFT_BUTTON) {
-      // when the button is released
-      if (state == GLUT_UP) {
-        angle += deltaAngle;
-        xOrigin = -1;
-      } else {  // state = GLUT_DOWN
-        xOrigin = x;
-      }
-    } */
+  if (button == GLUT_LEFT_BUTTON) {
+    if (state == GLUT_UP) {
+      m_pressed = false;
+      // std::cout << "GLUT_UP" << '\n';
+    } else if (state == GLUT_DOWN) {
+      // std::cout << "GLUT_DOWN" << '\n';
+      m_pressed = true;
+    }
+  }
 }
 
 void display() {
@@ -710,14 +633,14 @@ int main(int argc, char **argv) {
   glutDisplayFunc(display);          // Register callback handler for window re-paint event
   glutReshapeFunc(reshape);          // Register callback handler for window re-size event
   glutIdleFunc(display);
-  glutKeyboardFunc(processNormalKeys);
+
   glutSpecialFunc(processSpecialKeys);
   glutSpecialUpFunc(processSpecialUpKeys);
-  // here are the two new functions
+
   glutMouseFunc(mouseButton);
   glutPassiveMotionFunc(mouseMove);
+  glutMotionFunc(mouseMove);
 
-  instructions();
   // glutTimerFunc(0, timer, 0);     // First timer call immediately [NEW]
   initGL();        // Our own OpenGL initialization
   glutMainLoop();  // Enter the infinite event-processing loop
