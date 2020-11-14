@@ -12,7 +12,7 @@ ECS::Entity entity{};
 
 class Colored {
 public:
-  Vector3f color{1.0f, 1.0f, 0.0f};
+  ml::vec3 color{1.0f, 1.0f, 0.0f};
 };
 
 /*
@@ -23,6 +23,7 @@ public:
 #include "Physics/Shapes/AABB.hpp"
 #include "Physics/Shapes/OBB.hpp"
 #include "Physics/Shapes/Sphere.hpp"
+#include "Physics/Shapes/Capsule.hpp"
 #include <math.h> /* sin */
 #include <iostream>
 /* Global variables */
@@ -40,6 +41,8 @@ float z2        = 0.0f;
 float x3        = 5.0f;
 float y3        = -2.0f;
 float z3        = 0.0f;
+float xSouris = 0.0f;
+float ySouris = 0.0f;
 // angle of rotation for the camera direction
 float angle = 0.0;
 // actual vector representing the camera's direction
@@ -87,22 +90,135 @@ void processSpecialKeys(int key, int xx, int yy) {
   }
 }
 
+glm::vec3 GetAnyPerpendicularUnitVector(const glm::vec3& vec)
+{
+  if (vec.y != 0.0f || vec.z != 0.0f)
+    return glm::vec3(1, 0, 0);
+  else
+    return glm::vec3(0, 1, 0);
+}
+
+void drawTriangle(const glm::vec3 p0, const glm::vec3 p1, const glm::vec3 p2, glm::vec3 color)
+{
+  float vertices[] =
+    {
+        p0.x, p0.y, p0.z, // top corner
+        p1.x, p1.y, p1.z, // bottom left corner
+        p2.x, p2.y, p2.z // bottom right corner
+    };
+  glColor3f(color.r, color.g, color.b);  // Green
+  glEnableClientState( GL_VERTEX_ARRAY ); // tell OpenGL that you're using a vertex array for fixed-function attribute
+  glVertexPointer( 3, GL_FLOAT, 0, vertices ); // point to the vertices to be used
+  glDrawArrays( GL_TRIANGLES, 0, 3 ); // draw the vertixes
+  glDisableClientState( GL_VERTEX_ARRAY ); // tell OpenGL that you're finished using the vertex arrayattribute
+}
+
+void drawCapsule(glm::vec3 start, glm::vec3 end, float radius, glm::vec3 color)
+{
+  const glm::vec3 axis   = end - start;
+  const float     length = glm::length(axis);
+  const glm::vec3 localZ = axis / length;
+  const glm::vec3 localX = GetAnyPerpendicularUnitVector(localZ);
+  const glm::vec3 localY = glm::cross(localZ, localX);
+
+  using glm::cos;
+  using glm::sin;
+  constexpr float pi = glm::pi<float>();
+
+  const glm::vec3 startP(0.0f);
+  const glm::vec3 endP(1.0f);
+  const float     resolution = 16.0f;
+
+  const glm::vec3 step = (endP - startP) / resolution;
+
+  auto cylinder = [localX, localY, localZ, start, length, radius](const float u,
+                                                      const float v) {
+    return start                                  //
+           + localX * cos(2.0f * pi * u) * radius //
+           + localY * sin(2.0f * pi * u) * radius //
+           + localZ * v * length;                   //
+
+  };
+
+  auto sphereStart = [localX, localY, localZ, start, radius](const float u,
+                                                 const float v) -> glm::vec3 {
+    const float latitude = (pi / 2.0f) * (v - 1);
+
+    return start                                                  //
+           + localX * cos(2.0f * pi * u) * cos(latitude) * radius //
+           + localY * sin(2.0f * pi * u) * cos(latitude) * radius //
+           + localZ * sin(latitude) * radius;
+  };
+
+  auto sphereEnd = [localX, localY, localZ, end, radius](const float u, const float v) {
+    const float latitude = (pi / 2.0f) * v;
+    return end                                                    //
+           + localX * cos(2.0f * pi * u) * cos(latitude) * radius //
+           + localY * sin(2.0f * pi * u) * cos(latitude) * radius //
+           + localZ * sin(latitude) * radius;
+  };
+
+  for (float i = 0; i < resolution; ++i) {
+    for (float j = 0; j < resolution; ++j) {
+      const float u = i * step.x + startP.x;
+      const float v = j * step.y + startP.y;
+
+      const float un =
+        (i + 1 == resolution) ? endP.x : (i + 1) * step.x + startP.x;
+      const float vn =
+        (j + 1 == resolution) ? endP.y : (j + 1) * step.y + startP.y;
+
+    // Draw Cylinder
+      {
+        const glm::vec3 p0 = cylinder(u, v);
+        const glm::vec3 p1 = cylinder(u, vn);
+        const glm::vec3 p2 = cylinder(un, v);
+        const glm::vec3 p3 = cylinder(un, vn);
+
+        drawTriangle(p0, p1, p2, color);
+        drawTriangle(p3, p1, p2, color);
+      }
+
+    // Draw Sphere start
+      {
+        const glm::vec3 p0       = sphereStart(u, v);
+        const glm::vec3 p1       = sphereStart(u, vn);
+        const glm::vec3 p2       = sphereStart(un, v);
+        const glm::vec3 p3       = sphereStart(un, vn);
+        drawTriangle(p0, p1, p2, color);
+        drawTriangle(p3, p1, p2, color);
+      }
+
+    // Draw Sphere end
+      {
+        const glm::vec3 p0       = sphereEnd(u, v);
+        const glm::vec3 p1       = sphereEnd(u, vn);
+        const glm::vec3 p2       = sphereEnd(un, v);
+        const glm::vec3 p3       = sphereEnd(un, vn);
+        drawTriangle(p0, p1, p2, color);
+        drawTriangle(p3, p1, p2, color);
+      }
+    }
+  }
+}
+
 /* Handler for window-repaint event. Called back when the window first appears and
    whenever the window needs to be re-painted. */
 
-void drawAABB(std::vector<Vector3f> points, float red, float green, float blue) {
+void drawAABB(std::vector<ml::vec3> points, float red, float green, float blue) {
   glBegin(GL_QUADS);  // Begin drawing the color cube with 6 quads
   // Top face (y = 1.0f)
   // Define vertices in counter-clockwise (CCW) order with normal pointing out
-  glColor3f(red, green, blue);  // Green
+  glColor3f(1.0f, 0.0f, 0.0f);  // Red
+  //glColor3f(red, green, blue);  // Green
   glVertex3f(points[2].x, points[2].y, points[2].z);
   glVertex3f(points[3].x, points[3].y, points[3].z);
   glVertex3f(points[4].x, points[4].y, points[4].z);
   glVertex3f(points[7].x, points[7].y, points[7].z);
 
   // Bottom face  (y = -1.0f)
-  // glColor3f(1.0f, 0.5f, 0.0f);  // Orange
-  glColor3f(red, green, blue);  // Green
+  glColor3f(1.0f, 0.5f, 0.0f);  // Orange
+  //glColor3f(red, green, blue);  // Green
   glVertex3f(points[6].x, points[6].y, points[6].z);
   glVertex3f(points[5].x, points[5].y, points[5].z);
   glVertex3f(points[0].x, points[0].y, points[0].z);
@@ -125,16 +241,16 @@ void drawAABB(std::vector<Vector3f> points, float red, float green, float blue) 
   glVertex3f(points[2].x, points[2].y, points[2].z);
 
   // Left face (x = -1.0f)
-  // glColor3f(0.0f, 0.0f, 1.0f);  // Blue
-  glColor3f(red, green, blue);  // Green
+  glColor3f(1.0f, 1.0f, 0.0f);  // Blue
+  //glColor3f(red, green, blue);  // Green
   glVertex3f(points[4].x, points[4].y, points[4].z);
   glVertex3f(points[3].x, points[3].y, points[3].z);
   glVertex3f(points[0].x, points[0].y, points[0].z);
   glVertex3f(points[5].x, points[5].y, points[5].z);
 
   // Right face (x = 1.0f)
-  // glColor3f(1.0f, 0.0f, 1.0f);  // Magenta
-  glColor3f(red, green, blue);  // Green
+  glColor3f(1.0f, 0.0f, 1.0f);  // Magenta
+  //glColor3f(red, green, blue);  // Green
   glVertex3f(points[2].x, points[2].y, points[2].z);
   glVertex3f(points[7].x, points[7].y, points[7].z);
   glVertex3f(points[6].x, points[6].y, points[6].z);
@@ -207,6 +323,25 @@ void processNormalKeys(unsigned char key, int x, int y) {
 }
 
 void mouseMove(int x, int y) {
+  if (xSouris == 0) {
+    xSouris = x;
+    ySouris = y;
+    return;
+  }
+  float saveX = x;
+  float saveY = y;
+  x = x - xSouris;
+  y = y - ySouris;
+  xSouris = saveX;
+  ySouris = saveY;
+  std::cout << x << " | " << y << std::endl;
+    for (auto &&[entity, transform, physics] : admin.getEntitiesWithComponents<Components::Transform, Components::Physics>()) {
+       auto &shape{physics.m_shape};
+    switch (shape->m_shapeType) {
+      case ShapeType::OBB:
+        physics.applyAngularImpulse(ml::vec3{y / 20.0f, 0.0f, x / 20.0f});
+    }
+  }
   // this will only be true when the left button is down
   if (xOrigin >= 0) {
     // update deltaAngle
@@ -220,7 +355,7 @@ void mouseMove(int x, int y) {
 
 void mouseButton(int button, int state, int x, int y) {
   // only start motion if the left button is pressed
-  if (button == GLUT_LEFT_BUTTON) {
+/*   if (button == GLUT_LEFT_BUTTON) {
     // when the button is released
     if (state == GLUT_UP) {
       angle += deltaAngle;
@@ -228,7 +363,7 @@ void mouseButton(int button, int state, int x, int y) {
     } else {  // state = GLUT_DOWN
       xOrigin = x;
     }
-  }
+  } */
 }
 
 void display() {
@@ -247,13 +382,13 @@ void display() {
   glRotatef(gamma2, 0, 0, 1);  // rotate gamma around the z axis
 
   float dt{std::chrono::duration_cast<std::chrono::nanoseconds>(delta).count() / 1000000000.0f};
-  std::cout << dt << " ms\t|\t" << 1.0f / dt << " FPS" << std::string(16, ' ') << '\r';
+  //std::cout << dt << " ms\t|\t" << 1.0f / dt << " FPS" << std::string(16, ' ') << '\r';
 
   admin.cacheSystems();
   admin.updateSystems(dt, 0);
 
   for (auto &&[entity, transform, physics] : admin.getEntitiesWithComponents<Components::Transform, Components::Physics>()) {
-    Vector3f color{1.0f, 0.0f, 0.0f};
+    ml::vec3 color{1.0f, 0.0f, 0.0f};
     if (admin.hasComponent<Colored>(entity)) {
       auto &colored{admin.getComponent<Colored>(entity)};
       color = colored.color;
@@ -277,6 +412,17 @@ void display() {
           glPopMatrix();
         }
         break;
+      case ShapeType::CAPSULE:
+        using (Capsule &capsule{reinterpret_cast<Capsule &>(*shape.get())}) {
+          auto points = capsule.getPoints(transform.matrix);
+          drawCapsule(glm::vec3(points[0].x, points[0].y, points[0].z), glm::vec3(points[1].x, points[1].y, points[1].z), capsule.getRadius(), glm::vec3(color.x, color.y, color.z));
+        }
+        break;
+      case ShapeType::OBB:
+        using (OBB &obb{reinterpret_cast<OBB &>(*shape.get())}) {
+          drawAABB(obb.getPoints(transform.matrix), color.x, color.y, color.z);
+        }
+        break;
     }
   }
 
@@ -286,35 +432,129 @@ void display() {
 
 /* Main function: GLUT runs as a console application starting at main() */
 int main(int argc, char **argv) {
-  using (auto entity{admin.createEntity()}) {
+/*   using (auto entity{admin.createEntity()}) {
     auto &translate{admin.createComponent<Components::Transform>(entity)};
-    translate.matrix.setTranslation(Vector3f{3.0f, 0.0f, 0.0f});
+    translate.matrix.setTranslation(ml::vec3{-3.0f, 6.0f, 0.0f});
 
-    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(Vector3f(-1.0f, -1.0f, -6.0f), Vector3f(1.0f, 1.0f, -4.0f)))};
-    physics.applyLinearImpulse(Vector3f{0.0f, -5.0f, 0.0f});
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3(-1.0f, -1.0f, -6.0f), ml::vec3(1.0f, 1.0f, -4.0f)))};
+    physics.applyLinearImpulse(ml::vec3{0.0f, -15.0f, 0.0f});
 
     auto &colored{admin.createComponent<Colored>(entity)};
-    colored.color = Vector3f{0.25f, 0.5f, 1.0f};
+    colored.color = ml::vec3{0.25f, 0.5f, 1.0f};
   }
 
   using (auto entity{admin.createEntity()}) {
     auto &translate{admin.createComponent<Components::Transform>(entity)};
-    translate.matrix.setTranslation(Vector3f{-3.0f, 0.0f, 0.0f});
+    translate.matrix.setTranslation(ml::vec3{-3.0f, 0.0f, 0.0f});
 
-    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(Vector3f(-1.0f, -1.0f, -6.0f), Vector3f(1.0f, 1.0f, -4.0f)))};
-    physics.applyLinearImpulse(Vector3f{30.0f, 0.0f, 0.0f});
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3(-1.0f, -1.0f, -6.0f), ml::vec3(1.0f, 1.0f, -4.0f)))};
+    physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
   }
-
-  using (auto entity{admin.createEntity()}) {
+     using (auto entity{admin.createEntity()}) {
     auto &translate{admin.createComponent<Components::Transform>(entity)};
-    translate.matrix.setTranslation(Vector3f{3.0f, 5.0f, 0.0f});
+    translate.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 0.0f});
 
-    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Sphere>(Vector3f(-1.0f, -1.0f, -6.0f), 1.0f))};
-    physics.applyLinearImpulse(Vector3f{-15.0f, -15.0f, 0.0f});
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Sphere>(ml::vec3(-2.0f, -1.0f, -4.0f), 2.0f))};
+    physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
 
     auto &colored{admin.createComponent<Colored>(entity)};
-    colored.color = Vector3f{0.5f, 1.0f, 0.25f};
+    colored.color = ml::vec3{1.0f, 0.0f, 0.0f};
   }
+ */
+/*    using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Sphere>(ml::vec3(2.2f, -1.0f, -4.0f), 2.0f))};
+    physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{0.5f, 1.0f, 0.25f};
+  } */
+
+
+/*   using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3(3.0f, 3.0f, -4.0f), ml::vec3(3.0f, -3.0f, -4.0f), 2.0f))};
+    physics.applyLinearImpulse(ml::vec3{8.0f, 0.0f, 0.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{0.5f, 1.0f, 0.25f};
+  }
+
+  using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3(9.0f, 3.0f, -4.0f), ml::vec3(9.0f, -3.0f, -4.0f), 2.0f))};
+    physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{1.0f, 0.0f, 0.0f};
+  }  */
+
+  using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3(-2.0f, 3.0f, -4.0f), ml::vec3(-2.0f, -3.0f, -4.0f), 2.0f))};
+    physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{0.5f, 1.0f, 0.25f};
+  }
+
+/*   using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Sphere>(ml::vec3(2.0f, 0.0f, -5.0f), 2.0f))};
+    physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{0.5f, 1.0f, 0.25f};
+  }  */
+
+
+
+
+
+  using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3(1.0f, -1.0f, -4.0f), ml::vec3(3.0f, 1.0f, -2.0f)))};
+    physics.applyLinearImpulse(ml::vec3{-3.5f, -0.0f, 0.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{1.0f, 0.0f, 0.0f};
+  } 
+
+ 
+/*   using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Sphere>(ml::vec3(3.0f, -1.0f, -4.0f), 2.0f))};
+    physics.applyLinearImpulse(ml::vec3{-5.0f, 0.0f, 0.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{0.5f, 1.0f, 0.25f};
+  } */
+
+/*   using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{-0.0f, 0.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<OBB>(ml::vec3(-1.0f, -1.0f, -6.0f), ml::vec3(1.0f, 1.0f, -4.0f)))};
+    //physics.applyAngularImpulse(ml::vec3{0.0f, 0.0f, -20.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{0.25f, 0.5f, 1.0f};
+  }
+ */
 
   admin.createSystem<Systems::Physics>();
 

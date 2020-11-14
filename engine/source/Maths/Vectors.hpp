@@ -6,6 +6,7 @@
 #include <numeric>
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 template <class T, std::size_t width, std::size_t height>
 class Matrix;
@@ -50,6 +51,7 @@ public:
   Vector<T, size> &             operator*=(const float &v);
   Vector<T, size> &             operator*=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   Vector<T, size> &             operator/=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
+  Vector<T, size> &             operator/=(const float &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   [[nodiscard]] Vector<T, size> lerp(const Vector<T, size> &_end, float percent) const;
   [[nodiscard]] T               length() const;
   [[nodiscard]] T               dot(const Vector<T, size> &b) const;
@@ -250,6 +252,17 @@ inline Vector<T, size> &Vector<T, size>::operator/=(const Vector<T, size> &v) {
 }
 
 template <class T, uint32_t size>
+inline Vector<T, size> &Vector<T, size>::operator/=(const float &v) {
+  T *      this_data  = m_array.data();
+  for (int i = 0; i < size; ++i, ++this_data) {
+    if (v == 0.0f)
+      throw std::runtime_error{"try to divide by 0"};
+    *this_data /= v;
+  }
+  return *this;
+}
+
+template <class T, uint32_t size>
 bool Vector<T, size>::operator==(const float &v) const {
   return false;
 }
@@ -326,9 +339,10 @@ Vector<T, size> Vector<T, size>::clamp(const Vector<T, size> &min, const Vector<
   Vector<T, size> ret{m_array};
   T *             values     = ret.m_array.data();
   const T *       min_values = min.m_array.data();
-  const T *       max_values = min.m_array.data();
-  for (int i = 0; i < size; ++i, ++values, ++min_values, ++max_values)
-    *values = std::clamp(*values, *min_values, *max_values);
+  const T *       max_values = max.m_array.data();
+  for (int i = 0; i < size; ++i) {
+    values[i] = std::clamp(values[i], min_values[i], max_values[i]);
+  }
   return ret;
 }
 
@@ -336,7 +350,7 @@ template <class T, uint32_t size>
 size_t Vector<T, size>::hash() const {
   size_t seed = 0;
   for (int i = 0; i < size; ++i)
-    seed ^= std::hash(m_array[i]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= std::hash<T>()(m_array[i]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
   return seed;
 }
 
@@ -363,7 +377,7 @@ Vector3<T>::Vector3(T a, T b, T c) : Vector<T, 3>{std::array<T, 3>{a, b, c}},
 
 template <class T>
 Vector3<T> Vector3<T>::cross(const Vector3<T> &b) const {
-  return Vector3<T>(y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x);
+  return Vector3<T>{y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x};
 }
 
 template <class T>
@@ -414,7 +428,7 @@ public:
 };
 
 template <class T>
-Vector2<T>::Vector2(T a, T b) : Vector<T, 2>{{a, b}},
+Vector2<T>::Vector2(T a, T b) : Vector<T, 2>{std::array<T, 2>{a, b}},
                                 x{this->m_array[0]},
                                 y{this->m_array[1]} {}
 
