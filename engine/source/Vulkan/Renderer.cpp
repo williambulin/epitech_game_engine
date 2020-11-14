@@ -96,12 +96,25 @@ void Vulkan::Renderer::update(float, std::uint64_t) {
 
   // Update uniform buffers
   UniformBufferData ubo{
-  .model      = ml::mat4{},
-  .view       = ml::mat4::lookAt(ml::vec3{2.0f, 2.0f, 2.0f}, ml::vec3{0.0f, 0.0f, 0.0f}, ml::vec3{0.0f, 0.0f, 1.0f}),
-  .projection = ml::mat4::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),  // glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),
-  // .view       = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-  // .projection = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),
+  .model            = ml::mat4{},
+  .view             = ml::mat4::lookAt(ml::vec3{0.0f, 0.01f, 0.5f}, ml::vec3{0.0f, 0.0f, 0.0f}, ml::vec3{0.0f, 0.0f, 1.0f}),
+  .projection       = ml::mat4::perspective(glm::radians(80.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.001f, 1000.0f),  // glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),
+  .lightSourceCount = 0.0f,
   };
+
+  std::size_t i{0};
+  auto        entities{m_admin.getEntitiesWithComponents<Components::Light, Components::Transform>()};
+  for (auto &&[entity, light, transform] : entities) {
+    if (i >= (sizeof(ubo.lightSource) / sizeof(Components::Light::GLSLStruct)))
+      break;
+
+    ubo.lightSource[i]          = light.toGLSLStruct();
+    ubo.lightSource[i].position = transform.matrix.getTranslation();
+    // if (ubo.lightSource[i].type == Components::Light::Type::Directional)
+    ubo.lightSource[i].direction = {transform.matrix.getRotation() * light.direction};
+    ++ubo.lightSourceCount;
+    ++i;
+  }
 
   ubo.projection[1][1] *= -1;
 
@@ -187,6 +200,8 @@ void Vulkan::Renderer::update(float, std::uint64_t) {
 
     vkCmdBeginRenderPass(*it, std::addressof(renderPassBeginInfo), VK_SUBPASS_CONTENTS_INLINE);
     vkCmdBindPipeline(*it, VK_PIPELINE_BIND_POINT_GRAPHICS, m_swapchain->m_graphicsPipeline);
+
+    // vkCmdPushConstants(*it, m_swapchain->m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(LightSource), std::addressof(wow));
 
     currentObject = 0;
     for (auto &&[ent, transform, model] : drawableEntities) {
@@ -374,7 +389,7 @@ Vulkan::Renderer::Renderer(ECS::Admin &admin, Windows::Window &window) : m_admin
   .binding         = 0,
   .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
   .descriptorCount = 1,
-  .stageFlags      = VK_SHADER_STAGE_VERTEX_BIT,
+  .stageFlags      = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
   };
 
   VkDescriptorSetLayoutBinding descriptorSetLayoutBindingTextureSampler{
