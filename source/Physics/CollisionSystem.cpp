@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "CollisionSystem.hpp"
-#include "Collision.hpp"
+#include "../../engine/source/Physics/shap.hpp"
 #include "PhysicsObject.hpp"
 
 CollisionSystem::CollisionSystem() {}
@@ -151,19 +151,3 @@ void CollisionSystem::IntegrateVelocity(float dt) {
   }
 }
 
-bool RayIntersection(const Ray &r, GameObject &object, RayCollision& collision) {
-  const Transform &transform = object.m_modelMatrix;
-  const std::shared_ptr<ICollisionShape> volume = object.m_collider;
-  if (! volume ) {
-    return false ;
-  }
-  switch (volume->type) {
-    case ShapeType::AABB :
-      return RayAABBIntersection(r, transform, (const AABB &) *volume, collision );
-    /*case ShapeType::OBB :
-      return RayOBBIntersection (r, transform, (const OBBVolume &) *volume, collision );*/
-    case ShapeType::SPHERE :
-      return RaySphereIntersection(r, transform, (const Sphere &) *volume , collision);
-  }
-  return false;
-}
