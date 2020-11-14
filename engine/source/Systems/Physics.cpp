@@ -277,8 +277,11 @@ void Systems::Physics::collisionDections() {
         if (collide(reinterpret_cast<AABB &>(*physicsI.m_shape), transformI.matrix, reinterpret_cast<Sphere &>(*physicsJ.m_shape), transformJ.matrix, info) == true)
           m_collisions.push_back(info);
       } else if (physicsI.m_shape->m_shapeType == ShapeType::SPHERE && physicsJ.m_shape->m_shapeType == ShapeType::AABB) {
-        if (collide(reinterpret_cast<AABB &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<Sphere &>(*physicsI.m_shape), transformI.matrix, info) == true)
+        if (collide(reinterpret_cast<AABB &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<Sphere &>(*physicsI.m_shape), transformI.matrix, info) == true) {
+          info.firstCollider = entityJ;
+          info.secondCollider = entityI;
           m_collisions.push_back(info);
+        }
       } else if (physicsI.m_shape->m_shapeType == ShapeType::CAPSULE && physicsJ.m_shape->m_shapeType == ShapeType::CAPSULE) {
         if (collide(reinterpret_cast<Capsule &>(*physicsI.m_shape), transformI.matrix, reinterpret_cast<Capsule &>(*physicsJ.m_shape), transformJ.matrix, info) == true)
           m_collisions.push_back(info);
@@ -286,14 +289,20 @@ void Systems::Physics::collisionDections() {
         if (collide(reinterpret_cast<Capsule &>(*physicsI.m_shape), transformI.matrix, reinterpret_cast<Sphere &>(*physicsJ.m_shape), transformJ.matrix, info) == true)
           m_collisions.push_back(info);
       } else if (physicsI.m_shape->m_shapeType == ShapeType::SPHERE && physicsJ.m_shape->m_shapeType == ShapeType::CAPSULE) {
-        if (collide(reinterpret_cast<Capsule &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<Sphere &>(*physicsI.m_shape), transformI.matrix, info) == true)
+        if (collide(reinterpret_cast<Capsule &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<Sphere &>(*physicsI.m_shape), transformI.matrix, info) == true) {
+          info.firstCollider = entityJ;
+          info.secondCollider = entityI;
           m_collisions.push_back(info);
+        }
       } else if (physicsI.m_shape->m_shapeType == ShapeType::CAPSULE && physicsJ.m_shape->m_shapeType == ShapeType::AABB) {
         if (collide(reinterpret_cast<Capsule &>(*physicsI.m_shape), transformI.matrix, reinterpret_cast<AABB &>(*physicsJ.m_shape), transformJ.matrix, info) == true)
           m_collisions.push_back(info);
       } else if (physicsI.m_shape->m_shapeType == ShapeType::AABB && physicsJ.m_shape->m_shapeType == ShapeType::CAPSULE) {
-        if (collide(reinterpret_cast<Capsule &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<AABB &>(*physicsI.m_shape), transformI.matrix, info) == true)
+        if (collide(reinterpret_cast<Capsule &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<AABB &>(*physicsI.m_shape), transformI.matrix, info) == true) {
+          info.firstCollider = entityJ;
+          info.secondCollider = entityI;
           m_collisions.push_back(info);
+        }
       }
     }
   }
@@ -325,18 +334,10 @@ void Systems::Physics::impulseResolveCollision(CollisionInfo &p) const {
 
   // Separate them out using projection
   if (!physA.getIsRigid()) {
-    if (physB.getIsRigid()) {
-      transformA.matrix.setTranslation(transformA.matrix.getTranslation() - (p.point.normal * p.point.penetration * (physA.getInverseMass() / totalMass)));
-    } else {
-      transformA.matrix.setTranslation(transformA.matrix.getTranslation() - (p.point.normal * -1.0f * p.point.penetration * (physA.getInverseMass() / totalMass)));
-    }
+    transformA.matrix.setTranslation(transformA.matrix.getTranslation() - (p.point.normal * p.point.penetration *  (physA.getInverseMass() / totalMass)));
   }
   if (!physB.getIsRigid()) {
-    if (physA.getIsRigid()) {
-      transformB.matrix.setTranslation(transformB.matrix.getTranslation() + (p.point.normal * -1.0f * p.point.penetration * (physB.getInverseMass() / totalMass)));
-    } else {
       transformB.matrix.setTranslation(transformB.matrix.getTranslation() + (p.point.normal * p.point.penetration * (physB.getInverseMass() / totalMass)));
-    }
   }
   ml::vec3 relativeA{p.point.localA - getEntityWorldPositionResolve(*physA.m_shape.get(), transformA.matrix)};
   ml::vec3 relativeB{p.point.localB - getEntityWorldPositionResolve(*physB.m_shape.get(), transformB.matrix)};
