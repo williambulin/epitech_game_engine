@@ -325,10 +325,18 @@ void Systems::Physics::impulseResolveCollision(CollisionInfo &p) const {
 
   // Separate them out using projection
   if (!physA.getIsRigid()) {
-    transformA.matrix.setTranslation(transformA.matrix.getTranslation() - (p.point.normal * p.point.penetration * (physA.getInverseMass() / totalMass)));
+    if (physB.getIsRigid()) {
+      transformA.matrix.setTranslation(transformA.matrix.getTranslation() - (p.point.normal * p.point.penetration * (physA.getInverseMass() / totalMass)));
+    } else {
+      transformA.matrix.setTranslation(transformA.matrix.getTranslation() - (p.point.normal * -1.0f * p.point.penetration * (physA.getInverseMass() / totalMass)));
+    }
   }
   if (!physB.getIsRigid()) {
-    transformB.matrix.setTranslation(transformB.matrix.getTranslation() + (p.point.normal * p.point.penetration * (physB.getInverseMass() / totalMass)));
+    if (physA.getIsRigid()) {
+      transformB.matrix.setTranslation(transformB.matrix.getTranslation() + (p.point.normal * -1.0f * p.point.penetration * (physB.getInverseMass() / totalMass)));
+    } else {
+      transformB.matrix.setTranslation(transformB.matrix.getTranslation() + (p.point.normal * p.point.penetration * (physB.getInverseMass() / totalMass)));
+    }
   }
   ml::vec3 relativeA{p.point.localA - getEntityWorldPositionResolve(*physA.m_shape.get(), transformA.matrix)};
   ml::vec3 relativeB{p.point.localB - getEntityWorldPositionResolve(*physB.m_shape.get(), transformB.matrix)};
