@@ -15,8 +15,8 @@ struct RayCollision {
 
 class Ray {
 public :
-  Ray(ml::vec3 position, ml::vec3 direction);
-  ~Ray(void);
+  Ray(ml::vec3 position, ml::vec3 direction) : position(position), direction(direction) {}
+  ~Ray(void) = default;
 
   ml::vec3 GetPosition() const {return position;}
   ml::vec3 GetDirection() const {return direction;}
