@@ -82,7 +82,7 @@ private:
                                           OBB& volume, RayCollision &collision);
 
   [[nodiscard]] DLLATTRIB bool RayCapsuleIntersection(  const Ray &r, const ml::mat4 &worldTransform,
-                                                        Capsule& volume, RayCollision &collision)
+                                                        Capsule& volume, RayCollision &collision);
 
 
 public:
