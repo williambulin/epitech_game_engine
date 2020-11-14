@@ -87,4 +87,9 @@ public:
   [[nodiscard]] DLLATTRIB bool                  RayIntersection (const Ray &r, RayCollision& collision);
 
   DLLATTRIB void update(float dt, std::uint64_t) final;
+
+  inline void printMeSomething() {
+    std::cout << std::addressof(*this) << '\n';
+    std::cout << "Number of entities: " << getItems().size() << '\n';
+  }
 };

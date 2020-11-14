@@ -7,11 +7,13 @@ class Camera {
 public:
   enum CameraType {
     Orthographic,
-    Perspective
+    Perspective,
   };
+
   Camera();
   Camera(float _pitch, float _yaw, const Vector3f &_position);
   ~Camera() = default;
+
   Matrix4<float>                BuildViewMatrix();
   [[nodiscard]] float           getNearPlane() const;
   void                          setNearPlane(float nearPlane);

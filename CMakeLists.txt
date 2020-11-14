@@ -37,6 +37,9 @@ add_library(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioStream.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioStream.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/main.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Camera/Camera.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Camera/Camera.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Light.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Model.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Movement.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.cpp
@@ -49,6 +52,7 @@ add_library(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/System.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/TypeId.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Keywords.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Library.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Platform.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Libraries/glm.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Libraries/stb_image.cpp
@@ -59,6 +63,9 @@ add_library(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Game.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Global/ApplicationBase.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Global/ApplicationBase.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Input/Key.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Input/MouseButton.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Input/State.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Math.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Matrix.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Quaternion.cpp
@@ -70,14 +77,14 @@ add_library(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/ICollisionShape.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/AABB.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/AABB.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Capsule.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Capsule.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/OBB.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/OBB.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Raycasting.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Raycasting.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Sphere.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Sphere.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Capsule.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Capsule.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/ShapeType.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Physics.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Physics.hpp

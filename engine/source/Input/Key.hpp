@@ -9,8 +9,8 @@ namespace Input {
 
 enum class Input::Key : std::uint16_t {
   Unknown        = 0,
-  ShiftLeft      = VK_LSHIFT,
-  LShift         = VK_LSHIFT,
+  ShiftLeft      = 16,  // VK_LSHIFT,
+  LShift         = 16,  // VK_LSHIFT,
   ShiftRight     = VK_RSHIFT,
   RShift         = VK_RSHIFT,
   ControlLeft    = VK_LCONTROL,
