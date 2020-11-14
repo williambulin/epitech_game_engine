@@ -17,10 +17,6 @@ public:
 
     m_admin->createSystem<Systems::Physics>();
 
-    auto audio{m_audioManager->createAudioSource("../resources/some.wav")};
-    audio->setVolume(100);
-    audio->play();
-
     auto entity{m_admin->createEntity()};
     // Physics
     auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
@@ -33,7 +29,7 @@ public:
     (void)transform;
 
     // Model
-    auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/viking_room.obj", "../resources/viking_room.png")};
+    auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../../../resources/rock.obj", "../../../resources/rock.jpg")};
     (void)model;
 
     m_window->onMouseButton = [&](auto button, auto state) {
@@ -54,32 +50,6 @@ public:
       if (m_holding)
         physics.applyAngularImpulse(ml::vec3{y / 20.0f, 0.0f, x / 20.0f});
     };
-
-    using (auto entity{m_admin.createEntity()}) {
-      // Transform
-      auto &transform{m_admin.createComponent<Components::Transform>(entity)};
-      // transform.scale = glm::vec3(0.1f);
-      transform.matrix.setTranslation(ml::vec3{-3.0f, -3.0f, -3.0f});
-
-      // Model
-      auto &model{m_admin.createComponent<Components::Model>(entity, renderer, "../../../resources/rock.obj", "../../../resources/rock.jpg")};
-      (void)model;
-    }
-
-    // glm::perspective(0, 0, 0, 0);
-
-
-    // using (auto entity{m_admin.createEntity()}) {
-    //   // Transform
-    //   auto &transform{m_admin.createComponent<Components::Transform>(entity)};
-    //   // transform.scale    = glm::vec3(0.05f);
-    //   // transform.position = glm::vec3(5.0f);
-    //   transform.matrix.setTranslation(ml::vec3{-3.0f, -3.0f, -3.0f});
-
-      // Model
-      auto &model{m_admin.createComponent<Components::Model>(entity, renderer, "../../../resources/disk.obj", "../../../resources/disk.png")};
-      (void)model;
-    }*/
   }
 
   [[nodiscard]] bool update(float, std::uint64_t) final {

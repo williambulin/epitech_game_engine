@@ -13,30 +13,17 @@ endif ()
 
 
 if (WIN32)
-  include(C:/vcpkg/scripts/buildsystems/vcpkg.cmake)
+  include(C:/ProgramData/VcPkg/scripts/buildsystems/vcpkg.cmake)
 
   find_package(glfw3 CONFIG REQUIRED)
   find_package(glm CONFIG REQUIRED)
   find_package(Vulkan REQUIRED)
 endif ()
 
-find_package(portaudio CONFIG REQUIRED)
-find_package(LibSndFile CONFIG REQUIRED)
-
 # find engine/source -name "*.*pp" | sed 's/engine/\$\{CMAKE_CURRENT_LIST_DIR\}\/engine/g'
 add_library(
   engine SHARED
 
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioGroup.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioListener.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioListener.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioManager.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioManager.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioSource.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioSource.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioStream.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioStream.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/main.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Model.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Movement.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.cpp
@@ -119,9 +106,6 @@ target_include_directories(
 target_link_libraries(
   engine PRIVATE
 
-  portaudio
-  portaudio_static
-  sndfile-shared
   glfw
   glm
   ${Vulkan_LIBRARIES}
@@ -151,9 +135,6 @@ target_link_libraries(
   demo PRIVATE
 
   engine
-  portaudio
-  portaudio_static
-  sndfile-shared
   glfw
   glm
   ${Vulkan_LIBRARIES}
@@ -200,35 +181,6 @@ target_include_directories(
   demo_physics PRIVATE
 
   ${CMAKE_CURRENT_LIST_DIR}/engine/source
-)
-
-add_executable(
-  demo_audio
-
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/main.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioGroup.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioManager.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioManager.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioListener.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioListener.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioSource.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioSource.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioStream.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioStream.hpp
-)
-
-target_include_directories(
-  demo_audio PRIVATE
-
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source
-)
-
-target_link_libraries(
-  demo_audio PRIVATE
-
-  portaudio
-  portaudio_static
-  sndfile-shared
 )
 
 if (WIN32)

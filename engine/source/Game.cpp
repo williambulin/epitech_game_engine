@@ -29,12 +29,6 @@ bool Game::start() {
 }
 
 Game::Game(int argc, char **argv, char **env) : ApplicationBase{argc, argv, env} {
-  m_audioManager = std::make_unique<AudioManager>();
-  if (m_audioManager == nullptr)
-    throw std::runtime_error{"Couldn't create AudioManager"};
-
-  m_audioManager->startStream();
-
   m_window = std::make_unique<Windows::Window>();
   if (m_window == nullptr)
     throw std::runtime_error{"Couldn't create Windows::Window"};
@@ -49,6 +43,5 @@ Game::Game(int argc, char **argv, char **env) : ApplicationBase{argc, argv, env}
 }
 
 Game::~Game() {
-  m_audioManager->stopStream();
   m_admin.reset();
 }

@@ -1,5 +1,6 @@
 #include "OBJ.hpp"
 
+#include <cassert>
 #include <exception>
 #include <fstream>
 #include <sstream>
@@ -7,8 +8,6 @@
 #include <vector>
 
 #include "../Maths/Vectors.hpp"
-
-#include <iostream>
 
 static const std::vector<std::string> supportedIndexes = {"v", "vn", "vt", "f"};
 
@@ -40,8 +39,11 @@ OBJ::OBJ(const std::string &path) {
     if (index == "f") {
       if (data.size() == 3) {
         faces.push_back(data);
+      } else if (data.size() == 4) {
+        faces.push_back({data[0], data[1], data[2]});
+        faces.push_back({data[2], data[3], data[0]});
       } else {
-        throw std::runtime_error(path + ": Model uses QUADS which are not supported.");
+        throw std::runtime_error(path + ": Model uses polygons that are not supported.");
       }
     } else {
       std::vector<float> dataFloat;
@@ -60,9 +62,11 @@ OBJ::OBJ(const std::string &path) {
 
   // sort the data based on face indexes
   for (std::vector<std::string> &face : faces) {
+    assert(face.size() == 3);
     for (std::string &faceElement : face) {
       std::istringstream faceStream(faceElement);
       std::string        faceIndexStr;
+      auto               texturedVertex = false;
       for (auto i = 0U; std::getline(faceStream, faceIndexStr, '/');) {
         if (faceIndexStr.empty())
           continue;
@@ -71,18 +75,21 @@ OBJ::OBJ(const std::string &path) {
           m_vertices.push_back(vertices[faceIndex]);
         } else if (i == 1) {
           m_texcoords.push_back(texcoords[faceIndex]);
+          texturedVertex = true;
         } else if (i == 2) {
           m_normals.push_back(normals[faceIndex]);
         }
         i++;
       }
+      if (!texturedVertex)
+        m_vertices.pop_back();
     }
   }
 
-  bool computeNormals = m_normals.size() < m_vertices.size();
+  auto computeNormals = m_normals.size() < m_vertices.size();
   if (computeNormals)
     m_normals.clear();
-  bool computeTangents = m_vertices.size() == m_texcoords.size();
+  auto computeTangents = m_vertices.size() == m_texcoords.size();
   for (auto i = 0U; i < m_vertices.size(); i += 3) {
     auto &v0 = m_vertices[i];
     auto &v1 = m_vertices[i + 1];
