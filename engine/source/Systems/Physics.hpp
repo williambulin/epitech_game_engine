@@ -29,8 +29,8 @@ public:
 class CollisionInfo final {
 public:
   ContactPoint point{};
-  ECS::Entity  firstCollider{};
-  ECS::Entity  secondCollider{};
+  ECS::Admin::EntityIndex  firstCollider{};
+  ECS::Admin::EntityIndex  secondCollider{};
   int          framesLeft{5};
 
 public:
@@ -38,7 +38,7 @@ public:
 };
 
 struct RayCollision {
-  ECS::Entity node;// Node that was hit
+  ECS::Admin::EntityIndex node;// Node that was hit
   ml::vec3 collidedAt{0.0f, 0.0f, 0.0f};// WORLD SPACE pos of the collision !
   float rayDistance = 0;
 };

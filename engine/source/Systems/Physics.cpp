@@ -399,22 +399,29 @@ void Systems::Physics::update(float dt, std::uint64_t) {
 }
 
 bool Systems::Physics::RayIntersection(const Ray &r, RayCollision& collision) {
-
   auto &entities{getItems()};
   for (auto &&[entity, physics, transform] : entities) {
+    std::cout << entity << std::endl;
     switch (physics.m_shape->m_shapeType) {
       case ShapeType::AABB:
-        if (RayAABBIntersection(r, transform.matrix, reinterpret_cast<AABB &>(*physics.m_shape), collision ))
+        if (RayAABBIntersection(r, transform.matrix, reinterpret_cast<AABB &>(*physics.m_shape), collision )) {
+          collision.node = entity;
           return true;
+        }
       case ShapeType::OBB:
-        if (RayOBBIntersection(r, transform.matrix, reinterpret_cast<OBB &>(*physics.m_shape), collision ))
+        if (RayOBBIntersection(r, transform.matrix, reinterpret_cast<OBB &>(*physics.m_shape), collision )) {
+          collision.node = entity;
           return true;
+        }
       case ShapeType::SPHERE:
-        if (RaySphereIntersection(r, transform.matrix, reinterpret_cast<Sphere &>(*physics.m_shape),  collision))
+        if (RaySphereIntersection(r, transform.matrix, reinterpret_cast<Sphere &>(*physics.m_shape), collision)) {
+          collision.node = entity;
+          std::cout << collision.node << std::endl;
           return true;
+        }
     }
-    return false;
   }
+  return false;
 }
 
 bool Systems::Physics::RaySphereIntersection(  const Ray &r, const ml::mat4 &worldTransform,
