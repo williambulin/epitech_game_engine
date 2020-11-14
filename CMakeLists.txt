@@ -73,6 +73,7 @@ add_library(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/OBB.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/OBB.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Raycasting.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Raycasting.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Sphere.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Sphere.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Capsule.cpp

@@ -387,6 +387,13 @@ void display() {
   admin.cacheSystems();
   admin.updateSystems(dt, 0);
 
+  Ray ray(ml::vec3(-20.0f, 3.0f, -4.0f), ml::vec3(1.0f, 0.0f, 0.0f));
+  RayCollision rayCollision;
+  
+  if (Systems::Physics::RayIntersection(ray, rayCollision)) {
+    
+  }
+
   for (auto &&[entity, transform, physics] : admin.getEntitiesWithComponents<Components::Transform, Components::Physics>()) {
     ml::vec3 color{1.0f, 0.0f, 0.0f};
     if (admin.hasComponent<Colored>(entity)) {
@@ -504,7 +511,9 @@ int main(int argc, char **argv) {
 
     auto &colored{admin.createComponent<Colored>(entity)};
     colored.color = ml::vec3{0.5f, 1.0f, 0.25f};
+    physics.setIsRigid(true);
   }
+
 
 /*   using (auto entity{admin.createEntity()}) {
     auto &translate{admin.createComponent<Components::Transform>(entity)};

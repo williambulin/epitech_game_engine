@@ -489,7 +489,7 @@ bool Systems::Physics::RayOBBIntersection(  const Ray &r, const ml::mat4 &worldT
   ml::vec3    position      = Systems::Physics::getEntityWorldPosition(volume, worldTransform);
   auto    transform    = orientation.toMatrix3();
   auto    invTransform = orientation.conjugate().toMatrix3();
-  Vector3    localRayPos  = r.GetPosition() - position;
+  ml::vec3    localRayPos  = r.GetPosition() - position;
   Ray        tempRay(invTransform * localRayPos, invTransform * r.GetDirection());
   auto firstPoints        = volume.getPoints(worldTransform);
   auto minFirstCollider   = firstPoints.front();
