@@ -387,13 +387,21 @@ void display() {
   admin.cacheSystems();
   admin.updateSystems(dt, 0);
 
-  Ray ray(ml::vec3(-20.0f, 3.0f, -4.0f), ml::vec3(1.0f, 0.0f, 0.0f));
+  Ray ray(ml::vec3(-20.0f, 0.0f, -3.0f), ml::vec3(1.0f, 0.0f, 0.0f));
   RayCollision rayCollision;
   
-  if (Systems::Physics::RayIntersection(ray, rayCollision)) {
-    
+  if (admin.getSystem<Systems::Physics>().RayIntersection(ray, rayCollision)) {
+    std::cout << rayCollision.node << std::endl;
+    auto &colored{admin.getComponent<Colored>(rayCollision.node)};
+    colored.color = ml::vec3{1.0f, 1.0f, 0.0f};
+    std::cout << "collide" << std::endl; 
   }
 
+  glBegin(GL_LINES);
+  glColor3f(1.0f, 1.0f, 0.0f);
+  glVertex3f(-20.0f, 0.0f, -3.0f);
+  glVertex3f(-20.0f + 1.0f * 100.0f, 0.0f, -3.0f);
+  glEnd();
   for (auto &&[entity, transform, physics] : admin.getEntitiesWithComponents<Components::Transform, Components::Physics>()) {
     ml::vec3 color{1.0f, 0.0f, 0.0f};
     if (admin.hasComponent<Colored>(entity)) {
@@ -506,12 +514,12 @@ int main(int argc, char **argv) {
     auto &translate{admin.createComponent<Components::Transform>(entity)};
     translate.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 0.0f});
 
-    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3(-2.0f, 3.0f, -4.0f), ml::vec3(-2.0f, -3.0f, -4.0f), 2.0f))};
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Sphere>(ml::vec3(0.0f, 5.0f, -4.0f), 4.0f))};
     physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
 
     auto &colored{admin.createComponent<Colored>(entity)};
     colored.color = ml::vec3{0.5f, 1.0f, 0.25f};
-    physics.setIsRigid(true);
+    //physics.setIsRigid(true);
   }
 
 
@@ -530,16 +538,16 @@ int main(int argc, char **argv) {
 
 
 
-  using (auto entity{admin.createEntity()}) {
+/*   using (auto entity{admin.createEntity()}) {
     auto &translate{admin.createComponent<Components::Transform>(entity)};
     translate.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 0.0f});
 
     auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3(1.0f, -1.0f, -4.0f), ml::vec3(3.0f, 1.0f, -2.0f)))};
-    physics.applyLinearImpulse(ml::vec3{-3.5f, -0.0f, 0.0f});
+    physics.applyLinearImpulse(ml::vec3{0.0f, -0.0f, 0.0f});
 
     auto &colored{admin.createComponent<Colored>(entity)};
     colored.color = ml::vec3{1.0f, 0.0f, 0.0f};
-  } 
+  }  */
 
  
 /*   using (auto entity{admin.createEntity()}) {
