@@ -36,7 +36,7 @@ public:
     auto &entities{getItems()};
     for (auto &&[entity, physics] : entities)
       if (!physics.getIsRigid())
-        physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, -9.81f * deltatime * 10.0f});
+        physics.applyLinearImpulse(ml::vec3{0.0f, -9.81f * deltatime * 10.0f, 0.0f});
   }
 };
 
@@ -122,7 +122,7 @@ public:
     std::cout << "Created Demo" << '\n';
 
     m_admin->createSystem<Systems::Physics>();
-    // m_admin->createSystem<Gravity>();
+    m_admin->createSystem<Gravity>();
 
     auto audio{m_audioManager->createAudioSource("../resources/some.wav")};
     audio->setVolume(100);
@@ -146,13 +146,10 @@ public:
     using (auto entity{m_admin->createEntity()}) {
       // Physics
       auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
-      physics.applyAngularImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
-      physics.applyLinearImpulse(ml::vec3{-30.0f, 0.0f, 0.0f});
-      physics.setIsRigid(false);
 
       // Transform
       auto &transform{m_admin->createComponent<Components::Transform>(entity)};
-      transform.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 55.0f});
+      transform.matrix.setTranslation(ml::vec3{0.0f, 55.0f, 0.0f});
 
       // Model
       auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/3b0b075229e84317a014fb275a5d8dbe.obj", "../resources/backpack.jpg")};
@@ -175,7 +172,7 @@ public:
       // Transform
       auto &transform{m_admin->createComponent<Components::Transform>(entity)};
       // transform.matrix.setTranslation(ml::vec3{1.72966f, 4.71852f, 4.25082f});
-      transform.matrix.setTranslation(ml::vec3{1.72966f, 4.71852f, 54.25082f});
+      transform.matrix.setTranslation(ml::vec3{1.72966f, 54.71852f, 4.25082f});
 
       // Camera
       auto &camera{m_admin->createComponent<Components::Camera>(entity)};
@@ -193,13 +190,25 @@ public:
     using (auto entity{m_admin->createEntity()}) {
       // Transform
       auto &transform{m_admin->createComponent<Components::Transform>(entity)};
-      transform.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 50.0f});
+      transform.matrix.setTranslation(ml::vec3{0.0f, 100.0f, 0.0f});
 
       // Light
       auto &light{m_admin->createComponent<Components::Light>(entity)};
       light.type  = Components::Light::Type::Point;
-      light.color = ml::vec3(1.0f, 1.0f, 1.0f);
-      light.size  = 1.0f;
+      light.color = ml::vec3{1.0f, 1.0f, 1.0f};
+      light.size  = 50.0f;
+    }
+
+    using (auto entity{m_admin->createEntity()}) {
+      // Transform
+      auto &transform{m_admin->createComponent<Components::Transform>(entity)};
+      transform.matrix.setTranslation(ml::vec3{0.1f, 50.0f, 0.0f});
+
+      // Light
+      auto &light{m_admin->createComponent<Components::Light>(entity)};
+      light.type  = Components::Light::Type::Point;
+      light.color = ml::vec3{0.0f, 1.25f, 0.0f} * 10.0f;
+      light.size  = 0.3f;
     }
 
     using (auto entity{m_admin->createEntity()}) {
@@ -209,9 +218,8 @@ public:
 
       // Light
       auto &light{m_admin->createComponent<Components::Light>(entity)};
-      light.type  = Components::Light::Type::Point;
-      light.color = ml::vec3(0.0f, 1.25f, 0.0f) * 10.0f;
-      light.size  = 0.3f;
+      light.type  = Components::Light::Type::Ambient;
+      light.color = ml::vec3{0.1f, 0.1f, 0.1f};
     }
   }
 
