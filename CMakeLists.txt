@@ -20,13 +20,14 @@ if (WIN32)
   find_package(Vulkan REQUIRED)
 endif ()
 
-find_package(portaudio CONFIG REQUIRED)
-find_package(LibSndFile CONFIG REQUIRED)
+#find_package(portaudio CONFIG REQUIRED)
+#find_package(LibSndFile CONFIG REQUIRED)
 
 # find engine/source -name "*.*pp" | sed 's/engine/\$\{CMAKE_CURRENT_LIST_DIR\}\/engine/g'
 add_library(
   engine SHARED
 
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Log/Log.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioGroup.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioListener.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioListener.hpp

@@ -19,8 +19,14 @@ Input::Input() {
     exit(0);
   _dummyHWND = ::CreateWindowA("SimpleEngine Class", "SimpleEngine", WS_VISIBLE, 0, 0, 100, 100, 0, 0, 0, this);
   ::SetWindowTextA(_dummyHWND, "Dummy Window!");
-  if (_dummyHWND == NULL)
+
+  Log log{"InputsReadyToBeUsed"};
+  log->log.Info("Inputs are ready to be used");
+  if (_dummyHWND == NULL) {
+    Log log{"InputsCantBeUsed"};
+    log->log.Critical("Inputs can't be used, the dummy window crashed");
     exit(0);
+  }
 }
 
 auto Input::getKeypressed() {
