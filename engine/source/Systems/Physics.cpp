@@ -223,7 +223,7 @@ bool Systems::Physics::collide(Capsule &firstCollider, const ml::mat4 &modelMatr
   return (collide(Sphere(bestA, firstCollider.getRadius()), matrix, Sphere(secondCenter, secondCollider.getRadius()), matrix, collisionInfo));
 }
 
-bool Systems::Physics::collide(Capsule &firstCollider, const ml::mat4 &modelMatrixFirstCollider, AABB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
+bool Systems::Physics::collide(AABB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, Capsule &firstCollider, const ml::mat4 &modelMatrixFirstCollider, CollisionInfo &collisionInfo) noexcept {
   std::vector<ml::vec3> pointsFirstCollider{firstCollider.getPoints(modelMatrixFirstCollider)};
   auto                  secondPoints{secondCollider.getPoints(modelMatrixSecondCollider)};
   auto                  secondCenter = Systems::Physics::getEntityWorldPosition(secondCollider, modelMatrixSecondCollider);
@@ -295,14 +295,14 @@ void Systems::Physics::collisionDections() {
           m_collisions.push_back(info);
         }
       } else if (physicsI.m_shape->m_shapeType == ShapeType::CAPSULE && physicsJ.m_shape->m_shapeType == ShapeType::AABB) {
-        if (collide(reinterpret_cast<Capsule &>(*physicsI.m_shape), transformI.matrix, reinterpret_cast<AABB &>(*physicsJ.m_shape), transformJ.matrix, info) == true)
-          m_collisions.push_back(info);
-      } else if (physicsI.m_shape->m_shapeType == ShapeType::AABB && physicsJ.m_shape->m_shapeType == ShapeType::CAPSULE) {
-        if (collide(reinterpret_cast<Capsule &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<AABB &>(*physicsI.m_shape), transformI.matrix, info) == true) {
+        if (collide(reinterpret_cast<AABB &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<Capsule &>(*physicsI.m_shape), transformI.matrix, info) == true) {
           info.firstCollider = entityJ;
           info.secondCollider = entityI;
           m_collisions.push_back(info);
         }
+      } else if (physicsI.m_shape->m_shapeType == ShapeType::AABB && physicsJ.m_shape->m_shapeType == ShapeType::CAPSULE) {
+        if (collide(reinterpret_cast<AABB &>(*physicsI.m_shape), transformI.matrix, reinterpret_cast<Capsule &>(*physicsJ.m_shape), transformJ.matrix, info) == true)
+          m_collisions.push_back(info);
       }
     }
   }

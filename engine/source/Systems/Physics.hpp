@@ -65,7 +65,7 @@ private:
   [[nodiscard]] DLLATTRIB static bool collide(OBB &firstCollider, const ml::mat4 &modelMatrixFirstCollider, OBB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;          // https://gist.github.com/eliasdaler/502b54fcf1b515bcc50360ce874e81bc
   [[nodiscard]] DLLATTRIB static bool collide(Capsule &firstCollider, const ml::mat4 &modelMatrixFirstCollider, Capsule &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;  // https://wickedengine.net/2020/04/26/capsule-collision-detection/
   [[nodiscard]] DLLATTRIB static bool collide(Capsule &firstCollider, const ml::mat4 &modelMatrixFirstCollider, const Sphere &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;
-  [[nodiscard]] DLLATTRIB static bool collide(Capsule &firstCollider, const ml::mat4 &modelMatrixFirstCollider, AABB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;
+  [[nodiscard]] DLLATTRIB static bool collide(AABB &firstCollider, const ml::mat4 &modelMatrixFirstCollider, Capsule &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;
 
   [[nodiscard]] DLLATTRIB bool RaySphereIntersection(  const Ray &r, const ml::mat4 &worldTransform,
                                              const Sphere &volume,

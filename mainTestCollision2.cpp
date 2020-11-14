@@ -554,6 +554,7 @@ int main(int argc, char **argv) {
 
     auto &colored{admin.createComponent<Colored>(entity)};
     colored.color = ml::vec3{1.0f, 0.5f, 0.0f};
+    physics.applyLinearImpulse(ml::vec3{12.0f, 0.0f, 0.0f});
   }
 
   using (auto entity{admin.createEntity()}) {
@@ -566,6 +567,7 @@ int main(int argc, char **argv) {
 
     auto &colored{admin.createComponent<Colored>(entity)};
     colored.color = ml::vec3{1.0f, 0.5f, 0.0f};
+    physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
   }
 
   ///////////////////////////////////////
