@@ -37,6 +37,12 @@ public:
   DLLATTRIB void addContactPoint(const ml::vec3 &localA, const ml::vec3 &localB, const ml::vec3 &normal, float p);
 };
 
+struct RayCollision {
+  ECS::Entity node;// Node that was hit
+  ml::vec3 collidedAt{0.0f, 0.0f, 0.0f};// WORLD SPACE pos of the collision !
+  float rayDistance = 0;
+};
+
 // https://research.ncl.ac.uk/game/mastersdegree/gametechnologies/physicstutorials/4collisiondetection/Physics%20-%20Collision%20Detection.pdf
 // https://research.ncl.ac.uk/game/mastersdegree/gametechnologies/physicstutorials/5collisionresponse/Physics%20-%20Collision%20Response.pdf
 class Systems::Physics final : public ECS::System<Components::Physics, Components::Transform> {
@@ -52,7 +58,6 @@ private:
   [[nodiscard]] DLLATTRIB static auto closestPointOnLineSegment(ml::vec3 A, ml::vec3 B, ml::vec3 Point) -> ml::vec3;
   [[nodiscard]] DLLATTRIB static auto getEntityWorldPositionResolve(ICollisionShape &shape, const ml::mat4 &matrix) -> ml::vec3;
   [[nodiscard]] DLLATTRIB static auto getEntityWorldPosition(const ICollisionShape &shape, const ml::mat4 &matrix) -> ml::vec3;
-  [[nodiscard]] bool                  RayIntersection (const Ray &r, RayCollision& collision);
 
   [[nodiscard]] DLLATTRIB static bool collide(AABB &firstCollider, const ml::mat4 &modelMatrixFirstCollider, AABB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;
   [[nodiscard]] DLLATTRIB static bool collide(const Sphere &firstCollider, const ml::mat4 &modelMatrixFirstCollider, const Sphere &secondCollider, const ml::mat4 &modelMatrixSecondcollider, CollisionInfo &collisionInfo) noexcept;
@@ -62,23 +67,24 @@ private:
   [[nodiscard]] DLLATTRIB static bool collide(Capsule &firstCollider, const ml::mat4 &modelMatrixFirstCollider, const Sphere &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;
   [[nodiscard]] DLLATTRIB static bool collide(Capsule &firstCollider, const ml::mat4 &modelMatrixFirstCollider, AABB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;
 
-  [[nodiscard]] bool RaySphereIntersection(  const Ray &r, const ml::mat4 &worldTransform,
+  [[nodiscard]] DLLATTRIB bool RaySphereIntersection(  const Ray &r, const ml::mat4 &worldTransform,
                                              const Sphere &volume,
                                              RayCollision & collision);
 
-  [[nodiscard]] bool RayBoxIntersection(  const Ray &r, const ml::vec3 & boxPos,
+  [[nodiscard]] DLLATTRIB bool RayBoxIntersection(  const Ray &r, const ml::vec3 & boxPos,
                                           const ml::vec3 &boxSize, RayCollision &collision );
 
-  [[nodiscard]] bool RayAABBIntersection( const Ray &r,
+  [[nodiscard]] DLLATTRIB bool RayAABBIntersection( const Ray &r,
                                           const ml::mat4 & worldTransform,
                                           AABB & volume, RayCollision & collision);
 
-  [[nodiscard]] bool RayOBBIntersection(  const Ray &r, const ml::mat4 &transform,
+  [[nodiscard]] DLLATTRIB bool RayOBBIntersection(  const Ray &r, const ml::mat4 &transform,
                                           OBB& volume, RayCollision &collision);
 
 
 public:
   DLLATTRIB explicit Physics(ECS::Admin &admin) : ECS::System<Components::Physics, Components::Transform>{admin} {}
+  [[nodiscard]] DLLATTRIB bool                  RayIntersection (const Ray &r, RayCollision& collision);
 
   DLLATTRIB void update(float dt, std::uint64_t) final;
 };
