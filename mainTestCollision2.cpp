@@ -19,6 +19,7 @@ ECS::Entity entity{};
 class Colored {
 public:
   ml::vec3 color{1.0f, 1.0f, 0.0f};
+  bool     draw{true};
 };
 
 /*
@@ -71,6 +72,25 @@ void initGL() {
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Nice perspective corrections
 }
 
+class UserCommand final {
+public:
+  enum Buttons {
+    Reset    = (1 << 0),
+    Left     = (1 << 1),
+    Right    = (1 << 2),
+    Forward  = (1 << 3),
+    Backward = (1 << 4),
+    Sprint   = (1 << 5),
+    Duck     = (1 << 6),
+    Jump     = (1 << 7),
+  };
+
+public:
+  std::uint64_t buttons{};
+};
+
+UserCommand m_userCommand{};
+
 void processSpecialKeys(int key, int xx, int yy) {
   std::cout << angle << std::endl;
   float fraction = 0.1f;
@@ -92,6 +112,21 @@ void processSpecialKeys(int key, int xx, int yy) {
     case GLUT_KEY_DOWN:
       x -= lx * fraction;
       z -= lz * fraction;
+      break;
+  }
+
+  switch (key) {
+    case GLUT_KEY_UP:
+      m_userCommand.buttons |= UserCommand::Buttons::Forward;
+      break;
+    case GLUT_KEY_LEFT:
+      m_userCommand.buttons |= UserCommand::Buttons::Left;
+      break;
+    case GLUT_KEY_DOWN:
+      m_userCommand.buttons |= UserCommand::Buttons::Backward;
+      break;
+    case GLUT_KEY_RIGHT:
+      m_userCommand.buttons |= UserCommand::Buttons::Right;
       break;
   }
 }
@@ -331,22 +366,22 @@ void mouseMove(int x, int y) {
   int        realX{x - prevX};
   int        realY{y - prevY};
 
-  if (abs(realX) < 100.0) {
-    if (m_camera.has_value()) {
-      auto &cameraComponent{admin.getComponent<Components::Camera>(m_camera.value())};
-      cameraComponent.angles += ml::vec3(static_cast<float>(-realY) * 0.033f * 9.0f, static_cast<float>(realX) * 0.033f * 9.0f, 0.0f);
-      while (cameraComponent.angles.y >= 360.0f)
-        cameraComponent.angles.y -= 360.0f;
-      while (cameraComponent.angles.y < 0.0f)
-        cameraComponent.angles.y += 360.0f;
-      if (cameraComponent.angles.x < -89.0f)
-        cameraComponent.angles.x = -89.0f;
-      if (cameraComponent.angles.x > 89.0f)
-        cameraComponent.angles.x = 89.0f;
-    }
-
-    std::cout << realX << '\t' << realY << '\n';
+  // if (abs(realX) < 100.0) {
+  if (m_camera.has_value()) {
+    auto &cameraComponent{admin.getComponent<Components::Camera>(m_camera.value())};
+    cameraComponent.angles += ml::vec3(static_cast<float>(-realY) * 0.033f * 9.0f, static_cast<float>(realX) * 0.033f * 9.0f, 0.0f);
+    while (cameraComponent.angles.y >= 360.0f)
+      cameraComponent.angles.y -= 360.0f;
+    while (cameraComponent.angles.y < 0.0f)
+      cameraComponent.angles.y += 360.0f;
+    if (cameraComponent.angles.x < -89.0f)
+      cameraComponent.angles.x = -89.0f;
+    if (cameraComponent.angles.x > 89.0f)
+      cameraComponent.angles.x = 89.0f;
   }
+
+  std::cout << realX << '\t' << realY << '\n';
+  // }
 
   prevX = x;
   prevY = y;
@@ -399,62 +434,88 @@ void display() {
   auto        delta{std::chrono::high_resolution_clock::now() - previous};
   previous = std::chrono::high_resolution_clock::now();
 
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // Clear color and depth buffers
-
-  auto &camera{admin.getComponent<Components::Camera>(m_camera.value())};
-
-  auto viewMatrix{camera.viewMatrix()};
-  auto projectionMatrix{camera.projectionMatrix(windowWidth / windowHeight)};
-
-  float viewMatrixRaw[4 * 4]{
-  viewMatrix[0][0],
-  viewMatrix[0][1],
-  viewMatrix[0][2],
-  viewMatrix[0][3],
-  viewMatrix[1][0],
-  viewMatrix[1][1],
-  viewMatrix[1][2],
-  viewMatrix[1][3],
-  viewMatrix[2][0],
-  viewMatrix[2][1],
-  viewMatrix[2][2],
-  viewMatrix[2][3],
-  viewMatrix[3][0],
-  viewMatrix[3][1],
-  viewMatrix[3][2],
-  viewMatrix[3][3],
-  };
-
-  float projectionMatrixRaw[4 * 4]{
-  projectionMatrix[0][0],
-  projectionMatrix[0][1],
-  projectionMatrix[0][2],
-  projectionMatrix[0][3],
-  projectionMatrix[1][0],
-  projectionMatrix[1][1],
-  projectionMatrix[1][2],
-  projectionMatrix[1][3],
-  projectionMatrix[2][0],
-  projectionMatrix[2][1],
-  projectionMatrix[2][2],
-  projectionMatrix[2][3],
-  projectionMatrix[3][0],
-  projectionMatrix[3][1],
-  projectionMatrix[3][2],
-  projectionMatrix[3][3],
-  };
-
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glLoadMatrixf(projectionMatrixRaw);
-  // gluPerspective(45.0f, aspect, 0.1f, 100.0f);
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-  glLoadMatrixf(viewMatrixRaw);
-
   float dt{std::chrono::duration_cast<std::chrono::nanoseconds>(delta).count() / 1000000000.0f};
   // std::cout << dt << " ms\t|\t" << 1.0f / dt << " FPS" << std::string(16, ' ') << '\r';
+
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // Clear color and depth buffers
+
+  {
+    auto &physics{admin.getComponent<Components::Physics>(m_camera.value())};
+    auto &camera{admin.getComponent<Components::Camera>(m_camera.value())};
+    auto &transform{admin.getComponent<Components::Transform>(m_camera.value())};
+
+    auto  position{ml::vec3{0.0f, 0.0f, 0.0f}};  // transform.matrix.getTranslation()};
+    float speed{(m_userCommand.buttons & UserCommand::Buttons::Sprint) ? 150.0f : 50.0f};
+    if (m_userCommand.buttons & UserCommand::Buttons::Forward)
+      position += camera.m_front * speed * dt;
+    if (m_userCommand.buttons & UserCommand::Buttons::Backward)
+      position -= camera.m_front * speed * dt;
+    if (m_userCommand.buttons & UserCommand::Buttons::Left)
+      position -= camera.m_right * speed * dt;
+    if (m_userCommand.buttons & UserCommand::Buttons::Right)
+      position += camera.m_right * speed * dt;
+    if (m_userCommand.buttons & UserCommand::Buttons::Jump)
+      position += camera.m_worldUp * speed * dt;
+    if (m_userCommand.buttons & UserCommand::Buttons::Duck)
+      position -= camera.m_worldUp * speed * dt;
+
+    physics.applyLinearImpulse(position);
+
+    position          = transform.matrix.getTranslation();
+    camera.m_position = position;
+
+    m_userCommand.buttons = 0;
+
+    auto viewMatrix{camera.viewMatrix()};
+    auto projectionMatrix{camera.projectionMatrix(windowWidth / windowHeight)};
+
+    float viewMatrixRaw[4 * 4]{
+    viewMatrix[0][0],
+    viewMatrix[0][1],
+    viewMatrix[0][2],
+    viewMatrix[0][3],
+    viewMatrix[1][0],
+    viewMatrix[1][1],
+    viewMatrix[1][2],
+    viewMatrix[1][3],
+    viewMatrix[2][0],
+    viewMatrix[2][1],
+    viewMatrix[2][2],
+    viewMatrix[2][3],
+    viewMatrix[3][0],
+    viewMatrix[3][1],
+    viewMatrix[3][2],
+    viewMatrix[3][3],
+    };
+
+    float projectionMatrixRaw[4 * 4]{
+    projectionMatrix[0][0],
+    projectionMatrix[0][1],
+    projectionMatrix[0][2],
+    projectionMatrix[0][3],
+    projectionMatrix[1][0],
+    projectionMatrix[1][1],
+    projectionMatrix[1][2],
+    projectionMatrix[1][3],
+    projectionMatrix[2][0],
+    projectionMatrix[2][1],
+    projectionMatrix[2][2],
+    projectionMatrix[2][3],
+    projectionMatrix[3][0],
+    projectionMatrix[3][1],
+    projectionMatrix[3][2],
+    projectionMatrix[3][3],
+    };
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glLoadMatrixf(projectionMatrixRaw);
+    // gluPerspective(45.0f, aspect, 0.1f, 100.0f);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glLoadMatrixf(viewMatrixRaw);
+  }
 
   admin.cacheSystems();
   admin.updateSystems(dt, 0);
@@ -480,6 +541,9 @@ void display() {
     if (admin.hasComponent<Colored>(entity)) {
       auto &colored{admin.getComponent<Colored>(entity)};
       color = colored.color;
+
+      if (!colored.draw)
+        continue;
     }
 
     auto &shape{physics.m_shape};
@@ -578,6 +642,9 @@ int main(int argc, char **argv) {
     auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
 
     m_camera = entity;
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.draw = false;
   }
 
   ///////////////////////////////////////
@@ -638,7 +705,7 @@ int main(int argc, char **argv) {
   glutSpecialFunc(processSpecialKeys);
   // here are the two new functions
   glutMouseFunc(mouseButton);
-  glutMotionFunc(mouseMove);
+  glutPassiveMotionFunc(mouseMove);
 
   instructions();
   // glutTimerFunc(0, timer, 0);     // First timer call immediately [NEW]
