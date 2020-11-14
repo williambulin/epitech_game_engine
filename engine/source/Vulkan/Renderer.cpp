@@ -4,6 +4,8 @@
 #include "Drawable.hpp"
 #include "Components/Transform.hpp"
 #include "Components/Model.hpp"
+#include "Components/Camera.hpp"
+#include "Camera/Camera.hpp"
 
 #include <chrono>
 
@@ -94,11 +96,27 @@ void Vulkan::Renderer::update(float, std::uint64_t) {
 
   m_swapchain->m_imageFences[imageIndex] = m_inFlightFences[currentFrame];
 
+  Components::Camera *camera{nullptr};
+  Components::Camera  backupCamera{};
+
+  auto cameraEntities{m_admin.getEntitiesWithComponents<Components::Transform, Components::Camera>()};
+  for (auto &&[entity, transform, cameraData] : cameraEntities) {
+    camera = std::addressof(cameraData);
+    break;
+  }
+
+  if (camera == nullptr)
+    camera = std::addressof(backupCamera);
+
   // Update uniform buffers
   UniformBufferData ubo{
-  .model            = ml::mat4{},
-  .view             = ml::mat4::lookAt(ml::vec3{0.0f, 0.01f, 0.5f}, ml::vec3{0.0f, 0.0f, 0.0f}, ml::vec3{0.0f, 0.0f, 1.0f}),
-  .projection       = ml::mat4::perspective(glm::radians(80.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.001f, 1000.0f),  // glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),
+  .model = ml::mat4{},
+  // .view  = ml::mat4::lookAt(ml::vec3{0.0f, 0.01f, 0.5f}, ml::vec3{0.0f, 0.0f, 0.0f}, ml::vec3{0.0f, 0.0f, 1.0f}),
+  // .view = camera.BuildViewMatrix(),
+  // .projection       = ml::mat4::perspective(glm::radians(80.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.001f, 1000.0f),  // glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),
+  // .projection       = camera.BuildProjectionMatrix(static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height)),
+  .view             = camera->viewMatrix(),
+  .projection       = camera->projectionMatrix(static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height)),
   .lightSourceCount = 0.0f,
   };
 
