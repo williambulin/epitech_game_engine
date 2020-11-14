@@ -179,8 +179,8 @@ public:
       camera.angles = ml::vec3{-44.847f, 270.009f, 0.0f};
 
       // Physics
-      // auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, -1.0f, 0.0f}, ml::vec3{0.0f, 1.0f, 0.0f}, 1))};
-      auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
+      auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, -1.0f, 0.0f}, ml::vec3{0.0f, 1.0f, 0.0f}, 1))};
+      // auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
 
       m_camera = entity;
     }
@@ -248,7 +248,19 @@ public:
       // transform.matrix.setTranslation(position);
       position          = transform.matrix.getTranslation();
       camera.m_position = position;
+
+      // Ray          ray{camera.m_position + camera.m_front * 2.0f, camera.m_front};
+      // RayCollision rayCollision{};
+
+      // if (m_admin->getSystem<Systems::Physics>().RayIntersection(ray, rayCollision)) {
+      //   std::cout << "has hit object " << rayCollision.node << '\n';
+      //   auto &physics{m_admin->getComponent<Components::Physics>(rayCollision.node)};
+      //   if (!physics.getIsRigid())
+      //     physics.applyLinearImpulse(camera.m_front * dt);
+      // } else
+      //   std::cout << "has not hit" << '\n';
     }
+
     return true;
   }
 
