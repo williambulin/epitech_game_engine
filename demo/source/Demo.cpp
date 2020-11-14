@@ -27,18 +27,18 @@ public:
   std::uint64_t buttons{};
 };
 
-// class Gravity final : public ECS::System<Components::Physics> {
-// public:
-//   Gravity(ECS::Admin &admin) : System<Components::Physics>{admin} {}
-//   ~Gravity() final = default;
+class Gravity final : public ECS::System<Components::Physics> {
+public:
+  Gravity(ECS::Admin &admin) : System<Components::Physics>{admin} {}
+  ~Gravity() final = default;
 
-//   void update(float deltatime, std::uint64_t tickCount) final {
-//     auto &entities{getItems()};
-//     for (auto &&[entity, physics] : entities)
-//       if (!physics.getIsRigid())
-//         physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, -9.81f * deltatime * 10.0f});
-//   }
-// };
+  void update(float deltatime, std::uint64_t tickCount) final {
+    auto &entities{getItems()};
+    for (auto &&[entity, physics] : entities)
+      if (!physics.getIsRigid())
+        physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, -9.81f * deltatime * 10.0f});
+  }
+};
 
 class Demo final : public Game {
 public:
@@ -148,12 +148,11 @@ public:
       auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
       physics.applyAngularImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
       physics.applyLinearImpulse(ml::vec3{-30.0f, 0.0f, 0.0f});
-      physics.setIsRigid(true);
+      physics.setIsRigid(false);
 
       // Transform
       auto &transform{m_admin->createComponent<Components::Transform>(entity)};
-      transform.matrix.setTranslation(ml::vec3{10.0f, 0.0f, 55.0f});
-      // transform.matrix.scale(0.001, 0.001, 0.001);
+      transform.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 55.0f});
 
       // Model
       auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/3b0b075229e84317a014fb275a5d8dbe.obj", "../resources/backpack.jpg")};
@@ -168,23 +167,6 @@ public:
       // Model
       auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/sky.obj", "../resources/sky.png")};
     }
-
-    // using (auto entity{m_admin->createEntity()}) {
-    //   // Physics
-    //   auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
-    //   physics.applyAngularImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
-    //   // physics.setIsRigid(true);
-
-    //   // Transform
-    //   auto &transform{m_admin->createComponent<Components::Transform>(entity)};
-    //   transform.matrix.setTranslation(ml::vec3{0.0f, -0.0f, 0.0f});
-    //   // transform.matrix.scale(0.001, 0.001, 0.001);
-
-    //   // Model
-    //   auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/3b0b075229e84317a014fb275a5d8dbe.obj", "../resources/3b0b075229e84317a014fb275a5d8dbe.png")};
-
-    //   m_obj = entity;
-    // }
 
     ///////////////////////////////////////
     // Camera
@@ -211,7 +193,7 @@ public:
     using (auto entity{m_admin->createEntity()}) {
       // Transform
       auto &transform{m_admin->createComponent<Components::Transform>(entity)};
-      transform.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 0.0f});
+      transform.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 50.0f});
 
       // Light
       auto &light{m_admin->createComponent<Components::Light>(entity)};
@@ -223,7 +205,7 @@ public:
     using (auto entity{m_admin->createEntity()}) {
       // Transform
       auto &transform{m_admin->createComponent<Components::Transform>(entity)};
-      transform.matrix.setTranslation(ml::vec3{0.1f, 0.0f, 0.0f});
+      transform.matrix.setTranslation(ml::vec3{0.1f, 0.0f, 50.0f});
 
       // Light
       auto &light{m_admin->createComponent<Components::Light>(entity)};
@@ -231,48 +213,9 @@ public:
       light.color = ml::vec3(0.0f, 1.25f, 0.0f) * 10.0f;
       light.size  = 0.3f;
     }
-
-    // using (auto entity{m_admin->createEntity()}) {
-    //   // Transform
-    //   auto &transform{m_admin->createComponent<Components::Transform>(entity)};
-    //   transform.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 0.0f});
-
-    //   // Light
-    //   auto &light{m_admin->createComponent<Components::Light>(entity)};
-    //   light.type      = Components::Light::Type::Directional;
-    //   light.color     = ml::vec3(0.0f, 0.0f, 1.0f);
-    //   light.direction = ml::vec3(-1.0f, 0.0f, 0.0f);
-
-    //   // Physics
-    //   auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
-    //   physics.setIsRigid(true);
-    //   m_discoLight1 = entity;
-    // }
-
-    // using (auto entity{m_admin->createEntity()}) {
-    //   // Transform
-    //   auto &transform{m_admin->createComponent<Components::Transform>(entity)};
-    //   transform.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 0.0f});
-
-    //   // Light
-    //   auto &light{m_admin->createComponent<Components::Light>(entity)};
-    //   light.type      = Components::Light::Type::Directional;
-    //   light.color     = ml::vec3(1.0f, 0.0f, 0.0f);
-    //   light.direction = ml::vec3(1.0f, 0.0f, 0.0f);
-
-    //   // Physics
-    //   auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
-    //   physics.setIsRigid(true);
-    //   m_discoLight2 = entity;
-    // }
   }
 
   [[nodiscard]] bool update(float dt, std::uint64_t) final {
-    // m_admin->getComponent<Components::Physics>(m_discoLight1.value()).applyAngularImpulse(ml::vec3{0.0f, 0.0f, 10.0f * dt});
-    // m_admin->getComponent<Components::Physics>(m_discoLight2.value()).applyAngularImpulse(ml::vec3{0.0f, 0.0f, 10.0f * dt});
-
-    m_admin->getSystem<Systems::Physics>().printMeSomething();
-
     if (m_camera.has_value()) {
       auto &&[camera, transform, physics]{m_admin->getComponents<Components::Camera, Components::Transform, Components::Physics>(m_camera.value())};
 
@@ -296,9 +239,6 @@ public:
       // transform.matrix.setTranslation(position);
       position          = transform.matrix.getTranslation();
       camera.m_position = position;
-
-      // std::cout << position.x << '\t' << position.y << '\t' << position.z << '\n';
-      // std::cout << camera.angles.x << '\t' << camera.angles.y << '\t' << camera.angles.z << '\n';
     }
     return true;
   }
