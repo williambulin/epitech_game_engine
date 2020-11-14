@@ -46,7 +46,7 @@ void main() {
   }
 
   // if (ubo.lightSourceCount > 0.0)
-  // color *= ambientLight + directionalLight + pointLight;
+  color *= ambientLight + directionalLight + pointLight;
 
   // color    = (normalIn + 1.0) / 2.0;
   colorOut = vec4(color, 1.0);
