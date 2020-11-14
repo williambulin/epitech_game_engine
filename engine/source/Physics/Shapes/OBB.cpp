@@ -50,6 +50,6 @@ bool OBB::operator==(const OBB &second) const noexcept {
   return (second.m_min == m_min && second.m_max == m_max && second.m_oldTransform == m_oldTransform && second.m_pointsCache == second.m_pointsCache);
 }
 
-ml::vec3 OBB::getLocalPosition() {
+ml::vec3 OBB::getLocalPosition() const {
   return (m_max + m_min) * 0.5f;
 }

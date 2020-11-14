@@ -360,12 +360,14 @@ public:
   explicit Vector3(T a, T b, T c);
   Vector3(const Vector3<T> &v);
   Vector3(const Vector<T, 3> &v);  // need to not explicit because used for operations
+
   explicit Vector3(const std::array<T, 3> &array);
   explicit Vector3(const std::vector<T> &array);
   Vector3<T> &             operator=(const Vector3<T> &v);
   T &                      x;
   T &                      y;
   T &                      z;
+  [[nodiscard]] T getMaxElement() const;
   [[nodiscard]] Vector3<T> cross(const Vector3<T> &b) const;
 };
 
@@ -378,6 +380,18 @@ Vector3<T>::Vector3(T a, T b, T c) : Vector<T, 3>{std::array<T, 3>{a, b, c}},
 template <class T>
 Vector3<T> Vector3<T>::cross(const Vector3<T> &b) const {
   return Vector3<T>{y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x};
+}
+
+template <class T>
+T Vector3<T>::getMaxElement() const {
+    T v = x;
+    if (y > v) {
+        v = y;
+    }
+    if (z > v) {
+        v = z;
+    }
+    return v;
 }
 
 template <class T>

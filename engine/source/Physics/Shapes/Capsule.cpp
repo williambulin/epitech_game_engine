@@ -44,9 +44,11 @@ void Capsule::setRadius(const float &radius) noexcept {
 }
 
 [[nodiscard]] bool Capsule::operator==(const Capsule &second) const noexcept {
-  return (second.m_start == m_start && second.m_end == m_end && second.m_radius == m_radius && second.m_oldTransform == m_oldTransform && second.m_pointsCache == second.m_pointsCache);
+  return (second.m_start == m_start && second.m_end == m_end && second.m_radius == m_radius
+          && second.m_oldTransform == m_oldTransform
+          && second.m_pointsCache == second.m_pointsCache);
 }
 
-ml::vec3 Capsule::getLocalPosition() {
+ml::vec3 Capsule::getLocalPosition() const {
   return (m_start + m_end) * 0.5f;
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Physics/Shapes/Raycasting.hpp>
 #include "ECS/System.hpp"
 #include "Components/Transform.hpp"
 #include "Components/Physics.hpp"
@@ -50,7 +51,8 @@ private:
   [[nodiscard]] DLLATTRIB bool        checkCollisionExists(CollisionInfo existedOne, CollisionInfo toCompare);
   [[nodiscard]] DLLATTRIB static auto closestPointOnLineSegment(ml::vec3 A, ml::vec3 B, ml::vec3 Point) -> ml::vec3;
   [[nodiscard]] DLLATTRIB static auto getEntityWorldPositionResolve(ICollisionShape &shape, const ml::mat4 &matrix) -> ml::vec3;
-  [[nodiscard]] DLLATTRIB static auto getEntityWorldPosition(ICollisionShape &shape, const ml::mat4 &matrix) -> ml::vec3;
+  [[nodiscard]] DLLATTRIB static auto getEntityWorldPosition(const ICollisionShape &shape, const ml::mat4 &matrix) -> ml::vec3;
+  [[nodiscard]] bool                  RayIntersection (const Ray &r, RayCollision& collision);
 
   [[nodiscard]] DLLATTRIB static bool collide(AABB &firstCollider, const ml::mat4 &modelMatrixFirstCollider, AABB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;
   [[nodiscard]] DLLATTRIB static bool collide(const Sphere &firstCollider, const ml::mat4 &modelMatrixFirstCollider, const Sphere &secondCollider, const ml::mat4 &modelMatrixSecondcollider, CollisionInfo &collisionInfo) noexcept;
@@ -59,6 +61,21 @@ private:
   [[nodiscard]] DLLATTRIB static bool collide(Capsule &firstCollider, const ml::mat4 &modelMatrixFirstCollider, Capsule &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;  // https://wickedengine.net/2020/04/26/capsule-collision-detection/
   [[nodiscard]] DLLATTRIB static bool collide(Capsule &firstCollider, const ml::mat4 &modelMatrixFirstCollider, const Sphere &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;
   [[nodiscard]] DLLATTRIB static bool collide(Capsule &firstCollider, const ml::mat4 &modelMatrixFirstCollider, AABB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;
+
+  [[nodiscard]] bool RaySphereIntersection(  const Ray &r, const ml::mat4 &worldTransform,
+                                             const Sphere &volume,
+                                             RayCollision & collision);
+
+  [[nodiscard]] bool RayBoxIntersection(  const Ray &r, const ml::vec3 & boxPos,
+                                          const ml::vec3 &boxSize, RayCollision &collision );
+
+  [[nodiscard]] bool RayAABBIntersection( const Ray &r,
+                                          const ml::mat4 & worldTransform,
+                                          AABB & volume, RayCollision & collision);
+
+  [[nodiscard]] bool RayOBBIntersection(  const Ray &r, const ml::mat4 &transform,
+                                          OBB& volume, RayCollision &collision);
+
 
 public:
   DLLATTRIB explicit Physics(ECS::Admin &admin) : ECS::System<Components::Physics, Components::Transform>{admin} {}

@@ -1,25 +1,27 @@
 #pragma once
 
+#include "../ICollisionShape.hpp"
 #include "Maths/Vectors.hpp"
 
 struct RayCollision {
   ICollisionShape* node;// Node that was hit
   Vector3f collidedAt;// WORLD SPACE pos of the collision !
+  float rayDistance;
 
-  RayCollision(ICollisionShape *node, Vector3f collidedAt) : collidedAt(collidedAt), node(node) {}
+  RayCollision(ICollisionShape *node, ml::vec3 collidedAt, float rayDistance = 0) : collidedAt(collidedAt), node(node), rayDistance(rayDistance) {}
 
   RayCollision() = default;
 };
 
 class Ray {
 public :
-  Ray(Vector3f position, Vector3f direction);
+  Ray(ml::vec3 position, ml::vec3 direction);
   ~Ray(void);
 
-  Vector3f GetPosition() const {return position;}
-  Vector3f GetDirection() const {return direction;}
+  ml::vec3 GetPosition() const {return position;}
+  ml::vec3 GetDirection() const {return direction;}
 
 protected :
-  Vector3f position;// World space position
-  Vector3f direction;// Normalised world space direction
+  ml::vec3 position;// World space position
+  ml::vec3 direction;// Normalised world space direction
 };
