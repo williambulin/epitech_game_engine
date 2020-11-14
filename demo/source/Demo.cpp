@@ -122,7 +122,7 @@ public:
     std::cout << "Created Demo" << '\n';
 
     m_admin->createSystem<Systems::Physics>();
-    m_admin->createSystem<Gravity>();
+    // m_admin->createSystem<Gravity>();
 
     auto audio{m_audioManager->createAudioSource("../resources/some.wav")};
     audio->setVolume(100);
@@ -149,7 +149,7 @@ public:
 
       // Transform
       auto &transform{m_admin->createComponent<Components::Transform>(entity)};
-      transform.matrix.setTranslation(ml::vec3{0.0f, 55.0f, 0.0f});
+      transform.matrix.setTranslation(ml::vec3{0.0f, 105.0f, 0.0f});
 
       // Model
       auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/3b0b075229e84317a014fb275a5d8dbe.obj", "../resources/backpack.jpg")};
@@ -172,14 +172,15 @@ public:
       // Transform
       auto &transform{m_admin->createComponent<Components::Transform>(entity)};
       // transform.matrix.setTranslation(ml::vec3{1.72966f, 4.71852f, 4.25082f});
-      transform.matrix.setTranslation(ml::vec3{1.72966f, 104.71852f, 4.25082f});
+      transform.matrix.setTranslation(ml::vec3{1.72966f, 120.71852f, 4.25082f});
 
       // Camera
       auto &camera{m_admin->createComponent<Components::Camera>(entity)};
       camera.angles = ml::vec3{-44.847f, 270.009f, 0.0f};
 
       // Physics
-      auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, -1.0f, 0.0f}, ml::vec3{0.0f, 1.0f, 0.0f}, 1))};
+      // auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, -1.0f, 0.0f}, ml::vec3{0.0f, 1.0f, 0.0f}, 1))};
+      auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
 
       m_camera = entity;
     }
