@@ -92,29 +92,6 @@ public:
 UserCommand m_userCommand{};
 
 void processSpecialKeys(int key, int xx, int yy) {
-  std::cout << angle << std::endl;
-  float fraction = 0.1f;
-  switch (key) {
-    case GLUT_KEY_LEFT:
-      angle -= 0.01f;
-      lx = sin(angle);
-      lz = -cos(angle);
-      break;
-    case GLUT_KEY_RIGHT:
-      angle += 0.01f;
-      lx = sin(angle);
-      lz = -cos(angle);
-      break;
-    case GLUT_KEY_UP:
-      x += lx * fraction;
-      z += lz * fraction;
-      break;
-    case GLUT_KEY_DOWN:
-      x -= lx * fraction;
-      z -= lz * fraction;
-      break;
-  }
-
   switch (key) {
     case GLUT_KEY_UP:
       m_userCommand.buttons |= UserCommand::Buttons::Forward;
@@ -127,6 +104,35 @@ void processSpecialKeys(int key, int xx, int yy) {
       break;
     case GLUT_KEY_RIGHT:
       m_userCommand.buttons |= UserCommand::Buttons::Right;
+      break;
+    case GLUT_KEY_PAGE_UP:
+      m_userCommand.buttons |= UserCommand::Buttons::Jump;
+      break;
+    case GLUT_KEY_PAGE_DOWN:
+      m_userCommand.buttons |= UserCommand::Buttons::Duck;
+      break;
+  }
+}
+
+void processSpecialUpKeys(int key, int xx, int yy) {
+  switch (key) {
+    case GLUT_KEY_UP:
+      m_userCommand.buttons &= ~UserCommand::Buttons::Forward;
+      break;
+    case GLUT_KEY_LEFT:
+      m_userCommand.buttons &= ~UserCommand::Buttons::Left;
+      break;
+    case GLUT_KEY_DOWN:
+      m_userCommand.buttons &= ~UserCommand::Buttons::Backward;
+      break;
+    case GLUT_KEY_RIGHT:
+      m_userCommand.buttons &= ~UserCommand::Buttons::Right;
+      break;
+    case GLUT_KEY_PAGE_UP:
+      m_userCommand.buttons &= ~UserCommand::Buttons::Jump;
+      break;
+    case GLUT_KEY_PAGE_DOWN:
+      m_userCommand.buttons &= ~UserCommand::Buttons::Duck;
       break;
   }
 }
@@ -244,10 +250,12 @@ void drawCapsule(glm::vec3 start, glm::vec3 end, float radius, glm::vec3 color) 
    whenever the window needs to be re-painted. */
 
 void drawAABB(std::vector<ml::vec3> points, float red, float green, float blue) {
-  glBegin(GL_QUADS);  // Begin drawing the color cube with 6 quads
+  glBegin(GL_QUADS);            // Begin drawing the color cube with 6 quads
+  glColor3f(red, green, blue);  // Green
+                                //
   // Top face (y = 1.0f)
   // Define vertices in counter-clockwise (CCW) order with normal pointing out
-  glColor3f(1.0f, 0.0f, 0.0f);  // Red
+  // glColor3f(1.0f, 0.0f, 0.0f);  // Red
   // glColor3f(red, green, blue);  // Green
   glVertex3f(points[2].x, points[2].y, points[2].z);
   glVertex3f(points[3].x, points[3].y, points[3].z);
@@ -255,7 +263,7 @@ void drawAABB(std::vector<ml::vec3> points, float red, float green, float blue) 
   glVertex3f(points[7].x, points[7].y, points[7].z);
 
   // Bottom face  (y = -1.0f)
-  glColor3f(1.0f, 0.5f, 0.0f);  // Orange
+  // glColor3f(1.0f, 0.5f, 0.0f);  // Orange
   // glColor3f(red, green, blue);  // Green
   glVertex3f(points[6].x, points[6].y, points[6].z);
   glVertex3f(points[5].x, points[5].y, points[5].z);
@@ -264,7 +272,7 @@ void drawAABB(std::vector<ml::vec3> points, float red, float green, float blue) 
 
   // Front face  (z = 1.0f)
   // glColor3f(1.0f, 0.0f, 0.0f);  // Red
-  glColor3f(red, green, blue);  // Green
+  // glColor3f(red, green, blue);  // Green
   glVertex3f(points[7].x, points[7].y, points[7].z);
   glVertex3f(points[4].x, points[4].y, points[4].z);
   glVertex3f(points[5].x, points[5].y, points[5].z);
@@ -272,14 +280,14 @@ void drawAABB(std::vector<ml::vec3> points, float red, float green, float blue) 
 
   // Back face (z = -1.0f)
   // glColor3f(1.0f, 1.0f, 0.0f);  // Yellow
-  glColor3f(red, green, blue);  // Green
+  // glColor3f(red, green, blue);  // Green
   glVertex3f(points[1].x, points[1].y, points[1].z);
   glVertex3f(points[0].x, points[0].y, points[0].z);
   glVertex3f(points[3].x, points[3].y, points[3].z);
   glVertex3f(points[2].x, points[2].y, points[2].z);
 
   // Left face (x = -1.0f)
-  glColor3f(1.0f, 1.0f, 0.0f);  // Blue
+  // glColor3f(1.0f, 1.0f, 0.0f);  // Blue
   // glColor3f(red, green, blue);  // Green
   glVertex3f(points[4].x, points[4].y, points[4].z);
   glVertex3f(points[3].x, points[3].y, points[3].z);
@@ -287,7 +295,7 @@ void drawAABB(std::vector<ml::vec3> points, float red, float green, float blue) 
   glVertex3f(points[5].x, points[5].y, points[5].z);
 
   // Right face (x = 1.0f)
-  glColor3f(1.0f, 0.0f, 1.0f);  // Magenta
+  // glColor3f(1.0f, 0.0f, 1.0f);  // Magenta
   // glColor3f(red, green, blue);  // Green
   glVertex3f(points[2].x, points[2].y, points[2].z);
   glVertex3f(points[7].x, points[7].y, points[7].z);
@@ -464,7 +472,7 @@ void display() {
     position          = transform.matrix.getTranslation();
     camera.m_position = position;
 
-    m_userCommand.buttons = 0;
+    // m_userCommand.buttons = 0;
 
     auto viewMatrix{camera.viewMatrix()};
     auto projectionMatrix{camera.projectionMatrix(windowWidth / windowHeight)};
@@ -608,6 +616,9 @@ int main(int argc, char **argv) {
 
     // Transform
     auto &transform{admin.createComponent<Components::Transform>(entity)};
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{0.25f, 0.5f, 1.0f};
   }
 
   using (auto entity{admin.createEntity()}) {
@@ -617,11 +628,9 @@ int main(int argc, char **argv) {
     // Transform
     auto &transform{admin.createComponent<Components::Transform>(entity)};
     transform.matrix.setTranslation(ml::vec3{0.0f, 105.0f, 0.0f});
-  }
 
-  using (auto entity{admin.createEntity()}) {
-    // Transform
-    auto &transform{admin.createComponent<Components::Transform>(entity)};
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{1.0f, 0.5f, 0.0f};
   }
 
   ///////////////////////////////////////
@@ -703,6 +712,7 @@ int main(int argc, char **argv) {
   glutIdleFunc(display);
   glutKeyboardFunc(processNormalKeys);
   glutSpecialFunc(processSpecialKeys);
+  glutSpecialUpFunc(processSpecialUpKeys);
   // here are the two new functions
   glutMouseFunc(mouseButton);
   glutPassiveMotionFunc(mouseMove);
