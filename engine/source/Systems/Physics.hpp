@@ -61,4 +61,9 @@ public:
   DLLATTRIB explicit Physics(ECS::Admin &admin) : ECS::System<Components::Physics, Components::Transform>{admin} {}
 
   DLLATTRIB void update(float dt, std::uint64_t) final;
+
+  inline void printMeSomething() {
+    std::cout << std::addressof(*this) << '\n';
+    std::cout << "Number of entities: " << getItems().size() << '\n';
+  }
 };

@@ -427,10 +427,15 @@ template <class T>
 Matrix4<T>::Matrix4(const Matrix<T, 4, 4> &v) : Matrix<T, 4, 4>(v) {}
 template <class T>
 Matrix4<T> Matrix4<T>::rotation(T angle, Vector3<T> axis) {
-  axis     = axis.normalize();
+  axis.normalize();
   float s  = sinf(angle);
   float c  = cosf(angle);
   float oc = 1.0f - c;
 
-  return Matrix4<T>(oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s, oc * axis.z * axis.x + axis.y * s, 0.0, oc * axis.x * axis.y + axis.z * s, oc * axis.y * axis.y + c, oc * axis.y * axis.z - axis.x * s, 0.0, oc * axis.z * axis.x - axis.y * s, oc * axis.y * axis.z + axis.x * s, oc * axis.z * axis.z + c, 0.0, 0.0, 0.0, 0.0, 1.0);
+  return Matrix4<T>(std::array<std::array<T, 4>, 4>{
+  std::array<T, 4>{oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s, oc * axis.z * axis.x + axis.y * s, 0.0},
+  std::array<T, 4>{oc * axis.x * axis.y + axis.z * s, oc * axis.y * axis.y + c, oc * axis.y * axis.z - axis.x * s, 0.0},
+  std::array<T, 4>{oc * axis.z * axis.x - axis.y * s, oc * axis.y * axis.z + axis.x * s, oc * axis.z * axis.z + c, 0.0},
+  std::array<T, 4>{0.0, 0.0, 0.0, 1.0},
+  });
 }
