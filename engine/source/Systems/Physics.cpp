@@ -98,36 +98,129 @@ ml::vec3 getNormal(const ml::vec3 &v) {
   return ml::vec3(-v.y, v.x, v.z);
 }
 
-ml::vec3 getPerpendicularAxis(const std::vector<ml::vec3> &vertices, std::size_t index) {
-  ml::vec3 tmp(vertices[index + 1]);
-  tmp = tmp - vertices[index];
-  tmp.normalize();
-  return getNormal(tmp);
+bool isMinkowskiFace(ml::vec3 edgeAFaceANormal, ml::vec3 edgeAFaceBNormal, ml::vec3 edgeADirection, ml::vec3 edgeBFaceANormal, ml::vec3 edgeBFaceBNormal, ml::vec3 edgeBDirection) {
+  ml::vec3 edgeACross = edgeAFaceBNormal.cross(edgeAFaceANormal);
+  ml::vec3 edgeBCross = edgeBFaceBNormal.cross(edgeBFaceANormal);
+
+  float edgeBFaceADirection = edgeBFaceANormal.dot(edgeACross);
+  float edgeBFaceBDirection = edgeBFaceBNormal.dot(edgeACross);
+  float edgeAFaceADirection = edgeAFaceANormal.dot(edgeBCross);
+  float edgeAFaceBDirection = edgeAFaceBNormal.dot(edgeBCross);
+
+  return ((edgeBFaceADirection * edgeBFaceBDirection < 0) && (edgeAFaceADirection * edgeAFaceBDirection < 0) && (edgeBFaceADirection * edgeAFaceBDirection > 0));
 }
 
-// axes for which we'll test stuff. Two for each box, because testing for parallel axes isn't needed
-std::vector<ml::vec3> getPerpendicularAxes(const std::vector<ml::vec3> &vertices1, const std::vector<ml::vec3> &vertices2) {
-  std::vector<ml::vec3> axes;
-  axes.push_back(getPerpendicularAxis(vertices1, 0));
-  axes.push_back(getPerpendicularAxis(vertices1, 0));
-  axes.push_back(getPerpendicularAxis(vertices1, 0));
-  axes.push_back(getPerpendicularAxis(vertices1, 0));
-  axes.push_back(getPerpendicularAxis(vertices1, 0));
-  axes.push_back(getPerpendicularAxis(vertices1, 0));
-  axes.push_back(getPerpendicularAxis(vertices1, 0));
-  axes.push_back(getPerpendicularAxis(vertices1, 0));
-  axes.push_back(getPerpendicularAxis(vertices1, 0));
-  axes[1] = getPerpendicularAxis(vertices1, 1);
-  axes[2] = getPerpendicularAxis(vertices2, 0);
-  axes[3] = getPerpendicularAxis(vertices2, 1);
-  return axes;
+bool queryEdgeCollisions(OBB &reference, OBB &incident, CollisionInfo &results) {
+  auto edgesA = reference.m_edges;
+  auto edgesB = reference.m_edges;
+  for (int i = 0; i < edgesA.size(); i++) {
+    auto     referenceFaceA   = reference.m_faces[std::get<OBB::FACES>(edgesA[i])[0]];
+    auto     referenceFaceB   = reference.m_faces[std::get<OBB::FACES>(edgesA[i])[1]];
+    ml::vec3 edgeAFaceANormal = std::get<OBB::NORMAL>(referenceFaceA);
+    ml::vec3 edgeAFaceBNormal = std::get<OBB::NORMAL>(referenceFaceB);
+    for (int j = 0; j < edgesB.size(); j++) {
+      auto     incidentFaceA    = incident.m_faces[std::get<OBB::FACES>(edgesB[j])[0]];
+      ml::vec3 edgeBFaceANormal = std::get<OBB::NORMAL>(incidentFaceA);
+      edgeBFaceANormal *= -1;
+      auto     incidentFaceB    = incident.m_faces[std::get<OBB::FACES>(edgesB[j])[1]];
+      ml::vec3 edgeBFaceBNormal = std::get<OBB::NORMAL>(incidentFaceB);
+      edgeBFaceBNormal *= -1;
+      // COULD BE WRONG : (B - A) * transform == (B * transform - A * transform)
+      ml::vec3 edgeADirection = std::get<OBB::EDGES>(edgesA[i])[1] - std::get<OBB::EDGES>(edgesA[i])[0];  // edgesA.get(i).getTransformedDirection(reference.getWorldTransform()).normalize();
+      edgeADirection.normalize();
+      ml::vec3 edgeBDirection = std::get<OBB::EDGES>(edgesA[j])[1] - std::get<OBB::EDGES>(edgesA[j])[0];  // edgesB.get(j).getTransformedDirection(incident.getWorldTransform()).normalize();
+      edgeBDirection.normalize();
+
+      if (isMinkowskiFace(edgeAFaceANormal, edgeAFaceBNormal, edgeADirection, edgeBFaceANormal, edgeBFaceBNormal, edgeBDirection)) {
+        ml::vec3 axis = edgeADirection.cross(edgeBDirection);
+        if (axis.length() == 0) {
+          continue;
+        }
+        axis.normalize();
+        ml::vec3 transformedPointA = std::get<OBB::EDGES>(edgesA[i])[0];
+        ml::vec3 transformedPointB = std::get<OBB::EDGES>(edgesB[i])[0];
+
+        if (axis.dot(transformedPointA - ((reference.m_pointsCache[reference.m_pointsCache.size() - 1] + reference.m_pointsCache[0]) * 0.5f)) < 0) {
+          axis *= -1;
+        }
+
+        float distance = axis.dot(transformedPointB - transformedPointA);
+        if (distance > 0) {
+          return false;
+        }
+        if(distance > results.point.penetration) {
+        /*                         results.setPenetration(distance);
+                                results.setType(collisionType.ordinal());
+                                results.setEnterNormal(axis);
+                                results.setEdgeA(i);
+                                results.setEdgeB(j); */
+        results.addContactPoint(ml::vec3(0.0f, 0.0f, 0.0f), ml::vec3(0.0f, 0.0f, 0.0f), axis, distance);
+        }
+      }
+    }
+  }
+  return true;
+}
+
+bool queryFaceCollisions(OBB &reference, OBB &incident, CollisionInfo &results) {
+  for (int i = 0; i < reference.m_faces.size(); i++) {
+    ml::vec3 axis       = std::get<OBB::NORMAL>(reference.m_faces[i]);
+    ml::vec3 planePoint = reference.getSupport(axis);
+    float    distance   = axis.dot(planePoint);
+    //            Plane plane = new Plane(axis, planePoint);
+
+    ml::vec3 negatedNormal = axis * -1.0f;
+    ml::vec3 support       = incident.getSupport(negatedNormal);
+
+    distance = axis.dot(planePoint) - distance;
+    if (distance > 0) {
+      return false;
+    }
+    if(distance > results.point.penetration) {
+      results.addContactPoint(ml::vec3(0.0f, 0.0f, 0.0f), ml::vec3(0.0f, 0.0f, 0.0f), axis, distance);
+    }
+    // results.setPenetration(distance);
+    // results.setEnterNormal(axis);
+    // results.setReferenceFace(i);
+  }
+  return true;
 }
 
 bool Systems::Physics::collide(OBB &firstCollider, const ml::mat4 &modelMatrixFirstCollider, OBB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
-  std::vector<ml::vec3> verticesFirstCollider{firstCollider.getPoints(modelMatrixFirstCollider)};
-  std::vector<ml::vec3> verticesSecondCollider{secondCollider.getPoints(modelMatrixSecondCollider)};
-  std::vector<ml::vec3> axes{getPerpendicularAxes(verticesFirstCollider, verticesSecondCollider)};
-  return true;
+  std::cout << "obb check"<< std::endl;
+  auto firstPoints  = firstCollider.getPoints(modelMatrixFirstCollider, true);
+  auto secondPoints = secondCollider.getPoints(modelMatrixSecondCollider, true);
+  if (!queryFaceCollisions(firstCollider, secondCollider, collisionInfo)) {
+    return true;
+  }
+  if (!queryFaceCollisions(secondCollider, firstCollider, collisionInfo)) {
+    return true;
+  }
+  if (!queryEdgeCollisions(secondCollider, firstCollider, collisionInfo)) {
+    return true;
+  }
+
+ /* if (results.getType() == Type.FACE_OF_A.ordinal()) {
+    getFaceContactPoints(island.getColliderA(), island.getColliderB(), results);
+  } else if (results.getType() == Type.FACE_OF_B.ordinal()) {
+    getFaceContactPoints(island.getColliderB(), island.getColliderA(), results);
+  } else {
+    getEdgeContactPoint(island.getColliderA(), island.getColliderB(), results);
+  }
+
+  ml::vec3 offset = new ml::vec3();
+  island.getColliderB().getPosition().sub(island.getColliderA().getPosition(), offset);
+  if (results.getEnterNormal().dot(offset) > 0) {
+    results.getEnterNormal().negate();
+  }
+
+  results.setCollided();
+
+  return results;
+}
+return true;
+*/
+  return false;
 }
 
 auto Systems::Physics::getEntityWorldPositionAABB(const ICollisionShape &shape, const ml::mat4 &matrix) -> ml::vec3 {
@@ -311,6 +404,9 @@ void Systems::Physics::collisionDections() {
         }
       } else if (physicsI.m_shape->m_shapeType == ShapeType::AABB && physicsJ.m_shape->m_shapeType == ShapeType::CAPSULE) {
         if (collide(reinterpret_cast<AABB &>(*physicsI.m_shape), transformI.matrix, reinterpret_cast<Capsule &>(*physicsJ.m_shape), transformJ.matrix, info) == true)
+          m_collisions.push_back(info);
+      } else if (physicsI.m_shape->m_shapeType == ShapeType::OBB && physicsJ.m_shape->m_shapeType == ShapeType::OBB) {
+        if (collide(reinterpret_cast<OBB &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<OBB &>(*physicsI.m_shape), transformI.matrix, info) == true)
           m_collisions.push_back(info);
       }
     }
