@@ -36,7 +36,9 @@ public:
   std::optional<ECS::Admin::EntityIndex> m_camera{std::nullopt};
   std::optional<ECS::Admin::EntityIndex> m_skybox{std::nullopt};
   std::optional<ECS::Admin::EntityIndex> m_target{std::nullopt};
+  std::optional<ECS::Admin::EntityIndex> m_block{std::nullopt};
   float                                  m_targetDistance{0.0f};
+  std::size_t                            m_count{0};
 
   std::shared_ptr<AudioSource> m_music{nullptr};
   std::shared_ptr<AudioSource> m_physcannonDrop{nullptr};
@@ -112,28 +114,56 @@ public:
   }
 
   void onKey(Input::Key key, Input::State state) final {
+    bool canSpawn{m_admin->getEntitiesWithComponents<Components::Physics>().size() < 18};
     switch (key) {
-      // case Input::Key::E:
-      //   if (state == Input::State::Released)
-      //     use (auto entity{m_admin->createEntity()}) {
-      //       // Physics
-      //       // auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, -1.0f, 0.0f}, ml::vec3{0.0f, 1.0f, 0.0f}, 3.0f))};
-      //       auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
+      case Input::Key::Number1:
+        if (state == Input::State::Released && canSpawn) {
+          use(auto entity{m_admin->createEntity()}) {
+            auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
+            auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/cube.obj", "../resources/white.png")};
 
-      //       // Light
-      //       auto &light{m_admin->createComponent<Components::Light>(entity)};
-      //       light.type  = Components::Light::Type::Point;
-      //       light.color = ml::vec3{(rand() % 100) / 100.0f, (rand() % 100) / 100.0f, (rand() % 100) / 100.0f} * 1.0f;
-      //       light.size  = 10.0f;
+            m_admin->createComponent<Components::Gravity>(entity);
+            auto &transform{m_admin->createComponent<Components::Transform>(entity)};
+            transform.matrix.setTranslation(ml::vec3{static_cast<float>(rand() % 180) - 90.0f, 30.0f, static_cast<float>(rand() % 180) - 90.0f});
+            auto &light{m_admin->createComponent<Components::Light>(entity)};
+            light.type  = Components::Light::Type::Point;
+            light.color = ml::vec3{(rand() % 100) / 100.0f, (rand() % 100) / 100.0f, (rand() % 100) / 100.0f} * 1.0f;
+            light.size  = 10.0f;
+          }
+        }
+        break;
+      case Input::Key::Number2:
+        if (state == Input::State::Released && canSpawn) {
+          use(auto entity{m_admin->createEntity()}) {
+            auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<Sphere>(ml::vec3{0.0f, 0.0f, 0.0f}, 1.0f))};
+            auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/sphere.obj", "../resources/white.png")};
 
-      //       // Transform
-      //       auto &transform{m_admin->createComponent<Components::Transform>(entity)};
-      //       transform.matrix.setTranslation(ml::vec3{0.0f, 105.0f, 0.0f});
+            m_admin->createComponent<Components::Gravity>(entity);
+            auto &transform{m_admin->createComponent<Components::Transform>(entity)};
+            transform.matrix.setTranslation(ml::vec3{static_cast<float>(rand() % 180) - 90.0f, 30.0f, static_cast<float>(rand() % 180) - 90.0f});
+            auto &light{m_admin->createComponent<Components::Light>(entity)};
+            light.type  = Components::Light::Type::Point;
+            light.color = ml::vec3{(rand() % 100) / 100.0f, (rand() % 100) / 100.0f, (rand() % 100) / 100.0f} * 1.0f;
+            light.size  = 10.0f;
+          }
+        }
+        break;
+      case Input::Key::Number3:
+        if (state == Input::State::Released && canSpawn) {
+          use(auto entity{m_admin->createEntity()}) {
+            auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0f, 2.0f, 0.0f}, ml::vec3{0.0f, -2.0f, 0.0f}, 1.0f))};
+            auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/capsule.obj", "../resources/white.png")};
 
-      //       // Model
-      //       auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/cube.obj", "../resources/white.jpg")};
-      //     }
-      //   break;
+            m_admin->createComponent<Components::Gravity>(entity);
+            auto &transform{m_admin->createComponent<Components::Transform>(entity)};
+            transform.matrix.setTranslation(ml::vec3{static_cast<float>(rand() % 180) - 90.0f, 30.0f, static_cast<float>(rand() % 180) - 90.0f});
+            auto &light{m_admin->createComponent<Components::Light>(entity)};
+            light.type  = Components::Light::Type::Point;
+            light.color = ml::vec3{(rand() % 100) / 100.0f, (rand() % 100) / 100.0f, (rand() % 100) / 100.0f} * 1.0f;
+            light.size  = 10.0f;
+          }
+        }
+        break;
       case Input::Key::W:
         if (state == Input::State::Pressed)
           m_userCommand.buttons |= UserCommand::Buttons::Forward;
@@ -232,6 +262,7 @@ public:
       physics.setIsRigid(true);
       auto &transform{m_admin->createComponent<Components::Transform>(entity)};
       auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/gm_construct_block.obj", "../resources/untitled2.png")};
+      m_block = entity;
     }
 
     for (std::size_t i{0}; i < 10; ++i) {
@@ -247,10 +278,15 @@ public:
             auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/sphere.obj", "../resources/white.png")};
             break;
           }
+          case 2: {
+            auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0f, 2.0f, 0.0f}, ml::vec3{0.0f, -2.0f, 0.0f}, 1.0f))};
+            auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/capsule.obj", "../resources/white.png")};
+            break;
+          }
         }
         m_admin->createComponent<Components::Gravity>(entity);
         auto &transform{m_admin->createComponent<Components::Transform>(entity)};
-        transform.matrix.setTranslation(ml::vec3{static_cast<float>(rand() % 80) - 40.0f, 40.0f, static_cast<float>(rand() % 80) - 40.0f});
+        transform.matrix.setTranslation(ml::vec3{static_cast<float>(rand() % 180) - 90.0f, 30.0f, static_cast<float>(rand() % 180) - 90.0f});
         auto &light{m_admin->createComponent<Components::Light>(entity)};
         light.type  = Components::Light::Type::Point;
         light.color = ml::vec3{(rand() % 100) / 100.0f, (rand() % 100) / 100.0f, (rand() % 100) / 100.0f} * 1.0f;
@@ -279,6 +315,17 @@ public:
 
   [[nodiscard]] bool update(float dt, std::uint64_t) final {
     ml::vec3 cameraPosition{0.0f, 0.0f, 0.0f};
+
+    auto        lightEntities{m_admin->getEntitiesWithComponents<Components::Light, Components::Transform>()};
+    std::size_t count{0};
+    for (auto &&[entities, light, transform] : lightEntities) {
+      auto pos{transform.matrix.getTranslation()};
+      if (pos.x > -25.0f && pos.x < 25.0f && pos.z > -25.0f && pos.z < 25.0f)
+        ++count;
+    }
+
+    if (count >= lightEntities.size())
+      return false;
 
     if (m_camera.has_value()) {
       auto &&[camera, transform, physics]{m_admin->getComponents<Components::Camera, Components::Transform, Components::Physics>(m_camera.value())};
