@@ -196,7 +196,7 @@ bool Systems::Physics::collide(Capsule &firstCollider, const ml::mat4 &modelMatr
   penetration_normal.normalize();
   float penetration_depth = firstCollider.getRadius() + secondCollider.getRadius() - len;
   if (penetration_depth > 0) {
-    ml::vec3 collisionNormal = penetration_normal;
+    ml::vec3 collisionNormal = penetration_normal * -1.0f;
     float    penetration     = penetration_depth;
     ml::vec3 localA          = ml::vec3(0.0f, 0.0f, 0.0f);
     ml::vec3 localB          = ml::vec3(0.0f, 0.0f, 0.0f);
