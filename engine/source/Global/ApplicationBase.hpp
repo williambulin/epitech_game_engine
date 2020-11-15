@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Extension/Language/Library.hpp"
+#include "Log/Log.hpp"
 
 #include <string>
 #include <vector>

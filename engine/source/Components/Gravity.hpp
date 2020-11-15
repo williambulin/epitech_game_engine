@@ -8,5 +8,6 @@ namespace Components {
 
 class Components::Gravity final {
 public:
-    ml::vec3 direction{0.0f, -1.0f, 0.0f}; 
+    ml::vec3 direction{0.0f, -1.0f, 0.0f};
+    bool hasGravity = true; 
 };

@@ -11,6 +11,7 @@
 #include "Physics/Shapes/Raycasting.hpp"
 
 #include "Maths/Math.hpp"
+#include "Log/Log.hpp"
 
 #include "Extension/Language/Library.hpp"
 
@@ -49,6 +50,7 @@ class Systems::Physics final : public ECS::System<Components::Physics, Component
 private:
   std::vector<CollisionInfo> m_collisions;
 
+  Log m_logger{"PhysicsSystem"};
 private:
   DLLATTRIB void                      collisionDections();
   DLLATTRIB void                      collisionResolution();
