@@ -6,6 +6,7 @@
 #include <numeric>
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 template <class T, std::size_t width, std::size_t height>
 class Matrix;
@@ -338,9 +339,10 @@ Vector<T, size> Vector<T, size>::clamp(const Vector<T, size> &min, const Vector<
   Vector<T, size> ret{m_array};
   T *             values     = ret.m_array.data();
   const T *       min_values = min.m_array.data();
-  const T *       max_values = min.m_array.data();
-  for (int i = 0; i < size; ++i, ++values, ++min_values, ++max_values)
-    *values = std::clamp(*values, *min_values, *max_values);
+  const T *       max_values = max.m_array.data();
+  for (int i = 0; i < size; ++i) {
+    values[i] = std::clamp(values[i], min_values[i], max_values[i]);
+  }
   return ret;
 }
 
@@ -348,7 +350,7 @@ template <class T, uint32_t size>
 size_t Vector<T, size>::hash() const {
   size_t seed = 0;
   for (int i = 0; i < size; ++i)
-    seed ^= std::hash(m_array[i]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= std::hash<T>()(m_array[i]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
   return seed;
 }
 
@@ -358,12 +360,14 @@ public:
   explicit Vector3(T a, T b, T c);
   Vector3(const Vector3<T> &v);
   Vector3(const Vector<T, 3> &v);  // need to not explicit because used for operations
+
   explicit Vector3(const std::array<T, 3> &array);
   explicit Vector3(const std::vector<T> &array);
   Vector3<T> &             operator=(const Vector3<T> &v);
   T &                      x;
   T &                      y;
   T &                      z;
+  [[nodiscard]] T getMaxElement() const;
   [[nodiscard]] Vector3<T> cross(const Vector3<T> &b) const;
 };
 
@@ -376,6 +380,18 @@ Vector3<T>::Vector3(T a, T b, T c) : Vector<T, 3>{std::array<T, 3>{a, b, c}},
 template <class T>
 Vector3<T> Vector3<T>::cross(const Vector3<T> &b) const {
   return Vector3<T>{y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x};
+}
+
+template <class T>
+T Vector3<T>::getMaxElement() const {
+    T v = x;
+    if (y > v) {
+        v = y;
+    }
+    if (z > v) {
+        v = z;
+    }
+    return v;
 }
 
 template <class T>
@@ -426,7 +442,7 @@ public:
 };
 
 template <class T>
-Vector2<T>::Vector2(T a, T b) : Vector<T, 2>{{a, b}},
+Vector2<T>::Vector2(T a, T b) : Vector<T, 2>{std::array<T, 2>{a, b}},
                                 x{this->m_array[0]},
                                 y{this->m_array[1]} {}
 

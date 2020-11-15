@@ -5,7 +5,7 @@
 #include "AudioStream.hpp"
 
 AudioManager::AudioManager() {
-  auto err {Pa_Initialize()};
+  auto err{Pa_Initialize()};
   if (err != paNoError)
     throw std::runtime_error{"AudioManager::AudioManager => Pa_Initialize() returned error " + std::string{Pa_GetErrorText(err)}};
 
@@ -15,8 +15,8 @@ AudioManager::AudioManager() {
 
 AudioManager::~AudioManager() {
   auto err = Pa_Terminate();
-  if (err != paNoError)
-    throw std::runtime_error{"AudioManager::~AudioManager => Pa_Initialize() returned error " + std::string{Pa_GetErrorText(err)}};
+  // if (err != paNoError)
+  //   throw std::runtime_error{"AudioManager::~AudioManager => Pa_Initialize() returned error " + std::string{Pa_GetErrorText(err)}};
 }
 
 void AudioManager::createAudioGroup(const std::string &audioGroupName, const AudioGroup &audioGroup) noexcept {
@@ -24,8 +24,8 @@ void AudioManager::createAudioGroup(const std::string &audioGroupName, const Aud
 }
 
 void AudioManager::createAudioGroup(const std::string &audioGroupName, const int volume) noexcept {
-  AudioGroup newAudioGroup {
-    .volume = volume,
+  AudioGroup newAudioGroup{
+  .volume = volume,
   };
   m_AudioGroups.insert(std::pair<std::string, AudioGroup>{audioGroupName, newAudioGroup});
 }
@@ -37,7 +37,7 @@ void AudioManager::addAudioSource(const std::shared_ptr<AudioSource> &audioSourc
 }
 
 std::shared_ptr<AudioSource> &AudioManager::createAudioSource(const std::string &fileName, const std::string &groupName) noexcept {
-  auto newAudioSource {std::make_shared<AudioSource>(fileName, groupName)};
+  auto newAudioSource{std::make_shared<AudioSource>(fileName, groupName)};
 
   addAudioSource(newAudioSource);
 
@@ -45,7 +45,7 @@ std::shared_ptr<AudioSource> &AudioManager::createAudioSource(const std::string 
 }
 
 void AudioManager::removeAudioSourceById(const int id) noexcept {
-  m_AudioSources.erase(std::ranges::find_if(m_AudioSources, [id](std::shared_ptr<AudioSource> &audioSource){
+  m_AudioSources.erase(std::ranges::find_if(m_AudioSources, [id](std::shared_ptr<AudioSource> &audioSource) {
     return audioSource->m_id == id;
   }));
 }
@@ -61,18 +61,12 @@ void AudioManager::setAudioGroupVolume(const int volume, const std::string &grou
   }
 
   // Updating volume in all audio sources with same groupName
-  for ( auto i = std::find_if(m_AudioSources.begin(),
-            m_AudioSources.end(),
-            [groupName](std::shared_ptr<AudioSource> &audioSource) {
-                return audioSource->getGroupName() == groupName;
-            });
-        i != m_AudioSources.end();
-        i = std::find_if(i + 1,
-            m_AudioSources.end(),
-            [groupName](std::shared_ptr<AudioSource> &audioSource) {
-                return audioSource->getGroupName() == groupName;
-            })) {
-    i->get()->setVolume(volume);
+  for (std::size_t i{0}; i < m_AudioSources.size(); ++i) {
+    auto audioSource{m_AudioSources[i]};
+    if (audioSource->getGroupName() != groupName)
+      continue;
+
+    audioSource->setVolume(volume);
   }
 }
 
@@ -84,21 +78,19 @@ void AudioManager::startStream() {
   if (outputParameters.device == paNoDevice)
     throw std::runtime_error{"AudioManager::startStream => Pa_GetDefaultOutputDevice() returned error"};
 
-  outputParameters.channelCount = 2;          /* stereo output */
-  outputParameters.sampleFormat = paFloat32;  /* 32 bit floating point output */
-  outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultLowInputLatency;
+  outputParameters.channelCount              = 2;         /* stereo output */
+  outputParameters.sampleFormat              = paFloat32; /* 32 bit floating point output */
+  outputParameters.suggestedLatency          = Pa_GetDeviceInfo(outputParameters.device)->defaultLowInputLatency;
   outputParameters.hostApiSpecificStreamInfo = nullptr;
 
-  Pa_OpenStream(
-        &m_stream,
-        nullptr, /* no input */
-        &outputParameters,
-        44100,
-        paFramesPerBufferUnspecified,
-        paNoFlag,
-        AudioStream::PaStreamCallback,
-        &m_AudioSources
-  );
+  Pa_OpenStream(&m_stream,
+                nullptr, /* no input */
+                &outputParameters,
+                44100,
+                paFramesPerBufferUnspecified,
+                paNoFlag,
+                AudioStream::PaStreamCallback,
+                &m_AudioSources);
 
   auto err = Pa_StartStream(m_stream);
   if (err != paNoError)
