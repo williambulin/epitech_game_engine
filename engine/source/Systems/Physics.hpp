@@ -51,6 +51,7 @@ private:
   std::vector<CollisionInfo> m_collisions;
 
   Log m_logger{"PhysicsSystem"};
+  std::function<void(ECS::Admin::EntityIndex, ECS::Admin::EntityIndex)> m_callbackCollision{};
 private:
   DLLATTRIB void                      collisionDections();
   DLLATTRIB void                      collisionResolution();
@@ -82,12 +83,9 @@ private:
 public:
   DLLATTRIB explicit Physics(ECS::Admin &admin) : ECS::System<Components::Physics, Components::Transform>{admin} {}
   [[nodiscard]] DLLATTRIB bool RayIntersection(const Ray &r, RayCollision &collision);
+  [[nodiscard]] DLLATTRIB void setCallbackCollision(std::function<void(ECS::Admin::EntityIndex, ECS::Admin::EntityIndex)> callbackCollision);
 
   DLLATTRIB void update2(float dt, std::uint64_t);
   DLLATTRIB void update(float dt, std::uint64_t) final;
 
-  inline void printMeSomething() {
-    std::cout << std::addressof(*this) << '\n';
-    std::cout << "Number of entities: " << getItems().size() << '\n';
-  }
 };

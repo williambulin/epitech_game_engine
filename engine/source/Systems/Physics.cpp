@@ -406,6 +406,9 @@ void Systems::Physics::collisionDections() {
 void Systems::Physics::collisionResolution() {
   for (auto i{m_collisions.begin()}; i != m_collisions.end();) {
     if (i->framesLeft == 2) {
+      if (m_callbackCollision) {
+        m_callbackCollision(i->firstCollider, i->secondCollider);
+      }
       impulseResolveCollision(*i);
     }
     i->framesLeft = i->framesLeft - 1;
@@ -639,6 +642,11 @@ bool Systems::Physics::RayBoxIntersection(const Ray &r, const ml::vec3 &boxPos, 
   collision.rayDistance = bestT;
   return true;
 }
+
+void Systems::Physics::setCallbackCollision(std::function<void(ECS::Admin::EntityIndex, ECS::Admin::EntityIndex)> callbackCollision) {
+  m_callbackCollision = callbackCollision;
+}
+
 
 bool Systems::Physics::RayAABBIntersection(const Ray &r, const ml::mat4 &worldTransform, AABB &volume, RayCollision &collision) {
   ml::vec3 boxPos           = Systems::Physics::getEntityWorldPosition(volume, worldTransform);

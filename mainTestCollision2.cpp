@@ -14,7 +14,21 @@ std::optional<ECS::Admin::EntityIndex> m_camera{std::nullopt};
 
 #include <chrono>
 #include <thread>
+#pragma warning(push)
+#pragma warning(disable : 4068)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
 
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
+
+#pragma clang diagnostic pop
+#pragma warning(pop)
 ECS::Admin  admin{};
 ECS::Entity entity{};
 
@@ -514,6 +528,10 @@ void display() {
   glutPostRedisplay();
 }
 
+void callbackCollision(ECS::Admin::EntityIndex i, ECS::Admin::EntityIndex j) {
+  std::cout << "Collision " << i << " | " << j << std::endl;
+}
+
 /* Main function: GLUT runs as a console application starting at main() */
 int main(int argc, char **argv) {
   /*   use (auto entity{admin.createEntity()}) {
@@ -530,6 +548,8 @@ int main(int argc, char **argv) {
 
   admin.createSystem<Systems::Physics>();
   admin.createSystem<Systems::Gravity>();
+
+  admin.getSystem<Systems::Physics>().setCallbackCollision(callbackCollision);
 
   ///////////////////////////////////////
   // Objects
@@ -555,6 +575,7 @@ int main(int argc, char **argv) {
     transform.matrix.setTranslation(ml::vec3{0.0f, 101.0f, 0.0f});
     admin.createComponent<Components::Gravity>(entity);
     auto &colored{admin.createComponent<Colored>(entity)};
+    auto &gravity{admin.createComponent<Components::Gravity>(entity)};
     colored.color = ml::vec3{1.0f, 0.5f, 0.0f};
     physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
   }

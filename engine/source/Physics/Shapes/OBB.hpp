@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cfloat>
+
 #include "Extension/Language/Library.hpp"
 #include "Maths/Vectors.hpp"
 #include "Physics/ICollisionShape.hpp"
