@@ -1,6 +1,15 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
+vec3 tonemap(vec3 x) {
+  float a = 2.51;
+  float b = 0.03;
+  float c = 2.43;
+  float d = 0.59;
+  float e = 0.14;
+  return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
+}
+
 struct LightComponent {
   vec3  position;
   vec3  direction;
@@ -40,14 +49,17 @@ void main() {
     if (light.type == 0)  // Directional
       directionalLight += max(0.0, pow(dot(normalIn, light.direction), 8.0)) * light.color;
     else if (light.type == 1)  // Point
-      pointLight += mix(1.0, 0.0, clamp(0.0, 1.0, distance(light.position, positionIn) / light.size)) * light.color;
+      pointLight += mix(1.0, 0.0, pow(clamp(0.0, 1.0, distance(light.position, positionIn) / light.size), 0.2)) * light.color;
     else if (light.type == 2)  // Ambient
       ambientLight += light.color;
   }
 
   // if (ubo.lightSourceCount > 0.0)
   color *= ambientLight + directionalLight + pointLight;
-
+  // color = (positionIn + 1.0) / 2.0;
+  color.rgb = pow(color.rgb, vec3(2.2));
+  color.rgb = tonemap(color.rgb);
+  color.rgb = pow(color.rgb, vec3(1.0 / 2.2));
   // color    = (normalIn + 1.0) / 2.0;
   colorOut = vec4(color, 1.0);
 }

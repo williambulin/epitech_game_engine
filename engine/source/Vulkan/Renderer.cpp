@@ -99,8 +99,8 @@ void Vulkan::Renderer::update(float, std::uint64_t) {
   Components::Camera *camera{nullptr};
   Components::Camera  backupCamera{};
 
-  auto cameraEntities{m_admin.getEntitiesWithComponents<Components::Transform, Components::Camera>()};
-  for (auto &&[entity, transform, cameraData] : cameraEntities) {
+  auto cameraEntities{m_admin.getEntitiesWithComponents<Components::Camera>()};
+  for (auto &[entity, cameraData] : cameraEntities) {
     camera = std::addressof(cameraData);
     break;
   }
