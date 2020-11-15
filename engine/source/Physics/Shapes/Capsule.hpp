@@ -7,7 +7,7 @@
 
 class Capsule final : public ICollisionShape {
 public:
-  DLLATTRIB explicit Capsule(const ml::vec3 &start, const ml::vec3 &end, const float &radius) noexcept;
+  DLLATTRIB explicit Capsule(const ml::vec3 &top, const ml::vec3 &bottom, const float &radius) noexcept;
   DLLATTRIB explicit Capsule(const Capsule &second) noexcept;
 
   [[nodiscard]] DLLATTRIB auto getPoints(const ml::mat4 &transform, bool forceInvalidate = false) -> std::vector<ml::vec3>;  // Called by collide(...)
