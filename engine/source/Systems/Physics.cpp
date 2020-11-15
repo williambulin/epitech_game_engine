@@ -130,8 +130,12 @@ bool Systems::Physics::collide(OBB &firstCollider, const ml::mat4 &modelMatrixFi
   return true;
 }
 
+auto Systems::Physics::getEntityWorldPositionAABB(const ICollisionShape &shape, const ml::mat4 &matrix) -> ml::vec3 {
+    return matrix.getTranslation() * shape.getLocalPosition();
+}
+
 auto Systems::Physics::getEntityWorldPosition(const ICollisionShape &shape, const ml::mat4 &matrix) -> ml::vec3 {
-  return matrix * shape.getLocalPosition();
+    return matrix * shape.getLocalPosition();
 }
 
 bool Systems::Physics::checkCollisionExists(CollisionInfo existedOne, CollisionInfo toCompare) {
@@ -143,6 +147,7 @@ bool Systems::Physics::checkCollisionExists(CollisionInfo existedOne, CollisionI
 auto Systems::Physics::closestPointOnLineSegment(ml::vec3 A, ml::vec3 B, ml::vec3 Point) -> ml::vec3 {
   ml::vec3 AB = B - A;
   float    t  = (Point - A).dot(AB) / AB.dot(AB);
+  std::cout << "test nan = " << AB.dot(AB) << std::endl;
   // maybe parenthesis mistake
   return A + (AB * std::min(std::max(t, 0.0f), 1.0f));
 }
@@ -211,6 +216,7 @@ bool Systems::Physics::collide(Capsule &firstCollider, const ml::mat4 &modelMatr
   ml::vec3       a_A             = pointsFirstCollider.back() + a_LineEndOffset;
   ml::vec3       a_B             = pointsFirstCollider.front() - a_LineEndOffset;
   ml::vec3       bestA           = Systems::Physics::closestPointOnLineSegment(a_A, a_B, secondCenter);
+
   const ml::mat4 matrix{
   {
   {1.0f, 0.0f, 0.0f, 0.0f},
@@ -231,7 +237,10 @@ bool Systems::Physics::collide(AABB &secondCollider, const ml::mat4 &modelMatrix
   ml::vec3       a_LineEndOffset = a_Normal * firstCollider.getRadius();
   ml::vec3       a_A             = pointsFirstCollider.back() + a_LineEndOffset;
   ml::vec3       a_B             = pointsFirstCollider.front() - a_LineEndOffset;
+  std::cout << " vec a_A = " << a_A.x << " | " << a_A.y << " | " << a_A.z << std::endl;
+  std::cout << " vec a_B = " << a_B.x << " | " << a_B.y << " | " << a_B.z << std::endl;
   ml::vec3       bestA           = Systems::Physics::closestPointOnLineSegment(a_A, a_B, secondCenter);
+  std::cout << " bestA = " << bestA.x << " | " << bestA.y << " | " << bestA.z << std::endl;
   const ml::mat4 matrix{
   {
   {1.0f, 0.0f, 0.0f, 0.0f},
@@ -339,8 +348,13 @@ void Systems::Physics::impulseResolveCollision(CollisionInfo &p) const {
   if (!physB.getIsRigid()) {
       transformB.matrix.setTranslation(transformB.matrix.getTranslation() + (p.point.normal * p.point.penetration * (physB.getInverseMass() / totalMass)));
   }
+
   ml::vec3 relativeA{p.point.localA - getEntityWorldPosition(*physA.m_shape.get(), transformA.matrix)};
   ml::vec3 relativeB{p.point.localB - getEntityWorldPosition(*physB.m_shape.get(), transformB.matrix)};
+  if ((*physA.m_shape.get()).m_shapeType == ShapeType::AABB && (*physB.m_shape.get()).m_shapeType == ShapeType::AABB) {
+    relativeA = p.point.localA - getEntityWorldPositionAABB(*physA.m_shape.get(), transformA.matrix);
+    relativeB = p.point.localB - getEntityWorldPositionAABB(*physB.m_shape.get(), transformB.matrix);
+  }
   ml::vec3 angVelocityA{physA.getAngularVelocity().cross(relativeA)};
   ml::vec3 angVelocityB{physB.getAngularVelocity().cross(relativeB)};
 
@@ -362,11 +376,15 @@ void Systems::Physics::impulseResolveCollision(CollisionInfo &p) const {
   ml::vec3 fullImpulse = p.point.normal * j;
   if (!physA.getIsRigid()) {
     physA.applyLinearImpulse(fullImpulse * -1);
-    physA.applyAngularImpulse(relativeA.cross(fullImpulse * -1));
+    if ((*physA.m_shape.get()).m_shapeType != ShapeType::CAPSULE) {
+      physA.applyAngularImpulse(relativeA.cross(fullImpulse * -1));
+    }
   }
   if (!physB.getIsRigid()) {
     physB.applyLinearImpulse(fullImpulse);
-    physB.applyAngularImpulse(relativeB.cross(fullImpulse));
+    if ((*physB.m_shape.get()).m_shapeType != ShapeType::CAPSULE) {
+      physB.applyAngularImpulse(relativeB.cross(fullImpulse));
+    }
   }
 }
 
