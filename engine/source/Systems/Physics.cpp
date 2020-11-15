@@ -76,7 +76,6 @@ bool Systems::Physics::collide(AABB &firstCollider, const ml::mat4 &modelMatrixF
   ml::vec3 boxHalfSize       = (maxFirstCollider - minFirstCollider) * 0.5f;
   ml::vec3 delta             = secondCenter - ((maxFirstCollider + minFirstCollider) * 0.5f);
   ml::vec3 closestPointOnBox = delta.clamp((boxHalfSize * -1), boxHalfSize);
-  ml::vec3 localPoint2        = delta - closestPointOnBox;
   ml::vec3 localPoint        = delta - closestPointOnBox;
   float    distance          = localPoint.length();
   if (distance < secondCollider.getRadius()) {  // yes , we ’re colliding !
@@ -238,10 +237,10 @@ bool Systems::Physics::collide(AABB &secondCollider, const ml::mat4 &modelMatrix
   ml::vec3 a_LineEndOffset = a_Normal * firstCollider.getRadius();
   ml::vec3 a_A             = pointsFirstCollider.back() + a_LineEndOffset;
   ml::vec3 a_B             = pointsFirstCollider.front() - a_LineEndOffset;
-  // std::cout << " vec a_A = " << a_A.x << " | " << a_A.y << " | " << a_A.z << std::endl;
-  // std::cout << " vec a_B = " << a_B.x << " | " << a_B.y << " | " << a_B.z << std::endl;
+  std::cout << " vec a_A = " << a_A.x << " | " << a_A.y << " | " << a_A.z << std::endl;
+  std::cout << " vec a_B = " << a_B.x << " | " << a_B.y << " | " << a_B.z << std::endl;
   ml::vec3 bestA = Systems::Physics::closestPointOnLineSegment(a_A, a_B, secondCenter);
-  // std::cout << " bestA = " << bestA.x << " | " << bestA.y << " | " << bestA.z << std::endl;
+  std::cout << " bestA = " << bestA.x << " | " << bestA.y << " | " << bestA.z << std::endl;
   const ml::mat4 matrix{
   {
   {1.0f, 0.0f, 0.0f, 0.0f},
@@ -354,7 +353,9 @@ void Systems::Physics::impulseResolveCollision(CollisionInfo &p) const {
   ml::vec3 relativeB{p.point.localB - getEntityWorldPosition(*physB.m_shape.get(), transformB.matrix)};
   if (((*physA.m_shape.get()).m_shapeType == ShapeType::AABB && (*physB.m_shape.get()).m_shapeType == ShapeType::AABB) ||
       ((*physA.m_shape.get()).m_shapeType == ShapeType::SPHERE && (*physB.m_shape.get()).m_shapeType == ShapeType::AABB) ||
-      ((*physA.m_shape.get()).m_shapeType == ShapeType::AABB && (*physB.m_shape.get()).m_shapeType == ShapeType::SPHERE)) {
+      ((*physA.m_shape.get()).m_shapeType == ShapeType::AABB && (*physB.m_shape.get()).m_shapeType == ShapeType::SPHERE) ||
+      ((*physA.m_shape.get()).m_shapeType == ShapeType::AABB && (*physB.m_shape.get()).m_shapeType == ShapeType::CAPSULE) ||
+      ((*physA.m_shape.get()).m_shapeType == ShapeType::CAPSULE && (*physB.m_shape.get()).m_shapeType == ShapeType::AABB)) {
     relativeA = p.point.localA - getEntityWorldPositionAABB(*physA.m_shape.get(), transformA.matrix);
     relativeB = p.point.localB - getEntityWorldPositionAABB(*physB.m_shape.get(), transformB.matrix);
   }
