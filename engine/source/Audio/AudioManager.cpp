@@ -20,6 +20,7 @@ AudioManager::~AudioManager() {
 }
 
 void AudioManager::createAudioGroup(const std::string &audioGroupName, const AudioGroup &audioGroup) noexcept {
+  m_log.Debug("Audio Group {0} Created ", audioGroupName);
   m_AudioGroups.insert(std::pair<std::string, AudioGroup>{audioGroupName, audioGroup});
 }
 
@@ -40,12 +41,14 @@ std::shared_ptr<AudioSource> &AudioManager::createAudioSource(const std::string 
   auto newAudioSource{std::make_shared<AudioSource>(fileName, groupName)};
 
   addAudioSource(newAudioSource);
+  m_log.Debug("Create audio source {0} in {1}", fileName, groupName);
 
   return m_AudioSources.back();
 }
 
 void AudioManager::removeAudioSourceById(const int id) noexcept {
-  m_AudioSources.erase(std::ranges::find_if(m_AudioSources, [id](std::shared_ptr<AudioSource> &audioSource) {
+  m_AudioSources.erase(std::ranges::find_if(m_AudioSources, [this, id](std::shared_ptr<AudioSource> &audioSource) {
+    m_log.Debug("Audio source {0} removed", m_AudioSources);
     return audioSource->m_id == id;
   }));
 }
@@ -53,10 +56,10 @@ void AudioManager::removeAudioSourceById(const int id) noexcept {
 void AudioManager::setAudioGroupVolume(const int volume, const std::string &groupName) {
   auto iterator = m_AudioGroups.find(groupName);
 
-  if (iterator != m_AudioGroups.end())
+  if (iterator != m_AudioGroups.end()) {
     iterator->second.volume = volume;
-  else {
-    std::cout << "Quitting method with error => " << groupName << " not found " << std::endl;
+  } else {
+    m_log.Error("Quitting method with error => {0} not found", groupName);
     throw std::runtime_error{"AudioManager::setAudioGroupVolume => " + groupName + " not found."};
   }
 
@@ -66,6 +69,7 @@ void AudioManager::setAudioGroupVolume(const int volume, const std::string &grou
     if (audioSource->getGroupName() != groupName)
       continue;
 
+    m_log.Debug("{0} group volume is set at {1}", groupName, volume);
     audioSource->setVolume(volume);
   }
 }
