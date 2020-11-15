@@ -42,7 +42,7 @@ bool Systems::Physics::collide(AABB &firstCollider, const ml::mat4 &modelMatrixF
         bestAxis    = faces[i];
       }
     }
-    //std::cout << "Collide AABB/AABB with penetration = " << penetration << std::endl;
+    // std::cout << "Collide AABB/AABB with penetration = " << penetration << std::endl;
     collisionInfo.addContactPoint(ml::vec3(0.0f, 0.0f, 0.0f), ml::vec3(0.0f, 0.0f, 0.0f), bestAxis, penetration);
     return true;
   }
@@ -82,8 +82,8 @@ bool Systems::Physics::collide(AABB &firstCollider, const ml::mat4 &modelMatrixF
     localPoint.normalize();
     ml::vec3 collisionNormal = localPoint;
     float    penetration     = (secondCollider.getRadius() - distance);
-    //std::cout << "Collide with Sphere/AABB penetration = " << penetration << std::endl;
-    //std::cout << "Collide with Sphere/AABB normal = " << collisionNormal.x << " | " << collisionNormal.y << " | " << collisionNormal.z << std::endl;
+    // std::cout << "Collide with Sphere/AABB penetration = " << penetration << std::endl;
+    // std::cout << "Collide with Sphere/AABB normal = " << collisionNormal.x << " | " << collisionNormal.y << " | " << collisionNormal.z << std::endl;
     // empty
     ml::vec3 localA = ml::vec3(0.0f, 0.0f, 0.0f);
     ml::vec3 localB = (collisionNormal * -1) * secondCollider.getRadius();
@@ -131,11 +131,11 @@ bool Systems::Physics::collide(OBB &firstCollider, const ml::mat4 &modelMatrixFi
 }
 
 auto Systems::Physics::getEntityWorldPositionAABB(const ICollisionShape &shape, const ml::mat4 &matrix) -> ml::vec3 {
-    return matrix.getTranslation() * shape.getLocalPosition();
+  return matrix.getTranslation() * shape.getLocalPosition();
 }
 
 auto Systems::Physics::getEntityWorldPosition(const ICollisionShape &shape, const ml::mat4 &matrix) -> ml::vec3 {
-    return matrix * shape.getLocalPosition();
+  return matrix * shape.getLocalPosition();
 }
 
 bool Systems::Physics::checkCollisionExists(CollisionInfo existedOne, CollisionInfo toCompare) {
@@ -147,7 +147,7 @@ bool Systems::Physics::checkCollisionExists(CollisionInfo existedOne, CollisionI
 auto Systems::Physics::closestPointOnLineSegment(ml::vec3 A, ml::vec3 B, ml::vec3 Point) -> ml::vec3 {
   ml::vec3 AB = B - A;
   float    t  = (Point - A).dot(AB) / AB.dot(AB);
-  //std::cout << "test nan = " << AB.dot(AB) << std::endl;
+  // std::cout << "test nan = " << AB.dot(AB) << std::endl;
   // maybe parenthesis mistake
   return A + (AB * std::min(std::max(t, 0.0f), 1.0f));
 }
@@ -212,10 +212,10 @@ bool Systems::Physics::collide(Capsule &firstCollider, const ml::mat4 &modelMatr
 
   ml::vec3 a_Normal = pointsFirstCollider.front() - pointsFirstCollider.back();
   a_Normal.normalize();
-  ml::vec3       a_LineEndOffset = a_Normal * firstCollider.getRadius();
-  ml::vec3       a_A             = pointsFirstCollider.back() + a_LineEndOffset;
-  ml::vec3       a_B             = pointsFirstCollider.front() - a_LineEndOffset;
-  ml::vec3       bestA           = Systems::Physics::closestPointOnLineSegment(a_A, a_B, secondCenter);
+  ml::vec3 a_LineEndOffset = a_Normal * firstCollider.getRadius();
+  ml::vec3 a_A             = pointsFirstCollider.back() + a_LineEndOffset;
+  ml::vec3 a_B             = pointsFirstCollider.front() - a_LineEndOffset;
+  ml::vec3 bestA           = Systems::Physics::closestPointOnLineSegment(a_A, a_B, secondCenter);
 
   const ml::mat4 matrix{
   {
@@ -234,13 +234,13 @@ bool Systems::Physics::collide(AABB &secondCollider, const ml::mat4 &modelMatrix
   auto                  secondCenter = Systems::Physics::getEntityWorldPosition(secondCollider, modelMatrixSecondCollider);
   ml::vec3              a_Normal     = pointsFirstCollider.front() - pointsFirstCollider.back();
   a_Normal.normalize();
-  ml::vec3       a_LineEndOffset = a_Normal * firstCollider.getRadius();
-  ml::vec3       a_A             = pointsFirstCollider.back() + a_LineEndOffset;
-  ml::vec3       a_B             = pointsFirstCollider.front() - a_LineEndOffset;
-  //std::cout << " vec a_A = " << a_A.x << " | " << a_A.y << " | " << a_A.z << std::endl;
-  //std::cout << " vec a_B = " << a_B.x << " | " << a_B.y << " | " << a_B.z << std::endl;
-  ml::vec3       bestA           = Systems::Physics::closestPointOnLineSegment(a_A, a_B, secondCenter);
-  //std::cout << " bestA = " << bestA.x << " | " << bestA.y << " | " << bestA.z << std::endl;
+  ml::vec3 a_LineEndOffset = a_Normal * firstCollider.getRadius();
+  ml::vec3 a_A             = pointsFirstCollider.back() + a_LineEndOffset;
+  ml::vec3 a_B             = pointsFirstCollider.front() - a_LineEndOffset;
+  // std::cout << " vec a_A = " << a_A.x << " | " << a_A.y << " | " << a_A.z << std::endl;
+  // std::cout << " vec a_B = " << a_B.x << " | " << a_B.y << " | " << a_B.z << std::endl;
+  ml::vec3 bestA = Systems::Physics::closestPointOnLineSegment(a_A, a_B, secondCenter);
+  // std::cout << " bestA = " << bestA.x << " | " << bestA.y << " | " << bestA.z << std::endl;
   const ml::mat4 matrix{
   {
   {1.0f, 0.0f, 0.0f, 0.0f},
@@ -279,15 +279,15 @@ void Systems::Physics::collisionDections() {
         if (collide(reinterpret_cast<AABB &>(*physicsI.m_shape), transformI.matrix, reinterpret_cast<AABB &>(*physicsJ.m_shape), transformJ.matrix, info) == true)
           m_collisions.push_back(info);
       } else if (physicsI.m_shape->m_shapeType == ShapeType::SPHERE && physicsJ.m_shape->m_shapeType == ShapeType::SPHERE) {
-        if (collide(reinterpret_cast<Sphere &>(*physicsI.m_shape), transformI.matrix, reinterpret_cast<Sphere &>(*physicsJ.m_shape), transformJ.matrix, info) == true) 
+        if (collide(reinterpret_cast<Sphere &>(*physicsI.m_shape), transformI.matrix, reinterpret_cast<Sphere &>(*physicsJ.m_shape), transformJ.matrix, info) == true)
           m_collisions.push_back(info);
       } else if (physicsI.m_shape->m_shapeType == ShapeType::AABB && physicsJ.m_shape->m_shapeType == ShapeType::SPHERE) {
         if (collide(reinterpret_cast<AABB &>(*physicsI.m_shape), transformI.matrix, reinterpret_cast<Sphere &>(*physicsJ.m_shape), transformJ.matrix, info) == true)
           m_collisions.push_back(info);
       } else if (physicsI.m_shape->m_shapeType == ShapeType::SPHERE && physicsJ.m_shape->m_shapeType == ShapeType::AABB) {
         if (collide(reinterpret_cast<AABB &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<Sphere &>(*physicsI.m_shape), transformI.matrix, info) == true) {
-          //std::cout << "in here" << std::endl;
-          info.firstCollider = entityJ;
+          // std::cout << "in here" << std::endl;
+          info.firstCollider  = entityJ;
           info.secondCollider = entityI;
           m_collisions.push_back(info);
         }
@@ -299,13 +299,13 @@ void Systems::Physics::collisionDections() {
           m_collisions.push_back(info);
       } else if (physicsI.m_shape->m_shapeType == ShapeType::SPHERE && physicsJ.m_shape->m_shapeType == ShapeType::CAPSULE) {
         if (collide(reinterpret_cast<Capsule &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<Sphere &>(*physicsI.m_shape), transformI.matrix, info) == true) {
-          info.firstCollider = entityJ;
+          info.firstCollider  = entityJ;
           info.secondCollider = entityI;
           m_collisions.push_back(info);
         }
       } else if (physicsI.m_shape->m_shapeType == ShapeType::CAPSULE && physicsJ.m_shape->m_shapeType == ShapeType::AABB) {
         if (collide(reinterpret_cast<AABB &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<Capsule &>(*physicsI.m_shape), transformI.matrix, info) == true) {
-          info.firstCollider = entityJ;
+          info.firstCollider  = entityJ;
           info.secondCollider = entityI;
           m_collisions.push_back(info);
         }
@@ -343,10 +343,10 @@ void Systems::Physics::impulseResolveCollision(CollisionInfo &p) const {
 
   // Separate them out using projection
   if (!physA.getIsRigid()) {
-    transformA.matrix.setTranslation(transformA.matrix.getTranslation() - (p.point.normal * p.point.penetration *  (physA.getInverseMass() / totalMass)));
+    transformA.matrix.setTranslation(transformA.matrix.getTranslation() - (p.point.normal * p.point.penetration * (physA.getInverseMass() / totalMass)));
   }
   if (!physB.getIsRigid()) {
-      transformB.matrix.setTranslation(transformB.matrix.getTranslation() + (p.point.normal * p.point.penetration * (physB.getInverseMass() / totalMass)));
+    transformB.matrix.setTranslation(transformB.matrix.getTranslation() + (p.point.normal * p.point.penetration * (physB.getInverseMass() / totalMass)));
   }
 
   ml::vec3 relativeA{p.point.localA - getEntityWorldPosition(*physA.m_shape.get(), transformA.matrix)};
@@ -433,21 +433,25 @@ bool Systems::Physics::RayIntersection(const Ray &r, RayCollision &collision) {
           collision.node = entity;
           return true;
         }
+        break;
       case ShapeType::OBB:
         if (RayOBBIntersection(r, transform.matrix, reinterpret_cast<OBB &>(*physics.m_shape), collision)) {
           collision.node = entity;
           return true;
         }
+        break;
       case ShapeType::SPHERE:
         if (RaySphereIntersection(r, transform.matrix, reinterpret_cast<Sphere &>(*physics.m_shape), collision)) {
           collision.node = entity;
           return true;
         }
+        break;
       case ShapeType::CAPSULE:
         if (RayCapsuleIntersection(r, transform.matrix, reinterpret_cast<Capsule &>(*physics.m_shape), collision)) {
           collision.node = entity;
           return true;
         }
+        break;
     }
   }
   return false;
@@ -533,18 +537,17 @@ bool Systems::Physics::RayOBBIntersection(const Ray &r, const ml::mat4 &worldTra
   return collided;
 }
 
-bool Systems::Physics::RayCapsuleIntersection(const Ray &r, const ml::mat4 &worldTransform,
-                                              Capsule& volume, RayCollision &collision) {
+bool Systems::Physics::RayCapsuleIntersection(const Ray &r, const ml::mat4 &worldTransform, Capsule &volume, RayCollision &collision) {
   std::vector<ml::vec3> pointsFirstCollider{volume.getPoints(worldTransform)};
-  ml::vec3 a_Normal = pointsFirstCollider.front() - pointsFirstCollider.back();
+  ml::vec3              a_Normal = pointsFirstCollider.front() - pointsFirstCollider.back();
   a_Normal.normalize();
   ml::vec3 a_LineEndOffset = a_Normal * volume.getRadius();
   ml::vec3 a_A             = pointsFirstCollider.back() + a_LineEndOffset;
   ml::vec3 a_B             = pointsFirstCollider.front() - a_LineEndOffset;
 
   // RAY
-  ml::vec3 b_A             = r.GetPosition();
-  ml::vec3 b_B             = r.GetPosition() + (r.GetDirection() * 100000);//TODO update this to handle infinity
+  ml::vec3 b_A = r.GetPosition();
+  ml::vec3 b_B = r.GetPosition() + (r.GetDirection() * 100000);  // TODO update this to handle infinity
 
   // vectors between line endpoints:
   ml::vec3 v0 = b_A - a_A;
@@ -574,7 +577,7 @@ bool Systems::Physics::RayCapsuleIntersection(const Ray &r, const ml::mat4 &worl
   penetration_normal.normalize();
   float penetration_depth = volume.getRadius() - len;
   if (penetration_depth > 0) {
-    collision.collidedAt = Systems::Physics::getEntityWorldPosition(volume, worldTransform);
+    collision.collidedAt  = Systems::Physics::getEntityWorldPosition(volume, worldTransform);
     collision.rayDistance = 1.0f;
     return true;
   }
