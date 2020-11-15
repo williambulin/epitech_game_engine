@@ -41,7 +41,6 @@ add_library(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Camera.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Light.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Model.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Movement.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Transform.hpp
@@ -58,9 +57,7 @@ add_library(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Keywords.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Library.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Platform.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Libraries/glm.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Libraries/stb_image.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Libraries/tiny_obj_loader.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Libraries/Vulkan.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Libraries/WinApi.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Game.cpp
@@ -96,8 +93,6 @@ add_library(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Physics.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Vulkan/Buffer.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Vulkan/Buffer.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Vulkan/Drawable.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Vulkan/Drawable.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Vulkan/Image.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Vulkan/Image.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Vulkan/Model.cpp
@@ -177,7 +172,6 @@ add_executable(
   demo_physics
 
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Model.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Movement.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Gravity.hpp
@@ -225,7 +219,6 @@ add_executable(
   demo_physics2
 
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Model.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Movement.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Gravity.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.hpp

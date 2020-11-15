@@ -65,7 +65,7 @@ private:
 
 public:
   [[nodiscard]] auto createImage(const std::string &path) const -> std::unique_ptr<Image>;
-  [[nodiscard]] auto createModel(const std::string &path) const -> std::unique_ptr<Model>;
+  [[nodiscard]] auto createModel(const std::string &path, const ml::vec3 &color) const -> std::unique_ptr<Model>;
 
   void update(float deltatime, std::uint64_t tickCount);
 

@@ -1,7 +1,6 @@
 #include "Renderer.hpp"
 #include "Model.hpp"
 #include "UniformBufferData.hpp"
-#include "Drawable.hpp"
 #include "Components/Transform.hpp"
 #include "Components/Model.hpp"
 #include "Components/Camera.hpp"
@@ -76,8 +75,8 @@ auto Vulkan::Renderer::createImage(const std::string &path) const -> std::unique
   return std::make_unique<Vulkan::Image>(m_device, m_physicalDevice, m_commandPool, m_graphicsQueue, path);
 }
 
-auto Vulkan::Renderer::createModel(const std::string &path) const -> std::unique_ptr<Model> {
-  return std::make_unique<Vulkan::Model>(m_physicalDevice, m_device, m_commandPool, m_graphicsQueue, path);
+auto Vulkan::Renderer::createModel(const std::string &path, const ml::vec3 &color) const -> std::unique_ptr<Model> {
+  return std::make_unique<Vulkan::Model>(m_physicalDevice, m_device, m_commandPool, m_graphicsQueue, path, color);
 }
 
 void Vulkan::Renderer::update(float, std::uint64_t) {
@@ -110,11 +109,7 @@ void Vulkan::Renderer::update(float, std::uint64_t) {
 
   // Update uniform buffers
   UniformBufferData ubo{
-  .model = ml::mat4{},
-  // .view  = ml::mat4::lookAt(ml::vec3{0.0f, 0.01f, 0.5f}, ml::vec3{0.0f, 0.0f, 0.0f}, ml::vec3{0.0f, 0.0f, 1.0f}),
-  // .view = camera.BuildViewMatrix(),
-  // .projection       = ml::mat4::perspective(glm::radians(80.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.001f, 1000.0f),  // glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height), 0.1f, 10.0f),
-  // .projection       = camera.BuildProjectionMatrix(static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height)),
+  .model            = ml::mat4{},
   .view             = camera->viewMatrix(),
   .projection       = camera->projectionMatrix(static_cast<float>(m_swapchain->m_extent2D.width) / static_cast<float>(m_swapchain->m_extent2D.height)),
   .lightSourceCount = 0.0f,
@@ -126,9 +121,8 @@ void Vulkan::Renderer::update(float, std::uint64_t) {
     if (i >= (sizeof(ubo.lightSource) / sizeof(Components::Light::GLSLStruct)))
       break;
 
-    ubo.lightSource[i]          = light.toGLSLStruct();
-    ubo.lightSource[i].position = transform.matrix.getTranslation();
-    // if (ubo.lightSource[i].type == Components::Light::Type::Directional)
+    ubo.lightSource[i]           = light.toGLSLStruct();
+    ubo.lightSource[i].position  = transform.matrix.getTranslation();
     ubo.lightSource[i].direction = {transform.matrix.getRotation() * light.direction};
     ++ubo.lightSourceCount;
     ++i;

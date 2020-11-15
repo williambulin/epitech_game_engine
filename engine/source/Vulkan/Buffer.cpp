@@ -74,7 +74,7 @@ std::uint32_t Vulkan::Buffer::findMemoryType(std::uint32_t typeFilter, VkMemoryP
 }
 
 void Vulkan::Buffer::buffercpy(VkBuffer src, VkBuffer dst, VkDeviceSize deviceSize) {
-  using (auto commandBuffer{startSingleUseCommandBuffer()}) {
+  use(auto commandBuffer{startSingleUseCommandBuffer()}) {
     VkBufferCopy bufferCopy{
     .size = deviceSize,
     };

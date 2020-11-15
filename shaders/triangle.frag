@@ -37,7 +37,7 @@ layout(location = 3) in vec3 positionIn;
 layout(location = 0) out vec4 colorOut;
 
 void main() {
-  vec3 color = texture(textureSampler, textureCoordinatesIn).rgb;
+  vec3 color = texture(textureSampler, textureCoordinatesIn).rgb * colorIn;
 
   vec3 ambientLight     = vec3(0.0);
   vec3 pointLight       = vec3(0.0);
@@ -54,12 +54,11 @@ void main() {
       ambientLight += light.color;
   }
 
-  // if (ubo.lightSourceCount > 0.0)
-  color *= ambientLight + directionalLight + pointLight;
-  // color = (positionIn + 1.0) / 2.0;
+  if (ubo.lightSourceCount > 0.0)
+    color *= ambientLight + directionalLight + pointLight;
+
   color.rgb = pow(color.rgb, vec3(2.2));
   color.rgb = tonemap(color.rgb);
   color.rgb = pow(color.rgb, vec3(1.0 / 2.2));
-  // color    = (normalIn + 1.0) / 2.0;
-  colorOut = vec4(color, 1.0);
+  colorOut  = vec4(color, 1.0);
 }

@@ -47,12 +47,31 @@ static LRESULT CALLBACK windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
       break;
     case WM_MOUSEMOVE: {
       float newX{static_cast<float>(GET_X_LPARAM(lParam))}, newY{static_cast<float>(GET_Y_LPARAM(lParam))};
-      if (window->onMouseMove != nullptr)
-        window->onMouseMove(newX - window->m_oldX, newY - window->m_oldY);
-      window->m_oldX = newX;
-      window->m_oldY = newY;
+      // if (window->onMouseMove != nullptr)
+      //   window->onMouseMove(newX - window->m_oldX, newY - window->m_oldY);
+      // window->m_oldX = newX;
+      // window->m_oldY = newY;
+
+      RECT rect{};
+      GetClientRect(hwnd, std::addressof(rect));
+
+      POINT pt{rect.right / 2.0, rect.bottom / 2.0};
+
+      bool windowActive{GetForegroundWindow() == hwnd};
+
+      if (windowActive && window->onMouseMove != nullptr)
+        window->onMouseMove(newX - pt.x, newY - pt.y);
+
+      ClientToScreen(hwnd, std::addressof(pt));
+
+      if (windowActive)
+        SetCursorPos(pt.x, pt.y);
       break;
     }
+    case WM_SETCURSOR:
+      if (GetForegroundWindow() == hwnd)
+        SetCursor(nullptr);
+      break;
     case WM_KEYDOWN:
       window->onKey(static_cast<Input::Key>(wParam), Input::State::Pressed);
       break;

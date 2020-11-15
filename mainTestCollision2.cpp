@@ -453,14 +453,14 @@ void display() {
   admin.cacheSystems();
   admin.updateSystems(dt, 0);
 
-/*   Ray          ray(ml::vec3(-20.0f, 106.0f, -1.0f), ml::vec3(1.0f, 0.0f, 0.0f));
-  RayCollision rayCollision;
+  /*   Ray          ray(ml::vec3(-20.0f, 106.0f, -1.0f), ml::vec3(1.0f, 0.0f, 0.0f));
+    RayCollision rayCollision;
 
-  if (admin.getSystem<Systems::Physics>().RayIntersection(ray, rayCollision)) {
-    std::cout << rayCollision.node << std::endl;
-    auto &colored{admin.getComponent<Colored>(rayCollision.node)};
-    colored.color = ml::vec3{1.0f, 1.0f, 0.0f};
-  } */
+    if (admin.getSystem<Systems::Physics>().RayIntersection(ray, rayCollision)) {
+      std::cout << rayCollision.node << std::endl;
+      auto &colored{admin.getComponent<Colored>(rayCollision.node)};
+      colored.color = ml::vec3{1.0f, 1.0f, 0.0f};
+    } */
 
   glBegin(GL_LINES);
   glColor3f(1.0f, 1.0f, 0.0f);
@@ -481,12 +481,12 @@ void display() {
     auto &shape{physics.m_shape};
     switch (shape->m_shapeType) {
       case ShapeType::AABB:
-        using (AABB &aabb{reinterpret_cast<AABB &>(*shape.get())}) {
+        use(AABB & aabb{reinterpret_cast<AABB &>(*shape.get())}) {
           drawAABB(aabb.getPoints(transform.matrix), color.x, color.y, color.z);
         }
         break;
       case ShapeType::SPHERE:
-        using (Sphere &sphere{reinterpret_cast<Sphere &>(*shape.get())}) {
+        use(Sphere & sphere{reinterpret_cast<Sphere &>(*shape.get())}) {
           glPushMatrix();
           glTranslatef(sphere.getPoints(transform.matrix).x, sphere.getPoints(transform.matrix).y, sphere.getPoints(transform.matrix).z);  // Move right and into the screen
           glColor3f(color.x, color.y, color.z);
@@ -497,13 +497,13 @@ void display() {
         }
         break;
       case ShapeType::CAPSULE:
-        using (Capsule &capsule{reinterpret_cast<Capsule &>(*shape.get())}) {
+        use(Capsule & capsule{reinterpret_cast<Capsule &>(*shape.get())}) {
           auto points = capsule.getPoints(transform.matrix);
           drawCapsule(glm::vec3(points[0].x, points[0].y, points[0].z), glm::vec3(points[1].x, points[1].y, points[1].z), capsule.getRadius(), glm::vec3(color.x, color.y, color.z));
         }
         break;
       case ShapeType::OBB:
-        using (OBB &obb{reinterpret_cast<OBB &>(*shape.get())}) {
+        use(OBB & obb{reinterpret_cast<OBB &>(*shape.get())}) {
           drawAABB(obb.getPoints(transform.matrix), color.x, color.y, color.z);
         }
         break;
@@ -516,7 +516,7 @@ void display() {
 
 /* Main function: GLUT runs as a console application starting at main() */
 int main(int argc, char **argv) {
-  /*   using (auto entity{admin.createEntity()}) {
+  /*   use (auto entity{admin.createEntity()}) {
       auto &translate{admin.createComponent<Components::Transform>(entity)};
       translate.matrix.setTranslation(ml::vec3{-3.0f, 6.0f, 0.0f});
 
@@ -534,7 +534,7 @@ int main(int argc, char **argv) {
   ///////////////////////////////////////
   // Objects
   ///////////////////////////////////////
-  using (auto entity{admin.createEntity()}) {
+  use(auto entity{admin.createEntity()}) {
     // Physics
     auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-50.0f, 0.0f, -50.0f}, ml::vec3{50.0f, 100.0f, 50.0f}))};
     physics.setIsRigid(true);
@@ -546,7 +546,7 @@ int main(int argc, char **argv) {
     colored.color = ml::vec3{0.25f, 0.5f, 1.0f};
   }
 
-  using (auto entity{admin.createEntity()}) {
+  use(auto entity{admin.createEntity()}) {
     // Physics
     auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
 
@@ -559,7 +559,7 @@ int main(int argc, char **argv) {
     physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
   }
 
-   using (auto entity{admin.createEntity()}) {
+  use(auto entity{admin.createEntity()}) {
     // Physics
     auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, 2.0f, 0.0f}, ml::vec3{0.0, -1.0f, 0.0f}, 1.0f))};
 
@@ -573,23 +573,23 @@ int main(int argc, char **argv) {
     physics.applyLinearImpulse(ml::vec3{0.0f, -10.0f, 0.0f});
   }
 
-/*   using (auto entity{admin.createEntity()}) {
-    // Physics
-    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, 1.0f, 0.0f}, ml::vec3{0.0f, -1.0f, 0.0f}, 2.0f))};
+  /*   use (auto entity{admin.createEntity()}) {
+      // Physics
+      auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, 1.0f, 0.0f}, ml::vec3{0.0f, -1.0f, 0.0f}, 2.0f))};
 
-    // Transform
-    auto &transform{admin.createComponent<Components::Transform>(entity)};
-    transform.matrix.setTranslation(ml::vec3{0.0f, 105.0f, 0.0f});
+      // Transform
+      auto &transform{admin.createComponent<Components::Transform>(entity)};
+      transform.matrix.setTranslation(ml::vec3{0.0f, 105.0f, 0.0f});
 
-    auto &colored{admin.createComponent<Colored>(entity)};
-    colored.color = ml::vec3{0.0f, 0.0f, 1.0f};
-    physics.applyLinearImpulse(ml::vec3{8.0f, 0.0f, 0.0f});
-  }
- */
+      auto &colored{admin.createComponent<Colored>(entity)};
+      colored.color = ml::vec3{0.0f, 0.0f, 1.0f};
+      physics.applyLinearImpulse(ml::vec3{8.0f, 0.0f, 0.0f});
+    }
+   */
   ///////////////////////////////////////
   // Camera
   ///////////////////////////////////////
-  using (auto entity{admin.createEntity()}) {
+  use(auto entity{admin.createEntity()}) {
     // Transform
     auto &transform{admin.createComponent<Components::Transform>(entity)};
     // transform.matrix.setTranslation(ml::vec3{1.72966f, 4.71852f, 4.25082f});
@@ -600,7 +600,7 @@ int main(int argc, char **argv) {
     camera.angles = ml::vec3{-44.847f, 270.009f, 0.0f};
 
     // Physics
-    //auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, 1.0f, 0.0f}, ml::vec3{0.0f, -1.0f, 0.0f}, 2.0f))};
+    // auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, 1.0f, 0.0f}, ml::vec3{0.0f, -1.0f, 0.0f}, 2.0f))};
     auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
 
     m_camera = entity;
@@ -612,7 +612,7 @@ int main(int argc, char **argv) {
   ///////////////////////////////////////
   // Lights
   ///////////////////////////////////////
-  using (auto entity{admin.createEntity()}) {
+  use(auto entity{admin.createEntity()}) {
     // Transform
     auto &transform{admin.createComponent<Components::Transform>(entity)};
     transform.matrix.setTranslation(ml::vec3{0.0f, 100.0f, 0.0f});
@@ -624,7 +624,7 @@ int main(int argc, char **argv) {
     light.size  = 50.0f;
   }
 
-  using (auto entity{admin.createEntity()}) {
+  use(auto entity{admin.createEntity()}) {
     // Transform
     auto &transform{admin.createComponent<Components::Transform>(entity)};
     transform.matrix.setTranslation(ml::vec3{0.1f, 50.0f, 0.0f});
@@ -636,7 +636,7 @@ int main(int argc, char **argv) {
     light.size  = 0.3f;
   }
 
-  using (auto entity{admin.createEntity()}) {
+  use(auto entity{admin.createEntity()}) {
     // Transform
     auto &transform{admin.createComponent<Components::Transform>(entity)};
     transform.matrix.setTranslation(ml::vec3{0.1f, 0.0f, 50.0f});
