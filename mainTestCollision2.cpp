@@ -561,14 +561,14 @@ int main(int argc, char **argv) {
 
    using (auto entity{admin.createEntity()}) {
     // Physics
-    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, 1.0f, 0.0f}, ml::vec3{0.0f, -1.0f, 0.0f}, 2.0f))};
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Sphere>(ml::vec3{0.0, 1.0f, 0.0f}, 2.0f))};
 
     // Transform
     auto &transform{admin.createComponent<Components::Transform>(entity)};
-    transform.matrix.setTranslation(ml::vec3{6.0f, 115.0f, 0.0f});
+    transform.matrix.setTranslation(ml::vec3{6.0f, 101.0f, 0.0f});
 
     auto &colored{admin.createComponent<Colored>(entity)};
-    auto &gravity{admin.createComponent<Components::Gravity>(entity)};
+    //auto &gravity{admin.createComponent<Components::Gravity>(entity)};
     colored.color = ml::vec3{1.0f, 0.0f, 0.0f};
     physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
   }
@@ -600,8 +600,8 @@ int main(int argc, char **argv) {
     camera.angles = ml::vec3{-44.847f, 270.009f, 0.0f};
 
     // Physics
-    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, 1.0f, 0.0f}, ml::vec3{0.0f, -1.0f, 0.0f}, 2.0f))};
-    //auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
+    //auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, 1.0f, 0.0f}, ml::vec3{0.0f, -1.0f, 0.0f}, 2.0f))};
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
 
     m_camera = entity;
 
