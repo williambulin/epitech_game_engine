@@ -450,6 +450,8 @@ bool Systems::Physics::RayIntersection(const Ray &r, RayCollision &collision) {
         break;
     }
   }
+  if (collision.rayDistance > 0.0f)
+    return true;
   return false;
 }
 
