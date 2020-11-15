@@ -312,8 +312,10 @@ T Vector<T, size>::length() const {
 template <class T, uint32_t size>
 void Vector<T, size>::normalize() {
   T l = length();
-  for (auto &tmp : m_array)
-    tmp /= l;
+  if (l != 0.0f) {
+    for (auto &tmp : m_array)
+     tmp /= l;
+  }
 }
 
 template <class T, uint32_t size>
