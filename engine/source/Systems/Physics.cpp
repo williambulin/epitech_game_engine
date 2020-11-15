@@ -42,7 +42,7 @@ bool Systems::Physics::collide(AABB &firstCollider, const ml::mat4 &modelMatrixF
         bestAxis    = faces[i];
       }
     }
-    std::cout << "Collide AABB/AABB with penetration = " << penetration << std::endl;
+    //std::cout << "Collide AABB/AABB with penetration = " << penetration << std::endl;
     collisionInfo.addContactPoint(ml::vec3(0.0f, 0.0f, 0.0f), ml::vec3(0.0f, 0.0f, 0.0f), bestAxis, penetration);
     return true;
   }
@@ -82,8 +82,8 @@ bool Systems::Physics::collide(AABB &firstCollider, const ml::mat4 &modelMatrixF
     localPoint.normalize();
     ml::vec3 collisionNormal = localPoint;
     float    penetration     = (secondCollider.getRadius() - distance);
-    std::cout << "Collide with Sphere/AABB penetration = " << penetration << std::endl;
-    std::cout << "Collide with Sphere/AABB normal = " << collisionNormal.x << " | " << collisionNormal.y << " | " << collisionNormal.z << std::endl;
+    //std::cout << "Collide with Sphere/AABB penetration = " << penetration << std::endl;
+    //std::cout << "Collide with Sphere/AABB normal = " << collisionNormal.x << " | " << collisionNormal.y << " | " << collisionNormal.z << std::endl;
     // empty
     ml::vec3 localA = ml::vec3(0.0f, 0.0f, 0.0f);
     ml::vec3 localB = (collisionNormal * -1) * secondCollider.getRadius();
@@ -147,7 +147,7 @@ bool Systems::Physics::checkCollisionExists(CollisionInfo existedOne, CollisionI
 auto Systems::Physics::closestPointOnLineSegment(ml::vec3 A, ml::vec3 B, ml::vec3 Point) -> ml::vec3 {
   ml::vec3 AB = B - A;
   float    t  = (Point - A).dot(AB) / AB.dot(AB);
-  std::cout << "test nan = " << AB.dot(AB) << std::endl;
+  //std::cout << "test nan = " << AB.dot(AB) << std::endl;
   // maybe parenthesis mistake
   return A + (AB * std::min(std::max(t, 0.0f), 1.0f));
 }
@@ -237,10 +237,10 @@ bool Systems::Physics::collide(AABB &secondCollider, const ml::mat4 &modelMatrix
   ml::vec3       a_LineEndOffset = a_Normal * firstCollider.getRadius();
   ml::vec3       a_A             = pointsFirstCollider.back() + a_LineEndOffset;
   ml::vec3       a_B             = pointsFirstCollider.front() - a_LineEndOffset;
-  std::cout << " vec a_A = " << a_A.x << " | " << a_A.y << " | " << a_A.z << std::endl;
-  std::cout << " vec a_B = " << a_B.x << " | " << a_B.y << " | " << a_B.z << std::endl;
+  //std::cout << " vec a_A = " << a_A.x << " | " << a_A.y << " | " << a_A.z << std::endl;
+  //std::cout << " vec a_B = " << a_B.x << " | " << a_B.y << " | " << a_B.z << std::endl;
   ml::vec3       bestA           = Systems::Physics::closestPointOnLineSegment(a_A, a_B, secondCenter);
-  std::cout << " bestA = " << bestA.x << " | " << bestA.y << " | " << bestA.z << std::endl;
+  //std::cout << " bestA = " << bestA.x << " | " << bestA.y << " | " << bestA.z << std::endl;
   const ml::mat4 matrix{
   {
   {1.0f, 0.0f, 0.0f, 0.0f},
@@ -286,7 +286,7 @@ void Systems::Physics::collisionDections() {
           m_collisions.push_back(info);
       } else if (physicsI.m_shape->m_shapeType == ShapeType::SPHERE && physicsJ.m_shape->m_shapeType == ShapeType::AABB) {
         if (collide(reinterpret_cast<AABB &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<Sphere &>(*physicsI.m_shape), transformI.matrix, info) == true) {
-          std::cout << "in here" << std::endl;
+          //std::cout << "in here" << std::endl;
           info.firstCollider = entityJ;
           info.secondCollider = entityI;
           m_collisions.push_back(info);
