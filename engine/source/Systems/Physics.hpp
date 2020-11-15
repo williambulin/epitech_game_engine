@@ -56,6 +56,7 @@ private:
   DLLATTRIB void                      integrateVelocity(float dt);
   [[nodiscard]] DLLATTRIB bool        checkCollisionExists(CollisionInfo existedOne, CollisionInfo toCompare);
   [[nodiscard]] DLLATTRIB static auto closestPointOnLineSegment(ml::vec3 A, ml::vec3 B, ml::vec3 Point) -> ml::vec3;
+  [[nodiscard]] DLLATTRIB static auto getEntityWorldPositionAABB(const ICollisionShape &shape, const ml::mat4 &matrix) -> ml::vec3;
   [[nodiscard]] DLLATTRIB static auto getEntityWorldPosition(const ICollisionShape &shape, const ml::mat4 &matrix) -> ml::vec3;
 
   [[nodiscard]] DLLATTRIB static bool collide(AABB &firstCollider, const ml::mat4 &modelMatrixFirstCollider, AABB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;
