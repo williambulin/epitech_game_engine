@@ -41,6 +41,8 @@ float z2        = 0.0f;
 float x3        = 5.0f;
 float y3        = -2.0f;
 float z3        = 0.0f;
+float xSouris = 0.0f;
+float ySouris = 0.0f;
 // angle of rotation for the camera direction
 float angle = 0.0;
 // actual vector representing the camera's direction
@@ -207,15 +209,16 @@ void drawAABB(std::vector<ml::vec3> points, float red, float green, float blue) 
   glBegin(GL_QUADS);  // Begin drawing the color cube with 6 quads
   // Top face (y = 1.0f)
   // Define vertices in counter-clockwise (CCW) order with normal pointing out
-  glColor3f(red, green, blue);  // Green
+  glColor3f(1.0f, 0.0f, 0.0f);  // Red
+  //glColor3f(red, green, blue);  // Green
   glVertex3f(points[2].x, points[2].y, points[2].z);
   glVertex3f(points[3].x, points[3].y, points[3].z);
   glVertex3f(points[4].x, points[4].y, points[4].z);
   glVertex3f(points[7].x, points[7].y, points[7].z);
 
   // Bottom face  (y = -1.0f)
-  // glColor3f(1.0f, 0.5f, 0.0f);  // Orange
-  glColor3f(red, green, blue);  // Green
+  glColor3f(1.0f, 0.5f, 0.0f);  // Orange
+  //glColor3f(red, green, blue);  // Green
   glVertex3f(points[6].x, points[6].y, points[6].z);
   glVertex3f(points[5].x, points[5].y, points[5].z);
   glVertex3f(points[0].x, points[0].y, points[0].z);
@@ -238,16 +241,16 @@ void drawAABB(std::vector<ml::vec3> points, float red, float green, float blue) 
   glVertex3f(points[2].x, points[2].y, points[2].z);
 
   // Left face (x = -1.0f)
-  // glColor3f(0.0f, 0.0f, 1.0f);  // Blue
-  glColor3f(red, green, blue);  // Green
+  glColor3f(1.0f, 1.0f, 0.0f);  // Blue
+  //glColor3f(red, green, blue);  // Green
   glVertex3f(points[4].x, points[4].y, points[4].z);
   glVertex3f(points[3].x, points[3].y, points[3].z);
   glVertex3f(points[0].x, points[0].y, points[0].z);
   glVertex3f(points[5].x, points[5].y, points[5].z);
 
   // Right face (x = 1.0f)
-  // glColor3f(1.0f, 0.0f, 1.0f);  // Magenta
-  glColor3f(red, green, blue);  // Green
+  glColor3f(1.0f, 0.0f, 1.0f);  // Magenta
+  //glColor3f(red, green, blue);  // Green
   glVertex3f(points[2].x, points[2].y, points[2].z);
   glVertex3f(points[7].x, points[7].y, points[7].z);
   glVertex3f(points[6].x, points[6].y, points[6].z);
@@ -320,6 +323,25 @@ void processNormalKeys(unsigned char key, int x, int y) {
 }
 
 void mouseMove(int x, int y) {
+  if (xSouris == 0) {
+    xSouris = x;
+    ySouris = y;
+    return;
+  }
+  float saveX = x;
+  float saveY = y;
+  x = x - xSouris;
+  y = y - ySouris;
+  xSouris = saveX;
+  ySouris = saveY;
+  std::cout << x << " | " << y << std::endl;
+    for (auto &&[entity, transform, physics] : admin.getEntitiesWithComponents<Components::Transform, Components::Physics>()) {
+       auto &shape{physics.m_shape};
+    switch (shape->m_shapeType) {
+      case ShapeType::OBB:
+        physics.applyAngularImpulse(ml::vec3{y / 20.0f, 0.0f, x / 20.0f});
+    }
+  }
   // this will only be true when the left button is down
   if (xOrigin >= 0) {
     // update deltaAngle
@@ -333,7 +355,7 @@ void mouseMove(int x, int y) {
 
 void mouseButton(int button, int state, int x, int y) {
   // only start motion if the left button is pressed
-  if (button == GLUT_LEFT_BUTTON) {
+/*   if (button == GLUT_LEFT_BUTTON) {
     // when the button is released
     if (state == GLUT_UP) {
       angle += deltaAngle;
@@ -341,7 +363,7 @@ void mouseButton(int button, int state, int x, int y) {
     } else {  // state = GLUT_DOWN
       xOrigin = x;
     }
-  }
+  } */
 }
 
 void display() {
@@ -360,18 +382,36 @@ void display() {
   glRotatef(gamma2, 0, 0, 1);  // rotate gamma around the z axis
 
   float dt{std::chrono::duration_cast<std::chrono::nanoseconds>(delta).count() / 1000000000.0f};
-  std::cout << dt << " ms\t|\t" << 1.0f / dt << " FPS" << std::string(16, ' ') << '\r';
+  //std::cout << dt << " ms\t|\t" << 1.0f / dt << " FPS" << std::string(16, ' ') << '\r';
 
   admin.cacheSystems();
   admin.updateSystems(dt, 0);
 
+  Ray ray(ml::vec3(-20.0f, 0.0f, -3.0f), ml::vec3(1.0f, 0.0f, 0.0f));
+  RayCollision rayCollision;
+  
+  /* if (admin.getSystem<Systems::Physics>().RayIntersection(ray, rayCollision)) {
+    std::cout << rayCollision.node << std::endl;
+    auto &colored{admin.getComponent<Colored>(rayCollision.node)};
+    colored.color = ml::vec3{1.0f, 1.0f, 0.0f};
+    std::cout << "collide" << std::endl; 
+  }
+
+  glBegin(GL_LINES);
+  glColor3f(1.0f, 1.0f, 0.0f);
+  glVertex3f(-20.0f, 0.0f, -3.0f);
+  glVertex3f(-20.0f + 1.0f * 100.0f, 0.0f, -3.0f);
+  glEnd(); */
   for (auto &&[entity, transform, physics] : admin.getEntitiesWithComponents<Components::Transform, Components::Physics>()) {
     ml::vec3 color{1.0f, 0.0f, 0.0f};
     if (admin.hasComponent<Colored>(entity)) {
       auto &colored{admin.getComponent<Colored>(entity)};
       color = colored.color;
     }
-
+    std::cout << entity << std::endl;
+    //if (entity == 2) {
+    //  physics.applyLinearImpulse(ml::vec3{0.0f, -0.1f, 0.0f});
+    //}
     auto &shape{physics.m_shape};
     switch (shape->m_shapeType) {
       case ShapeType::AABB:
@@ -410,7 +450,29 @@ void display() {
 
 /* Main function: GLUT runs as a console application starting at main() */
 int main(int argc, char **argv) {
+
+ using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{-6.0f, 8.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3(-1.0f, -1.0f, -6.0f), ml::vec3(1.0f, 1.0f, -4.0f)))};
+    physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{0.25f, 0.5f, 1.0f};
+  }
+
   using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{-6.0f, 2.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3(-1.0f, -1.0f, -6.0f), ml::vec3(1.0f, 1.0f, -4.0f)))};
+    physics.applyLinearImpulse(ml::vec3{0.0f, 14.0f, 0.0f});
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{1.0f, 0.0f, 0.0f};
+  }
+
+ using (auto entity{admin.createEntity()}) {
     auto &translate{admin.createComponent<Components::Transform>(entity)};
     translate.matrix.setTranslation(ml::vec3{-3.0f, 6.0f, 0.0f});
 
@@ -427,25 +489,39 @@ int main(int argc, char **argv) {
 
     auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3(-1.0f, -1.0f, -6.0f), ml::vec3(1.0f, 1.0f, -4.0f)))};
     physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{1.0f, 0.0f, 0.0f};
+    physics.setIsRigid(true);
   }
 
-   using (auto entity{admin.createEntity()}) {
+  using (auto entity{admin.createEntity()}) {
     auto &translate{admin.createComponent<Components::Transform>(entity)};
-    translate.matrix.setTranslation(ml::vec3{-6.0f, -3.0f, 0.0f});
+    translate.matrix.setTranslation(ml::vec3{0.0f, -1.0f, 0.0f});
 
-    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Sphere>(ml::vec3(-1.0f, -1.0f, -4.0f), 3.0f))};
-    physics.applyLinearImpulse(ml::vec3{10.0f, 0.0f, 0.0f});
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Sphere>(ml::vec3(-3.0f, -2.0f, -4.0f), 1.50f))};
+    physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
 
     auto &colored{admin.createComponent<Colored>(entity)};
-    colored.color = ml::vec3{0.5f, 1.0f, 0.25f};
+    colored.color = ml::vec3{1.0f, 0.0f, 0.0f};
+    physics.setIsRigid(true);
   }
 
-   using (auto entity{admin.createEntity()}) {
+  using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{-11.0f, -4.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3(-1.0f, -1.0f, -6.0f), ml::vec3(1.0f, 1.0f, -4.0f)))};
+    physics.applyLinearImpulse(ml::vec3{17.0f, 0.0f, 0.0f});
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{1.0f, 0.0f, 0.0f};
+  }
+
+  using (auto entity{admin.createEntity()}) {
     auto &translate{admin.createComponent<Components::Transform>(entity)};
     translate.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 0.0f});
 
-    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3(3.0f, 3.0f, -4.0f), ml::vec3(3.0f, -3.0f, -4.0f), 2.0f))};
-    physics.applyLinearImpulse(ml::vec3{5.0f, 5.0f, 0.0f});
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3(0.0f, 3.0f, -4.0f), ml::vec3(0.0f, -3.0f, -4.0f), 2.0f))};
+    physics.applyLinearImpulse(ml::vec3{10.0f, 0.0f, 0.0f});
 
     auto &colored{admin.createComponent<Colored>(entity)};
     colored.color = ml::vec3{0.5f, 1.0f, 0.25f};
@@ -453,14 +529,76 @@ int main(int argc, char **argv) {
 
   using (auto entity{admin.createEntity()}) {
     auto &translate{admin.createComponent<Components::Transform>(entity)};
-    translate.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 0.0f});
+    translate.matrix.setTranslation(ml::vec3{6.50f, 0.0f, 0.0f});
 
-    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3(7.0f, 9.0f, -4.0f), ml::vec3(7.0f, 3.0f, -4.0f), 2.0f))};
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3(-1.0f, -1.0f, -6.0f), ml::vec3(1.0f, 1.0f, -4.0f)))};
     physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
-
     auto &colored{admin.createComponent<Colored>(entity)};
     colored.color = ml::vec3{1.0f, 0.0f, 0.0f};
   }
+
+  /*using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Sphere>(ml::vec3(0.0f, 5.0f, -4.0f), 4.0f))};
+    physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{0.5f, 1.0f, 0.25f};
+    //physics.setIsRigid(true);
+  }*/
+
+
+/*   using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Sphere>(ml::vec3(2.0f, 0.0f, -5.0f), 2.0f))};
+    physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{0.5f, 1.0f, 0.25f};
+  }  */
+
+
+
+
+
+/*   using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3(1.0f, -1.0f, -4.0f), ml::vec3(3.0f, 1.0f, -2.0f)))};
+    physics.applyLinearImpulse(ml::vec3{0.0f, -0.0f, 0.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{1.0f, 0.0f, 0.0f};
+  }  */
+
+ 
+/*   using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Sphere>(ml::vec3(3.0f, -1.0f, -4.0f), 2.0f))};
+    physics.applyLinearImpulse(ml::vec3{-5.0f, 0.0f, 0.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{0.5f, 1.0f, 0.25f};
+  } */
+
+/*   using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{-0.0f, 0.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<OBB>(ml::vec3(-1.0f, -1.0f, -6.0f), ml::vec3(1.0f, 1.0f, -4.0f)))};
+    //physics.applyAngularImpulse(ml::vec3{0.0f, 0.0f, -20.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{0.25f, 0.5f, 1.0f};
+  }
+ */
 
   using (auto entity{admin.createEntity()}) {
     auto &translate{admin.createComponent<Components::Transform>(entity)};

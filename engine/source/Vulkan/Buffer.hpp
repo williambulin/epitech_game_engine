@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Extension/Libraries/Vulkan.hpp"
+#include "Extension/Language/Library.hpp"
 
 #include <stdexcept>
 
@@ -29,6 +30,6 @@ public:
   void buffercpy(VkBuffer src, VkDeviceSize size);
   void cpy(void *src, std::size_t size);
 
-  explicit Buffer(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue, size_t bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags memoryPropertyFlags);
-  ~Buffer();
+  DLLATTRIB explicit Buffer(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue, size_t bufferSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags memoryPropertyFlags);
+  DLLATTRIB ~Buffer();
 };

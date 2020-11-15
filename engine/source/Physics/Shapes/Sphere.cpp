@@ -27,6 +27,6 @@ bool Sphere::operator==(const Sphere &second) const noexcept {
   return (m_center == second.m_center && m_radius == second.m_radius);
 }
 
-ml::vec3 Sphere::getLocalPosition() {
+ml::vec3 Sphere::getLocalPosition() const {
   return m_center;
 }

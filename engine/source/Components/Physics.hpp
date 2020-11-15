@@ -6,6 +6,7 @@
 #include "Physics/ICollisionShape.hpp"
 #include "Maths/Math.hpp"
 #include "Maths/Quaternion.hpp"
+#include "Extension/Language/Library.hpp"
 
 namespace Components {
   class Physics;
@@ -40,36 +41,36 @@ private:
   }};
 
 public:
-  explicit Physics(std::unique_ptr<ICollisionShape> shape);
+  DLLATTRIB explicit Physics(std::unique_ptr<ICollisionShape> shape);
 
-  void clearForces() noexcept;
+  DLLATTRIB void clearForces() noexcept;
 
-  ml::vec3 getLinearVelocity() const;
-  ml::vec3 getAngularVelocity() const;
+  DLLATTRIB ml::vec3 getLinearVelocity() const;
+  DLLATTRIB ml::vec3 getAngularVelocity() const;
 
-  ml::vec3 getTorque() const;
-  ml::vec3 getForce() const;
+  DLLATTRIB ml::vec3 getTorque() const;
+  DLLATTRIB ml::vec3 getForce() const;
 
-  void  setInverseMass(float invMass);
-  float getInverseMass() const;
+  DLLATTRIB void  setInverseMass(float invMass);
+  DLLATTRIB float getInverseMass() const;
 
-  void setIsRigid(bool isRigid);
-  bool getIsRigid() const;
+  DLLATTRIB void setIsRigid(bool isRigid);
+  DLLATTRIB bool getIsRigid() const;
 
-  void applyAngularImpulse(const ml::vec3 &force);
-  void applyLinearImpulse(const ml::vec3 &force);
+  DLLATTRIB void applyAngularImpulse(const ml::vec3 &force);
+  DLLATTRIB void applyLinearImpulse(const ml::vec3 &force);
 
-  void addForce(const ml::vec3 &force);
+  DLLATTRIB void addForce(const ml::vec3 &force);
 
-  void addForceAtPosition(const ml::vec3 &force, const ml::vec3 &position);
+  DLLATTRIB void addForceAtPosition(const ml::vec3 &force, const ml::vec3 &position);
 
-  void addTorque(const ml::vec3 &torque);
+  DLLATTRIB void addTorque(const ml::vec3 &torque);
 
-  void setLinearVelocity(const ml::vec3 &v);
-  void setAngularVelocity(const ml::vec3 &v);
+  DLLATTRIB void setLinearVelocity(const ml::vec3 &v);
+  DLLATTRIB void setAngularVelocity(const ml::vec3 &v);
 
-  void initCubeInertia();
-  void initSphereInertia();
+  DLLATTRIB void initCubeInertia();
+  DLLATTRIB void initSphereInertia();
 
-  Matrix<float, 3, 3> getInertiaTensor();
+  DLLATTRIB Matrix<float, 3, 3> getInertiaTensor();
 };
