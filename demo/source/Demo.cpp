@@ -21,6 +21,8 @@ public:
     Sprint   = (1 << 5),
     Duck     = (1 << 6),
     Jump     = (1 << 7),
+    Attack1  = (1 << 8),
+    Attack2  = (1 << 9),
   };
 
 public:
@@ -36,26 +38,56 @@ public:
     auto &entities{getItems()};
     for (auto &&[entity, physics] : entities)
       if (!physics.getIsRigid())
-        physics.applyLinearImpulse(ml::vec3{0.0f, -9.81f * deltatime * 10.0f, 0.0f});
+        physics.applyLinearImpulse(ml::vec3{0.0f, -9.81f * deltatime * 5.0f, 0.0f});
   }
 };
 
 class Demo final : public Game {
 public:
   UserCommand                            m_userCommand{};
-  bool                                   m_holding{false};
   std::optional<ECS::Admin::EntityIndex> m_camera{std::nullopt};
   std::optional<ECS::Admin::EntityIndex> m_skybox{std::nullopt};
+  std::optional<ECS::Admin::EntityIndex> m_target{std::nullopt};
+  float                                  m_targetDistance{0.0f};
 
   void onMouseButton(Input::MouseButton button, Input::State state) final {
-    if (button == Input::MouseButton::Left && state == Input::State::Pressed)
-      m_holding = true;
-    else if (button == Input::MouseButton::Left && state == Input::State::Released)
-      m_holding = false;
+    switch (button) {
+      case Input::MouseButton::Left:
+        if (state == Input::State::Pressed)
+          m_userCommand.buttons |= UserCommand::Buttons::Attack1;
+        else if (state == Input::State::Released)
+          m_userCommand.buttons &= ~UserCommand::Buttons::Attack1;
+        break;
+      case Input::MouseButton::Right:
+        if (state == Input::State::Pressed) {
+          m_userCommand.buttons |= UserCommand::Buttons::Attack2;
+
+          if (m_camera.has_value()) {
+            auto &&[camera, transform, physics]{m_admin->getComponents<Components::Camera, Components::Transform, Components::Physics>(m_camera.value())};
+
+            Ray          ray{camera.m_position + camera.m_front * 1.5f, camera.m_front};
+            RayCollision rayCollision{};
+
+            if (m_admin->getSystem<Systems::Physics>().RayIntersection(ray, rayCollision)) {
+              std::cout << "has hit object " << rayCollision.node << '\n';
+              auto &&[physics2, transform2]{m_admin->getComponents<Components::Physics, Components::Transform>(rayCollision.node)};
+              if (!physics2.getIsRigid()) {
+                m_target         = rayCollision.node;
+                m_targetDistance = (transform2.matrix.getTranslation() - transform.matrix.getTranslation()).length();
+              }
+            } else
+              std::cout << "has not hit" << '\n';
+          }
+        } else if (state == Input::State::Released) {
+          m_userCommand.buttons &= ~UserCommand::Buttons::Attack2;
+          m_target = std::nullopt;
+        }
+        break;
+    }
   }
 
   void onMouseMove(float x, float y) final {
-    if (m_holding && m_camera.has_value()) {
+    if (m_userCommand.buttons & UserCommand::Buttons::Attack1 && m_camera.has_value()) {
       auto &cameraComponent{m_admin->getComponent<Components::Camera>(m_camera.value())};
       cameraComponent.angles += ml::vec3(-y * 0.033f * 9.0f, x * 0.033f * 9.0f, 0.0f);
       while (cameraComponent.angles.y >= 360.0f)
@@ -71,27 +103,27 @@ public:
 
   void onKey(Input::Key key, Input::State state) final {
     switch (key) {
-      case Input::Key::E:
-        if (state == Input::State::Released)
-          using (auto entity{m_admin->createEntity()}) {
-            // Physics
-            // auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, -1.0f, 0.0f}, ml::vec3{0.0f, 1.0f, 0.0f}, 3.0f))};
-            auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
+      // case Input::Key::E:
+      //   if (state == Input::State::Released)
+      //     using (auto entity{m_admin->createEntity()}) {
+      //       // Physics
+      //       // auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, -1.0f, 0.0f}, ml::vec3{0.0f, 1.0f, 0.0f}, 3.0f))};
+      //       auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
 
-            // Light
-            auto &light{m_admin->createComponent<Components::Light>(entity)};
-            light.type  = Components::Light::Type::Point;
-            light.color = ml::vec3{(rand() % 100) / 100.0f, (rand() % 100) / 100.0f, (rand() % 100) / 100.0f} * 1.0f;
-            light.size  = 10.0f;
+      //       // Light
+      //       auto &light{m_admin->createComponent<Components::Light>(entity)};
+      //       light.type  = Components::Light::Type::Point;
+      //       light.color = ml::vec3{(rand() % 100) / 100.0f, (rand() % 100) / 100.0f, (rand() % 100) / 100.0f} * 1.0f;
+      //       light.size  = 10.0f;
 
-            // Transform
-            auto &transform{m_admin->createComponent<Components::Transform>(entity)};
-            transform.matrix.setTranslation(ml::vec3{0.0f, 105.0f, 0.0f});
+      //       // Transform
+      //       auto &transform{m_admin->createComponent<Components::Transform>(entity)};
+      //       transform.matrix.setTranslation(ml::vec3{0.0f, 105.0f, 0.0f});
 
-            // Model
-            auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/3b0b075229e84317a014fb275a5d8dbe.obj", "../resources/backpack.jpg")};
-          }
-        break;
+      //       // Model
+      //       auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/cube.obj", "../resources/white.jpg")};
+      //     }
+      //   break;
       case Input::Key::W:
         if (state == Input::State::Pressed)
           m_userCommand.buttons |= UserCommand::Buttons::Forward;
@@ -185,15 +217,26 @@ public:
     for (std::size_t i{0}; i < 10; ++i) {
       using (auto entity{m_admin->createEntity()}) {
         // Physics
-        // auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, -1.0f, 0.0f}, ml::vec3{0.0f, 1.0f, 0.0f}, 3.0f))};
-        auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
+        switch (rand() % 2) {
+          case 0: {
+            auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
+            auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/cube.obj", "../resources/white.png")};
+            break;
+          }
+          case 1: {
+            auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0f, -1.0f, 0.0f}, ml::vec3{0.0f, 1.0f, 0.0f}, 1.0f))};
+            // auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
+            auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/sphere.obj", "../resources/white.png")};
+            break;
+          }
+          case 2:
+            // auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, -1.0f, 0.0f}, ml::vec3{0.0f, 1.0f, 0.0f}, 3.0f))};
+            break;
+        }
 
         // Transform
         auto &transform{m_admin->createComponent<Components::Transform>(entity)};
-        transform.matrix.setTranslation(ml::vec3{0.0f, 105.0f, 0.0f});
-
-        // Model
-        auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/3b0b075229e84317a014fb275a5d8dbe.obj", "../resources/white.png")};
+        transform.matrix.setTranslation(ml::vec3{static_cast<float>(rand() % 80) - 40.0f, 120.0f, static_cast<float>(rand() % 80) - 40.0f});
 
         // Light
         auto &light{m_admin->createComponent<Components::Light>(entity)};
@@ -243,6 +286,11 @@ public:
   [[nodiscard]] bool update(float dt, std::uint64_t) final {
     ml::vec3 cameraPosition{0.0f, 0.0f, 0.0f};
 
+    // auto spheres{m_admin->getEntitiesWithComponents<Components::Physics, Components::Transform>()};
+    // for (auto &&[entity, physics, transform] : spheres) {
+    //   std::cout << "Entity " << entity << ": " << transform.matrix.getTranslation().x << ' ' << transform.matrix.getTranslation().y << ' ' << transform.matrix.getTranslation().z << '\n';
+    // }
+
     if (m_camera.has_value()) {
       auto &&[camera, transform, physics]{m_admin->getComponents<Components::Camera, Components::Transform, Components::Physics>(m_camera.value())};
 
@@ -263,21 +311,19 @@ public:
 
       physics.applyLinearImpulse(position);
 
+      if (m_target.has_value()) {
+        auto &&[transform2, physics2]{m_admin->getComponents<Components::Transform, Components::Physics>(m_target.value())};
+        ml::vec3 newPosition{transform.matrix.getTranslation() + (camera.m_front * m_targetDistance)};
+        ml::vec3 newDirection{newPosition - transform2.matrix.getTranslation()};
+        std::cout << newDirection.x << '\t' << newDirection.y << '\t' << newDirection.z << '\n';
+        physics2.applyLinearImpulse(physics2.getLinearVelocity() * -1.0f);
+        physics2.applyLinearImpulse(newDirection * dt * 2000.0f);
+      }
+
       // transform.matrix.setTranslation(position);
       position          = transform.matrix.getTranslation();
       camera.m_position = position;
       cameraPosition    = camera.m_position;
-
-      // Ray          ray{camera.m_position + camera.m_front * 5.0f, camera.m_front};
-      // RayCollision rayCollision{};
-
-      // if (m_admin->getSystem<Systems::Physics>().RayIntersection(ray, rayCollision)) {
-      //   std::cout << "has hit object " << rayCollision.node << '\n';
-      //   auto &physics{m_admin->getComponent<Components::Physics>(rayCollision.node)};
-      //   if (!physics.getIsRigid())
-      //     physics.applyLinearImpulse(camera.m_front * dt);
-      // } else
-      //   std::cout << "has not hit" << '\n';
     }
 
     if (m_skybox.has_value()) {

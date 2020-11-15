@@ -232,7 +232,7 @@ auto Systems::Physics::getEntityWorldPosition(const ICollisionShape &shape, cons
 }
 
 bool Systems::Physics::checkCollisionExists(CollisionInfo existedOne, CollisionInfo toCompare) {
-  if (existedOne.firstCollider == toCompare.firstCollider && existedOne.secondCollider == toCompare.secondCollider)
+  if ((existedOne.firstCollider == toCompare.firstCollider && existedOne.secondCollider == toCompare.secondCollider) || (existedOne.firstCollider == toCompare.secondCollider && existedOne.secondCollider == toCompare.firstCollider))
     return true;
   return false;
 }
@@ -330,10 +330,10 @@ bool Systems::Physics::collide(AABB &secondCollider, const ml::mat4 &modelMatrix
   ml::vec3 a_LineEndOffset = a_Normal * firstCollider.getRadius();
   ml::vec3 a_A             = pointsFirstCollider.back() + a_LineEndOffset;
   ml::vec3 a_B             = pointsFirstCollider.front() - a_LineEndOffset;
-  // std::cout << " vec a_A = " << a_A.x << " | " << a_A.y << " | " << a_A.z << std::endl;
-  // std::cout << " vec a_B = " << a_B.x << " | " << a_B.y << " | " << a_B.z << std::endl;
+  //std::cout << " vec a_A = " << a_A.x << " | " << a_A.y << " | " << a_A.z << std::endl;
+  //std::cout << " vec a_B = " << a_B.x << " | " << a_B.y << " | " << a_B.z << std::endl;
   ml::vec3 bestA = Systems::Physics::closestPointOnLineSegment(a_A, a_B, secondCenter);
-  // std::cout << " bestA = " << bestA.x << " | " << bestA.y << " | " << bestA.z << std::endl;
+  //std::cout << " bestA = " << bestA.x << " | " << bestA.y << " | " << bestA.z << std::endl;
   const ml::mat4 matrix{
   {
   {1.0f, 0.0f, 0.0f, 0.0f},
@@ -415,7 +415,7 @@ void Systems::Physics::collisionDections() {
 
 void Systems::Physics::collisionResolution() {
   for (auto i{m_collisions.begin()}; i != m_collisions.end();) {
-    if (i->framesLeft == 5) {
+    if (i->framesLeft == 2) {
       // i->firstCollider->onCollisionBegin(i->secondCollider);
       // i->secondCollider->onCollisionBegin(i->firstCollider);
       impulseResolveCollision(*i);
@@ -447,7 +447,11 @@ void Systems::Physics::impulseResolveCollision(CollisionInfo &p) const {
 
   ml::vec3 relativeA{p.point.localA - getEntityWorldPosition(*physA.m_shape.get(), transformA.matrix)};
   ml::vec3 relativeB{p.point.localB - getEntityWorldPosition(*physB.m_shape.get(), transformB.matrix)};
-  if ((*physA.m_shape.get()).m_shapeType == ShapeType::AABB && (*physB.m_shape.get()).m_shapeType == ShapeType::AABB) {
+  if (((*physA.m_shape.get()).m_shapeType == ShapeType::AABB && (*physB.m_shape.get()).m_shapeType == ShapeType::AABB) ||
+      ((*physA.m_shape.get()).m_shapeType == ShapeType::SPHERE && (*physB.m_shape.get()).m_shapeType == ShapeType::AABB) ||
+      ((*physA.m_shape.get()).m_shapeType == ShapeType::AABB && (*physB.m_shape.get()).m_shapeType == ShapeType::SPHERE) ||
+      ((*physA.m_shape.get()).m_shapeType == ShapeType::AABB && (*physB.m_shape.get()).m_shapeType == ShapeType::CAPSULE) ||
+      ((*physA.m_shape.get()).m_shapeType == ShapeType::CAPSULE && (*physB.m_shape.get()).m_shapeType == ShapeType::AABB)) {
     relativeA = p.point.localA - getEntityWorldPositionAABB(*physA.m_shape.get(), transformA.matrix);
     relativeB = p.point.localB - getEntityWorldPositionAABB(*physB.m_shape.get(), transformB.matrix);
   }
@@ -515,6 +519,15 @@ void Systems::Physics::integrateVelocity(float dt) {
 }
 
 void Systems::Physics::update(float dt, std::uint64_t) {
+  // collisionDections();
+  // collisionResolution();
+  // integrateVelocity(dt);
+  for (std::size_t i{0}; i < 5; ++i) {
+    update2(dt / 5.0f, 0);
+  }
+}
+
+void Systems::Physics::update2(float dt, std::uint64_t) {
   collisionDections();
   collisionResolution();
   integrateVelocity(dt);
@@ -568,7 +581,7 @@ bool Systems::Physics::RaySphereIntersection(const Ray &r, const ml::mat4 &world
   if (sphereDist > sphereRadius) {
     return false;
   }
-  float offset          = sqrt((sphereRadius * sphereRadius) - (sphereDist * sphereDist));
+  float offset = sqrt((sphereRadius * sphereRadius) - (sphereDist * sphereDist));
 
   if (sphereProj - (offset) > collision.rayDistance && collision.rayDistance > 0)
     return false;
@@ -675,9 +688,11 @@ bool Systems::Physics::RayCapsuleIntersection(const Ray &r, const ml::mat4 &worl
   float    len                = penetration_normal.length();
   penetration_normal.normalize();
   float penetration_depth = volume.getRadius() - len;
-  if (penetration_depth > 0 && (r.GetPosition() - r.GetPosition()).length() < collision.rayDistance) {
+  if (  (penetration_depth > 0 && (Systems::Physics::getEntityWorldPosition(volume, worldTransform)
+        - r.GetPosition()).length() < collision.rayDistance) || collision.rayDistance == 0) {
     collision.collidedAt  = Systems::Physics::getEntityWorldPosition(volume, worldTransform);
-    collision.rayDistance = (r.GetPosition() - r.GetPosition()).length();
+    collision.rayDistance = (Systems::Physics::getEntityWorldPosition(volume, worldTransform)
+                             - r.GetPosition()).length();
     return true;
   }
   return false;
