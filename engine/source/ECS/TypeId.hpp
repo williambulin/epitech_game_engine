@@ -3,6 +3,7 @@
 #include <utility>
 #include <memory>
 #include <stdexcept>
+#include <set>
 
 namespace ECS {
   class TypeId;
@@ -10,19 +11,19 @@ namespace ECS {
 
 class ECS::TypeId final {
 private:
-  static inline std::size_t m_count{0};
-  static inline std::size_t m_bitcount{0};
-
-public:
-  using InfoType = std::pair<decltype(m_count), decltype(m_bitcount)>;
+  // static inline std::size_t m_count{0};
+  // static inline std::size_t m_bitcount{0};
+  static inline std::set<std::string> test{};
 
 public:
   template <typename T>
-  [[nodiscard]] static const ECS::TypeId::InfoType &info();
+  [[nodiscard]] static std::size_t info();
 };
 
 template <typename T>
-inline const ECS::TypeId::InfoType &ECS::TypeId::info() {
-  static decltype(info<T>()) info{m_count++, ((m_bitcount == 0) ? (m_bitcount = 1) : (m_bitcount = (m_bitcount + m_bitcount)))};
-  return info;
+inline std::size_t ECS::TypeId::info() {
+  std::string name{typeid(T).name()};
+  if (!test.contains(name))
+    test.insert(name);
+  return std::distance(test.begin(), test.find(name));
 }

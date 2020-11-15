@@ -40,5 +40,5 @@ void main() {
   colorOut              = colorIn;
   textureCoordinatesOut = textureCoordinatesIn;
   normalOut             = normalize(mat3(ubo.model) * normalize(normalIn));
-  positionOut           = mat3(ubo.model) * positionIn;
+  positionOut           = (ubo.model * vec4(positionIn, 1.0)).xyz;
 }

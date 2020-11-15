@@ -5,6 +5,7 @@
 #include "Components/Light.hpp"
 #include "Components/Camera.hpp"
 #include "Systems/Physics.hpp"
+#include "ECS/TypeId.hpp"
 
 #include <iostream>
 #include <chrono>
@@ -45,9 +46,7 @@ public:
   UserCommand                            m_userCommand{};
   bool                                   m_holding{false};
   std::optional<ECS::Admin::EntityIndex> m_camera{std::nullopt};
-  std::optional<ECS::Admin::EntityIndex> m_obj{std::nullopt};
-  std::optional<ECS::Admin::EntityIndex> m_discoLight1{std::nullopt};
-  std::optional<ECS::Admin::EntityIndex> m_discoLight2{std::nullopt};
+  std::optional<ECS::Admin::EntityIndex> m_skybox{std::nullopt};
 
   void onMouseButton(Input::MouseButton button, Input::State state) final {
     if (button == Input::MouseButton::Left && state == Input::State::Pressed)
@@ -73,6 +72,27 @@ public:
 
   void onKey(Input::Key key, Input::State state) final {
     switch (key) {
+      case Input::Key::E:
+        if (state == Input::State::Released)
+          using (auto entity{m_admin->createEntity()}) {
+            // Physics
+            // auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, -1.0f, 0.0f}, ml::vec3{0.0f, 1.0f, 0.0f}, 3.0f))};
+            auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
+
+            // Light
+            auto &light{m_admin->createComponent<Components::Light>(entity)};
+            light.type  = Components::Light::Type::Point;
+            light.color = ml::vec3{(rand() % 100) / 100.0f, (rand() % 100) / 100.0f, (rand() % 100) / 100.0f} * 1.0f;
+            light.size  = 10.0f;
+
+            // Transform
+            auto &transform{m_admin->createComponent<Components::Transform>(entity)};
+            transform.matrix.setTranslation(ml::vec3{0.0f, 105.0f, 0.0f});
+
+            // Model
+            auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/3b0b075229e84317a014fb275a5d8dbe.obj", "../resources/backpack.jpg")};
+          }
+        break;
       case Input::Key::W:
         if (state == Input::State::Pressed)
           m_userCommand.buttons |= UserCommand::Buttons::Forward;
@@ -122,11 +142,43 @@ public:
     std::cout << "Created Demo" << '\n';
 
     m_admin->createSystem<Systems::Physics>();
-    // m_admin->createSystem<Gravity>();
+    m_admin->createSystem<Gravity>();
 
     auto audio{m_audioManager->createAudioSource("../resources/some.wav")};
     audio->setVolume(100);
     audio->play();
+
+    std::cout << "Components::Physics -> " << ECS::TypeId::info<Components::Physics>() << ':' << (1 << ECS::TypeId::info<Components::Physics>()) << '\n';
+    std::cout << "Components::Transform -> " << ECS::TypeId::info<Components::Transform>() << ':' << (1 << ECS::TypeId::info<Components::Transform>()) << '\n';
+    std::cout << "Components::Model -> " << ECS::TypeId::info<Components::Model>() << ':' << (1 << ECS::TypeId::info<Components::Model>()) << '\n';
+    std::cout << "Components::Light -> " << ECS::TypeId::info<Components::Light>() << ':' << (1 << ECS::TypeId::info<Components::Light>()) << '\n';
+    std::cout << "Components::Camera -> " << ECS::TypeId::info<Components::Camera>() << ':' << (1 << ECS::TypeId::info<Components::Camera>()) << '\n';
+    std::cout << std::endl;
+    std::cout << "Components::Physics -> " << ECS::TypeId::info<Components::Physics>() << ':' << (1 << ECS::TypeId::info<Components::Physics>()) << '\n';
+    std::cout << "Components::Transform -> " << ECS::TypeId::info<Components::Transform>() << ':' << (1 << ECS::TypeId::info<Components::Transform>()) << '\n';
+    std::cout << "Components::Model -> " << ECS::TypeId::info<Components::Model>() << ':' << (1 << ECS::TypeId::info<Components::Model>()) << '\n';
+    std::cout << "Components::Light -> " << ECS::TypeId::info<Components::Light>() << ':' << (1 << ECS::TypeId::info<Components::Light>()) << '\n';
+    std::cout << "Components::Camera -> " << ECS::TypeId::info<Components::Camera>() << ':' << (1 << ECS::TypeId::info<Components::Camera>()) << '\n';
+
+    ///////////////////////////////////////
+    // Camera
+    ///////////////////////////////////////
+    using (auto entity{m_admin->createEntity()}) {
+      // Physics
+      // auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, -1.0f, 0.0f}, ml::vec3{0.0f, 1.0f, 0.0f}, 3.0f))};
+      auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
+
+      // Transform
+      auto &transform{m_admin->createComponent<Components::Transform>(entity)};
+      // transform.matrix.setTranslation(ml::vec3{1.72966f, 4.71852f, 4.25082f});
+      transform.matrix.setTranslation(ml::vec3{1.72966f, 160.71852f, 4.25082f});
+
+      // Camera
+      auto &camera{m_admin->createComponent<Components::Camera>(entity)};
+      camera.angles = ml::vec3{-44.847f, 270.009f, 0.0f};
+
+      m_camera = entity;
+    }
 
     ///////////////////////////////////////
     // Objects
@@ -143,18 +195,25 @@ public:
       auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/untitled2.obj", "../resources/untitled2.png")};
     }
 
-    using (auto entity{m_admin->createEntity()}) {
-      // Physics
-      auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
+    for (std::size_t i{0}; i < 10; ++i) {
+      using (auto entity{m_admin->createEntity()}) {
+        // Physics
+        // auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, -1.0f, 0.0f}, ml::vec3{0.0f, 1.0f, 0.0f}, 3.0f))};
+        auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0f, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
 
-      // Transform
-      auto &transform{m_admin->createComponent<Components::Transform>(entity)};
-      transform.matrix.setTranslation(ml::vec3{0.0f, 105.0f, 0.0f});
+        // Transform
+        auto &transform{m_admin->createComponent<Components::Transform>(entity)};
+        transform.matrix.setTranslation(ml::vec3{0.0f, 105.0f, 0.0f});
 
-      // Model
-      auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/3b0b075229e84317a014fb275a5d8dbe.obj", "../resources/backpack.jpg")};
+        // Model
+        auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/3b0b075229e84317a014fb275a5d8dbe.obj", "../resources/white.png")};
 
-      m_obj = entity;
+        // Light
+        auto &light{m_admin->createComponent<Components::Light>(entity)};
+        light.type  = Components::Light::Type::Point;
+        light.color = ml::vec3{(rand() % 100) / 100.0f, (rand() % 100) / 100.0f, (rand() % 100) / 100.0f} * 1.0f;
+        light.size  = 10.0f;
+      }
     }
 
     using (auto entity{m_admin->createEntity()}) {
@@ -163,26 +222,8 @@ public:
 
       // Model
       auto &model{m_admin->createComponent<Components::Model>(entity, *(m_renderer.get()), "../resources/sky.obj", "../resources/sky.png")};
-    }
 
-    ///////////////////////////////////////
-    // Camera
-    ///////////////////////////////////////
-    using (auto entity{m_admin->createEntity()}) {
-      // Transform
-      auto &transform{m_admin->createComponent<Components::Transform>(entity)};
-      // transform.matrix.setTranslation(ml::vec3{1.72966f, 4.71852f, 4.25082f});
-      transform.matrix.setTranslation(ml::vec3{1.72966f, 120.71852f, 4.25082f});
-
-      // Camera
-      auto &camera{m_admin->createComponent<Components::Camera>(entity)};
-      camera.angles = ml::vec3{-44.847f, 270.009f, 0.0f};
-
-      // Physics
-      auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3{0.0, -1.0f, 0.0f}, ml::vec3{0.0f, 1.0f, 0.0f}, 1))};
-      // auto &physics{m_admin->createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3{-1.0, -1.0f, -1.0f}, ml::vec3{1.0f, 1.0f, 1.0f}))};
-
-      m_camera = entity;
+      m_skybox = entity;
     }
 
     ///////////////////////////////////////
@@ -203,28 +244,18 @@ public:
     using (auto entity{m_admin->createEntity()}) {
       // Transform
       auto &transform{m_admin->createComponent<Components::Transform>(entity)};
-      transform.matrix.setTranslation(ml::vec3{0.1f, 50.0f, 0.0f});
-
-      // Light
-      auto &light{m_admin->createComponent<Components::Light>(entity)};
-      light.type  = Components::Light::Type::Point;
-      light.color = ml::vec3{0.0f, 1.25f, 0.0f} * 10.0f;
-      light.size  = 0.3f;
-    }
-
-    using (auto entity{m_admin->createEntity()}) {
-      // Transform
-      auto &transform{m_admin->createComponent<Components::Transform>(entity)};
       transform.matrix.setTranslation(ml::vec3{0.1f, 0.0f, 50.0f});
 
       // Light
       auto &light{m_admin->createComponent<Components::Light>(entity)};
       light.type  = Components::Light::Type::Ambient;
-      light.color = ml::vec3{0.1f, 0.1f, 0.1f};
+      light.color = ml::vec3{0.01f, 0.01f, 0.01f};
     }
   }
 
   [[nodiscard]] bool update(float dt, std::uint64_t) final {
+    ml::vec3 cameraPosition{0.0f, 0.0f, 0.0f};
+
     if (m_camera.has_value()) {
       auto &&[camera, transform, physics]{m_admin->getComponents<Components::Camera, Components::Transform, Components::Physics>(m_camera.value())};
 
@@ -248,8 +279,9 @@ public:
       // transform.matrix.setTranslation(position);
       position          = transform.matrix.getTranslation();
       camera.m_position = position;
+      cameraPosition    = camera.m_position;
 
-      // Ray          ray{camera.m_position + camera.m_front * 2.0f, camera.m_front};
+      // Ray          ray{camera.m_position + camera.m_front * 5.0f, camera.m_front};
       // RayCollision rayCollision{};
 
       // if (m_admin->getSystem<Systems::Physics>().RayIntersection(ray, rayCollision)) {
@@ -261,6 +293,10 @@ public:
       //   std::cout << "has not hit" << '\n';
     }
 
+    if (m_skybox.has_value()) {
+      auto &transform{m_admin->getComponent<Components::Transform>(m_skybox.value())};
+      transform.matrix.setTranslation(cameraPosition);
+    }
     return true;
   }
 
