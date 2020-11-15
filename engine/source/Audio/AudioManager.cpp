@@ -20,7 +20,7 @@ AudioManager::~AudioManager() {
 }
 
 void AudioManager::createAudioGroup(const std::string &audioGroupName, const AudioGroup &audioGroup) noexcept {
-  log->log.Info("Audio Group {0} Created ", audioGroupName);
+  m_log.Debug("Audio Group {0} Created ", audioGroupName);
   m_AudioGroups.insert(std::pair<std::string, AudioGroup>{audioGroupName, audioGroup});
 }
 
@@ -41,18 +41,14 @@ std::shared_ptr<AudioSource> &AudioManager::createAudioSource(const std::string 
   auto newAudioSource{std::make_shared<AudioSource>(fileName, groupName)};
 
   addAudioSource(newAudioSource);
-
-  
-  Log log{"AudioSourceCreated"};
-  log->log.Info("Create audio source {0} in {1}", fileName, groupName);
+  m_log.Debug("Create audio source {0} in {1}", fileName, groupName);
 
   return m_AudioSources.back();
 }
 
 void AudioManager::removeAudioSourceById(const int id) noexcept {
-  m_AudioSources.erase(std::ranges::find_if(m_AudioSources, [id](std::shared_ptr<AudioSource> &audioSource) {
-    Log log{"RemoveAudioSource"};
-    log->log.Info("Audio source {0} removed", m_AudioSources);
+  m_AudioSources.erase(std::ranges::find_if(m_AudioSources, [this, id](std::shared_ptr<AudioSource> &audioSource) {
+    m_log.Debug("Audio source {0} removed", m_AudioSources);
     return audioSource->m_id == id;
   }));
 }
@@ -63,8 +59,7 @@ void AudioManager::setAudioGroupVolume(const int volume, const std::string &grou
   if (iterator != m_AudioGroups.end()) {
     iterator->second.volume = volume;
   } else {
-    Log log{"AudioGroupDoesntExist"};
-    log->log.Error("Quitting method with error => {0} not found", groupName);
+    m_log.Error("Quitting method with error => {0} not found", groupName);
     throw std::runtime_error{"AudioManager::setAudioGroupVolume => " + groupName + " not found."};
   }
 
@@ -74,8 +69,7 @@ void AudioManager::setAudioGroupVolume(const int volume, const std::string &grou
     if (audioSource->getGroupName() != groupName)
       continue;
 
-    Log log{"SetAudioGroupVolume"};
-    log->log.Trace("{0} group volume is set at {1}", groupName, volume);
+    m_log.Debug("{0} group volume is set at {1}", groupName, volume);
     audioSource->setVolume(volume);
   }
 }

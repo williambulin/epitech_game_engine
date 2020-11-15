@@ -8,6 +8,7 @@
 #include "Extension/Language/Library.hpp"
 #include "AudioSource.hpp"
 #include "AudioGroup.hpp"
+#include "Log/Log.hpp"
 #include "portaudio.h"
 
 // Singleton class
@@ -41,5 +42,5 @@ public:
 private:
   int       m_currentId = 0;
   PaStream *m_stream    = nullptr;
-  Log log{"AudioGroupCreated"};
+  Log m_log{"AudioManager"};
 };
