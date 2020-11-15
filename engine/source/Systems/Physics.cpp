@@ -443,6 +443,11 @@ bool Systems::Physics::RayIntersection(const Ray &r, RayCollision &collision) {
           collision.node = entity;
           return true;
         }
+      case ShapeType::CAPSULE:
+        if (RayCapsuleIntersection(r, transform.matrix, reinterpret_cast<Capsule &>(*physics.m_shape), collision)) {
+          collision.node = entity;
+          return true;
+        }
     }
   }
   return false;
@@ -526,4 +531,52 @@ bool Systems::Physics::RayOBBIntersection(const Ray &r, const ml::mat4 &worldTra
     collision.collidedAt = transform * collision.collidedAt + position;
   }
   return collided;
+}
+
+bool Systems::Physics::RayCapsuleIntersection(const Ray &r, const ml::mat4 &worldTransform,
+                                              Capsule& volume, RayCollision &collision) {
+  std::vector<ml::vec3> pointsFirstCollider{volume.getPoints(worldTransform)};
+  ml::vec3 a_Normal = pointsFirstCollider.front() - pointsFirstCollider.back();
+  a_Normal.normalize();
+  ml::vec3 a_LineEndOffset = a_Normal * volume.getRadius();
+  ml::vec3 a_A             = pointsFirstCollider.back() + a_LineEndOffset;
+  ml::vec3 a_B             = pointsFirstCollider.front() - a_LineEndOffset;
+
+  // RAY
+  ml::vec3 b_A             = r.GetPosition();
+  ml::vec3 b_B             = r.GetPosition() + (r.GetDirection() * 100000);//TODO update this to handle infinity
+
+  // vectors between line endpoints:
+  ml::vec3 v0 = b_A - a_A;
+  ml::vec3 v1 = b_B - a_A;
+  ml::vec3 v2 = b_A - a_B;
+  ml::vec3 v3 = b_B - a_B;
+
+  // squared distances:
+  float d0 = v0.dot(v0);
+  float d1 = v1.dot(v1);
+  float d2 = v2.dot(v2);
+  float d3 = v3.dot(v3);
+
+  // select best potential endpoint on capsule A:
+  ml::vec3 bestA{0.0f, 0.0f, 0.0f};
+  if (d2 < d0 || d2 < d1 || d3 < d0 || d3 < d1) {
+    bestA = a_B;
+  } else {
+    bestA = a_A;
+  }
+
+  ml::vec3 bestB = Systems::Physics::closestPointOnLineSegment(b_A, b_B, bestA);
+
+  bestA                       = Systems::Physics::closestPointOnLineSegment(a_A, a_B, bestB);
+  ml::vec3 penetration_normal = bestA - bestB;
+  float    len                = penetration_normal.length();
+  penetration_normal.normalize();
+  float penetration_depth = volume.getRadius() - len;
+  if (penetration_depth > 0) {
+    collision.collidedAt = Systems::Physics::getEntityWorldPosition(volume, worldTransform);
+    collision.rayDistance = 1.0f;
+    return true;
+  }
+  return false;
 }
