@@ -125,7 +125,7 @@ public:
   inline void Write(LogLevel level, const char *msg) const noexcept {
     if (!IsLoggable(level))
       return;
-    std::cout << "[" << Details::get_current_time() << "][" << LevelToString(level) << "][" << mName << "]: " << msg << std::endl;
+    std::cout << "[" << get_current_time() << "][" << LevelToString(level) << "][" << mName << "]: " << msg << std::endl;
   }
 
   template <typename... Args>
@@ -187,7 +187,7 @@ public:
   }
 
   inline static LogLevel DefaultLevel() noexcept {
-#ifdef RType_DEBUG
+#ifdef ENGINE_DEBUG
     return LogLevel::Trace;
 #else
     return LogLevel::Info;
@@ -202,7 +202,7 @@ private:
     std::size_t format_pos = to_format.find("{" + std::to_string(arg_pos) + "}");
     if (format_pos == std::string::npos)
       return;
-    to_format.replace(format_pos, 3, Details::to_string(arg));
+    to_format.replace(format_pos, 3, to_string(arg));
     arg_pos++;
     FormatMsg(to_format, arg_pos, args...);
   }
@@ -210,7 +210,6 @@ private:
   template <typename... Args>
   inline std::string FormatMsg(const char *fmt, Args &&... args) const noexcept {
     std::size_t arg_pos{0};
-    std::string to_format{fmt};
     std::string to_format{fmt};
     FormatMsg(to_format, arg_pos, args...);
     return to_format;
