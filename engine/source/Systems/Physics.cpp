@@ -76,6 +76,7 @@ bool Systems::Physics::collide(AABB &firstCollider, const ml::mat4 &modelMatrixF
   ml::vec3 boxHalfSize       = (maxFirstCollider - minFirstCollider) * 0.5f;
   ml::vec3 delta             = secondCenter - ((maxFirstCollider + minFirstCollider) * 0.5f);
   ml::vec3 closestPointOnBox = delta.clamp((boxHalfSize * -1), boxHalfSize);
+  ml::vec3 localPoint2        = delta - closestPointOnBox;
   ml::vec3 localPoint        = delta - closestPointOnBox;
   float    distance          = localPoint.length();
   if (distance < secondCollider.getRadius()) {  // yes , we ’re colliding !
@@ -139,7 +140,7 @@ auto Systems::Physics::getEntityWorldPosition(const ICollisionShape &shape, cons
 }
 
 bool Systems::Physics::checkCollisionExists(CollisionInfo existedOne, CollisionInfo toCompare) {
-  if (existedOne.firstCollider == toCompare.firstCollider && existedOne.secondCollider == toCompare.secondCollider)
+  if ((existedOne.firstCollider == toCompare.firstCollider && existedOne.secondCollider == toCompare.secondCollider) || (existedOne.firstCollider == toCompare.secondCollider && existedOne.secondCollider == toCompare.firstCollider))
     return true;
   return false;
 }
@@ -319,7 +320,7 @@ void Systems::Physics::collisionDections() {
 
 void Systems::Physics::collisionResolution() {
   for (auto i{m_collisions.begin()}; i != m_collisions.end();) {
-    if (i->framesLeft == 5) {
+    if (i->framesLeft == 2) {
       // i->firstCollider->onCollisionBegin(i->secondCollider);
       // i->secondCollider->onCollisionBegin(i->firstCollider);
       impulseResolveCollision(*i);
@@ -351,7 +352,9 @@ void Systems::Physics::impulseResolveCollision(CollisionInfo &p) const {
 
   ml::vec3 relativeA{p.point.localA - getEntityWorldPosition(*physA.m_shape.get(), transformA.matrix)};
   ml::vec3 relativeB{p.point.localB - getEntityWorldPosition(*physB.m_shape.get(), transformB.matrix)};
-  if ((*physA.m_shape.get()).m_shapeType == ShapeType::AABB && (*physB.m_shape.get()).m_shapeType == ShapeType::AABB) {
+  if (((*physA.m_shape.get()).m_shapeType == ShapeType::AABB && (*physB.m_shape.get()).m_shapeType == ShapeType::AABB) ||
+      ((*physA.m_shape.get()).m_shapeType == ShapeType::SPHERE && (*physB.m_shape.get()).m_shapeType == ShapeType::AABB) ||
+      ((*physA.m_shape.get()).m_shapeType == ShapeType::AABB && (*physB.m_shape.get()).m_shapeType == ShapeType::SPHERE)) {
     relativeA = p.point.localA - getEntityWorldPositionAABB(*physA.m_shape.get(), transformA.matrix);
     relativeB = p.point.localB - getEntityWorldPositionAABB(*physB.m_shape.get(), transformB.matrix);
   }
