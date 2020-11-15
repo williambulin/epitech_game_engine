@@ -431,29 +431,27 @@ bool Systems::Physics::RayIntersection(const Ray &r, RayCollision &collision) {
       case ShapeType::AABB:
         if (RayAABBIntersection(r, transform.matrix, reinterpret_cast<AABB &>(*physics.m_shape), collision)) {
           collision.node = entity;
-          return true;
         }
         break;
       case ShapeType::OBB:
         if (RayOBBIntersection(r, transform.matrix, reinterpret_cast<OBB &>(*physics.m_shape), collision)) {
           collision.node = entity;
-          return true;
         }
         break;
       case ShapeType::SPHERE:
         if (RaySphereIntersection(r, transform.matrix, reinterpret_cast<Sphere &>(*physics.m_shape), collision)) {
           collision.node = entity;
-          return true;
         }
         break;
       case ShapeType::CAPSULE:
         if (RayCapsuleIntersection(r, transform.matrix, reinterpret_cast<Capsule &>(*physics.m_shape), collision)) {
           collision.node = entity;
-          return true;
         }
         break;
     }
   }
+  if (collision.rayDistance > 0.0f)
+    return true;
   return false;
 }
 
@@ -475,6 +473,9 @@ bool Systems::Physics::RaySphereIntersection(const Ray &r, const ml::mat4 &world
     return false;
   }
   float offset          = sqrt((sphereRadius * sphereRadius) - (sphereDist * sphereDist));
+
+  if (sphereProj - (offset) > collision.rayDistance && collision.rayDistance > 0)
+    return false;
   collision.rayDistance = sphereProj - (offset);
   collision.collidedAt  = r.GetPosition() + (r.GetDirection() * collision.rayDistance);
   return true;
@@ -504,6 +505,8 @@ bool Systems::Physics::RayBoxIntersection(const Ray &r, const ml::vec3 &boxPos, 
       return false;  // best intersection doesn ’t touch the box !
     }
   }
+  if (bestT > collision.rayDistance && collision.rayDistance > 0)
+    return false;
   collision.collidedAt  = intersection;
   collision.rayDistance = bestT;
   return true;
@@ -576,9 +579,9 @@ bool Systems::Physics::RayCapsuleIntersection(const Ray &r, const ml::mat4 &worl
   float    len                = penetration_normal.length();
   penetration_normal.normalize();
   float penetration_depth = volume.getRadius() - len;
-  if (penetration_depth > 0) {
+  if (penetration_depth > 0 && (r.GetPosition() - r.GetPosition()).length() < collision.rayDistance) {
     collision.collidedAt  = Systems::Physics::getEntityWorldPosition(volume, worldTransform);
-    collision.rayDistance = 1.0f;
+    collision.rayDistance = (r.GetPosition() - r.GetPosition()).length();
     return true;
   }
   return false;
