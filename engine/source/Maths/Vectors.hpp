@@ -6,6 +6,7 @@
 #include <numeric>
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 template <class T, std::size_t width, std::size_t height>
 class Matrix;
@@ -43,6 +44,7 @@ public:
   [[nodiscard]] Vector<T, size> operator*(const Matrix<T, size, size> &v) const;
   [[nodiscard]] Vector<T, size> operator*(const float &v) const;
   [[nodiscard]] Vector<T, size> operator/(const Vector<T, size> &v) const;
+  [[nodiscard]] Vector<T, size> operator/(const float &v) const;
   [[nodiscard]] Vector<T, size> operator^(const Vector<T, size> &v) const;
   Vector<T, size> &             operator+=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   Vector<T, size> &             operator-=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
@@ -50,7 +52,7 @@ public:
   Vector<T, size> &             operator*=(const float &v);
   Vector<T, size> &             operator*=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   Vector<T, size> &             operator/=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
-  Vector<T, size> &             operator/=(const float &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
+  Vector<T, size> &             operator/=(const float &v);            // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   [[nodiscard]] Vector<T, size> lerp(const Vector<T, size> &_end, float percent) const;
   [[nodiscard]] T               length() const;
   [[nodiscard]] T               dot(const Vector<T, size> &b) const;
@@ -252,7 +254,7 @@ inline Vector<T, size> &Vector<T, size>::operator/=(const Vector<T, size> &v) {
 
 template <class T, uint32_t size>
 inline Vector<T, size> &Vector<T, size>::operator/=(const float &v) {
-  T *      this_data  = m_array.data();
+  T *this_data = m_array.data();
   for (int i = 0; i < size; ++i, ++this_data) {
     if (v == 0.0f)
       throw std::runtime_error{"try to divide by 0"};
@@ -283,6 +285,14 @@ Vector<T, size> Vector<T, size>::operator*(const float &v) const {
 }
 
 template <class T, uint32_t size>
+Vector<T, size> Vector<T, size>::operator/(const float &v) const {
+  Vector<T, size> ret{m_array};
+  for (auto &data : ret.m_array)
+    data /= v;
+  return ret;
+}
+
+template <class T, uint32_t size>
 const T &Vector<T, size>::operator[](uint32_t i) const {
   return m_array[i];
 }
@@ -302,8 +312,10 @@ T Vector<T, size>::length() const {
 template <class T, uint32_t size>
 void Vector<T, size>::normalize() {
   T l = length();
-  for (auto &tmp : m_array)
-    tmp /= l;
+  if (l != 0.0f) {
+    for (auto &tmp : m_array)
+     tmp /= l;
+  }
 }
 
 template <class T, uint32_t size>
@@ -338,9 +350,10 @@ Vector<T, size> Vector<T, size>::clamp(const Vector<T, size> &min, const Vector<
   Vector<T, size> ret{m_array};
   T *             values     = ret.m_array.data();
   const T *       min_values = min.m_array.data();
-  const T *       max_values = min.m_array.data();
-  for (int i = 0; i < size; ++i, ++values, ++min_values, ++max_values)
-    *values = std::clamp(*values, *min_values, *max_values);
+  const T *       max_values = max.m_array.data();
+  for (int i = 0; i < size; ++i) {
+    values[i] = std::clamp(values[i], min_values[i], max_values[i]);
+  }
   return ret;
 }
 
@@ -358,12 +371,14 @@ public:
   explicit Vector3(T a, T b, T c);
   Vector3(const Vector3<T> &v);
   Vector3(const Vector<T, 3> &v);  // need to not explicit because used for operations
+
   explicit Vector3(const std::array<T, 3> &array);
   explicit Vector3(const std::vector<T> &array);
   Vector3<T> &             operator=(const Vector3<T> &v);
   T &                      x;
   T &                      y;
   T &                      z;
+  [[nodiscard]] T          getMaxElement() const;
   [[nodiscard]] Vector3<T> cross(const Vector3<T> &b) const;
 };
 
@@ -376,6 +391,18 @@ Vector3<T>::Vector3(T a, T b, T c) : Vector<T, 3>{std::array<T, 3>{a, b, c}},
 template <class T>
 Vector3<T> Vector3<T>::cross(const Vector3<T> &b) const {
   return Vector3<T>{y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x};
+}
+
+template <class T>
+T Vector3<T>::getMaxElement() const {
+  T v = x;
+  if (y > v) {
+    v = y;
+  }
+  if (z > v) {
+    v = z;
+  }
+  return v;
 }
 
 template <class T>

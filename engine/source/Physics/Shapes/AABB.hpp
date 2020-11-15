@@ -20,7 +20,7 @@ public:
 
   [[nodiscard]] DLLATTRIB bool operator==(const AABB &second) const noexcept;
 
-  DLLATTRIB ml::vec3 getLocalPosition() override;
+  DLLATTRIB ml::vec3 getLocalPosition() const override;
 
 private:
   ml::vec3              m_min{0.0f, 0.0f, 0.0f};
