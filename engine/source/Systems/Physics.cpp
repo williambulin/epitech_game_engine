@@ -474,7 +474,7 @@ bool Systems::Physics::RaySphereIntersection(const Ray &r, const ml::mat4 &world
   }
   float offset          = sqrt((sphereRadius * sphereRadius) - (sphereDist * sphereDist));
 
-  if (sphereProj - (offset) > collision.rayDistance)
+  if (sphereProj - (offset) > collision.rayDistance && collision.rayDistance > 0)
     return false;
   collision.rayDistance = sphereProj - (offset);
   collision.collidedAt  = r.GetPosition() + (r.GetDirection() * collision.rayDistance);
@@ -505,7 +505,7 @@ bool Systems::Physics::RayBoxIntersection(const Ray &r, const ml::vec3 &boxPos, 
       return false;  // best intersection doesn ’t touch the box !
     }
   }
-  if (bestT > collision.rayDistance)
+  if (bestT > collision.rayDistance && collision.rayDistance > 0)
     return false;
   collision.collidedAt  = intersection;
   collision.rayDistance = bestT;
