@@ -38,18 +38,27 @@ add_library(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioStream.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/AudioStream.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/main.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Camera/Camera.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Camera/Camera.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Camera.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Light.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Model.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Movement.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Transform.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Gravity.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/Admin.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ClassId.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ComponentIdRegister.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ComponentIdRegister.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/Entity.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ISystem.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/System.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/TypeId.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/SystemIdRegister.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/SystemIdRegister.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Keywords.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Library.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Platform.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Libraries/glm.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Libraries/stb_image.cpp
@@ -60,6 +69,9 @@ add_library(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Game.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Global/ApplicationBase.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Global/ApplicationBase.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Input/Key.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Input/MouseButton.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Input/State.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Math.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Matrix.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Quaternion.cpp
@@ -71,14 +83,17 @@ add_library(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/ICollisionShape.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/AABB.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/AABB.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Capsule.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Capsule.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/OBB.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/OBB.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Raycasting.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Raycasting.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Sphere.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Sphere.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Capsule.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Capsule.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/ShapeType.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Gravity.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Gravity.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Physics.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Physics.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Vulkan/Buffer.cpp
@@ -167,13 +182,16 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Movement.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Gravity.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Transform.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/Admin.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ClassId.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/SystemIdRegister.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/SystemIdRegister.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/Entity.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ISystem.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/System.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/TypeId.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ComponentIdRegister.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ComponentIdRegister.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Keywords.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Platform.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Math.hpp
@@ -194,11 +212,61 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/ShapeType.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Physics.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Physics.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Gravity.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Gravity.hpp
   ${CMAKE_CURRENT_LIST_DIR}/mainTestCollision.cpp
 )
 
 target_include_directories(
   demo_physics PRIVATE
+
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source
+)
+
+add_executable(
+  demo_physics2
+
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Model.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Movement.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Gravity.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Transform.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/Admin.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/SystemIdRegister.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/SystemIdRegister.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/Entity.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ISystem.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/System.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ComponentIdRegister.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ComponentIdRegister.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Keywords.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Platform.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Math.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Matrix.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Quaternion.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Quaternion.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Vectors.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/ICollisionShape.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/AABB.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/AABB.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/OBB.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/OBB.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Capsule.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Capsule.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Raycasting.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Sphere.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Sphere.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/ShapeType.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Physics.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Physics.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Gravity.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Gravity.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/mainTestCollision2.cpp
+)
+
+target_include_directories(
+  demo_physics2 PRIVATE
 
   ${CMAKE_CURRENT_LIST_DIR}/engine/source
 )
@@ -242,11 +310,27 @@ target_link_libraries(
   GLUT::GLUT
   GLU32
 )
+
+target_link_libraries(
+  demo_physics2 PRIVATE
+
+  OpenGL32
+  GLUT::GLUT
+  GLU32
+)
 endif ()
 
 if (UNIX)
 target_link_libraries(
   demo_physics PRIVATE
+
+  GL
+  glut
+  GLU
+)
+
+target_link_libraries(
+  demo_physics2 PRIVATE
 
   GL
   glut
