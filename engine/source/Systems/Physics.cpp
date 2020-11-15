@@ -42,6 +42,7 @@ bool Systems::Physics::collide(AABB &firstCollider, const ml::mat4 &modelMatrixF
         bestAxis    = faces[i];
       }
     }
+    std::cout << "Collide AABB/AABB with penetration = " << penetration << std::endl;
     collisionInfo.addContactPoint(ml::vec3(0.0f, 0.0f, 0.0f), ml::vec3(0.0f, 0.0f, 0.0f), bestAxis, penetration);
     return true;
   }
@@ -81,6 +82,8 @@ bool Systems::Physics::collide(AABB &firstCollider, const ml::mat4 &modelMatrixF
     localPoint.normalize();
     ml::vec3 collisionNormal = localPoint;
     float    penetration     = (secondCollider.getRadius() - distance);
+    std::cout << "Collide with Sphere/AABB penetration = " << penetration << std::endl;
+    std::cout << "Collide with Sphere/AABB normal = " << collisionNormal.x << " | " << collisionNormal.y << " | " << collisionNormal.z << std::endl;
     // empty
     ml::vec3 localA = ml::vec3(0.0f, 0.0f, 0.0f);
     ml::vec3 localB = (collisionNormal * -1) * secondCollider.getRadius();
@@ -125,10 +128,6 @@ bool Systems::Physics::collide(OBB &firstCollider, const ml::mat4 &modelMatrixFi
   std::vector<ml::vec3> verticesSecondCollider{secondCollider.getPoints(modelMatrixSecondCollider)};
   std::vector<ml::vec3> axes{getPerpendicularAxes(verticesFirstCollider, verticesSecondCollider)};
   return true;
-}
-
-auto Systems::Physics::getEntityWorldPositionResolve(ICollisionShape &shape, const ml::mat4 &matrix) -> ml::vec3 {
-  return shape.getLocalPosition() * matrix.getTranslation();
 }
 
 auto Systems::Physics::getEntityWorldPosition(const ICollisionShape &shape, const ml::mat4 &matrix) -> ml::vec3 {
@@ -271,13 +270,14 @@ void Systems::Physics::collisionDections() {
         if (collide(reinterpret_cast<AABB &>(*physicsI.m_shape), transformI.matrix, reinterpret_cast<AABB &>(*physicsJ.m_shape), transformJ.matrix, info) == true)
           m_collisions.push_back(info);
       } else if (physicsI.m_shape->m_shapeType == ShapeType::SPHERE && physicsJ.m_shape->m_shapeType == ShapeType::SPHERE) {
-        if (collide(reinterpret_cast<Sphere &>(*physicsI.m_shape), transformI.matrix, reinterpret_cast<Sphere &>(*physicsJ.m_shape), transformJ.matrix, info) == true)
+        if (collide(reinterpret_cast<Sphere &>(*physicsI.m_shape), transformI.matrix, reinterpret_cast<Sphere &>(*physicsJ.m_shape), transformJ.matrix, info) == true) 
           m_collisions.push_back(info);
       } else if (physicsI.m_shape->m_shapeType == ShapeType::AABB && physicsJ.m_shape->m_shapeType == ShapeType::SPHERE) {
         if (collide(reinterpret_cast<AABB &>(*physicsI.m_shape), transformI.matrix, reinterpret_cast<Sphere &>(*physicsJ.m_shape), transformJ.matrix, info) == true)
           m_collisions.push_back(info);
       } else if (physicsI.m_shape->m_shapeType == ShapeType::SPHERE && physicsJ.m_shape->m_shapeType == ShapeType::AABB) {
         if (collide(reinterpret_cast<AABB &>(*physicsJ.m_shape), transformJ.matrix, reinterpret_cast<Sphere &>(*physicsI.m_shape), transformI.matrix, info) == true) {
+          std::cout << "in here" << std::endl;
           info.firstCollider = entityJ;
           info.secondCollider = entityI;
           m_collisions.push_back(info);
@@ -339,8 +339,8 @@ void Systems::Physics::impulseResolveCollision(CollisionInfo &p) const {
   if (!physB.getIsRigid()) {
       transformB.matrix.setTranslation(transformB.matrix.getTranslation() + (p.point.normal * p.point.penetration * (physB.getInverseMass() / totalMass)));
   }
-  ml::vec3 relativeA{p.point.localA - getEntityWorldPositionResolve(*physA.m_shape.get(), transformA.matrix)};
-  ml::vec3 relativeB{p.point.localB - getEntityWorldPositionResolve(*physB.m_shape.get(), transformB.matrix)};
+  ml::vec3 relativeA{p.point.localA - getEntityWorldPosition(*physA.m_shape.get(), transformA.matrix)};
+  ml::vec3 relativeB{p.point.localB - getEntityWorldPosition(*physB.m_shape.get(), transformB.matrix)};
   ml::vec3 angVelocityA{physA.getAngularVelocity().cross(relativeA)};
   ml::vec3 angVelocityB{physB.getAngularVelocity().cross(relativeB)};
 
