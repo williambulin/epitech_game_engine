@@ -28,19 +28,19 @@ public:
 
 class CollisionInfo final {
 public:
-  ContactPoint point{};
-  ECS::Admin::EntityIndex  firstCollider{};
-  ECS::Admin::EntityIndex  secondCollider{};
-  int          framesLeft{5};
+  ContactPoint            point{};
+  ECS::Admin::EntityIndex firstCollider{};
+  ECS::Admin::EntityIndex secondCollider{};
+  int                     framesLeft{5};
 
 public:
   DLLATTRIB void addContactPoint(const ml::vec3 &localA, const ml::vec3 &localB, const ml::vec3 &normal, float p);
 };
 
 struct RayCollision {
-  ECS::Admin::EntityIndex node;// Node that was hit
-  ml::vec3 collidedAt{0.0f, 0.0f, 0.0f};// WORLD SPACE pos of the collision !
-  float rayDistance = 0;
+  ECS::Admin::EntityIndex node;                          // Node that was hit
+  ml::vec3                collidedAt{0.0f, 0.0f, 0.0f};  // WORLD SPACE pos of the collision !
+  float                   rayDistance = 0;
 };
 
 // https://research.ncl.ac.uk/game/mastersdegree/gametechnologies/physicstutorials/4collisiondetection/Physics%20-%20Collision%20Detection.pdf
@@ -67,28 +67,21 @@ private:
   [[nodiscard]] DLLATTRIB static bool collide(Capsule &firstCollider, const ml::mat4 &modelMatrixFirstCollider, const Sphere &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;
   [[nodiscard]] DLLATTRIB static bool collide(AABB &firstCollider, const ml::mat4 &modelMatrixFirstCollider, Capsule &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept;
 
-  [[nodiscard]] DLLATTRIB bool RaySphereIntersection(  const Ray &r, const ml::mat4 &worldTransform,
-                                             const Sphere &volume,
-                                             RayCollision & collision);
+  [[nodiscard]] DLLATTRIB bool RaySphereIntersection(const Ray &r, const ml::mat4 &worldTransform, const Sphere &volume, RayCollision &collision);
 
-  [[nodiscard]] DLLATTRIB bool RayBoxIntersection(  const Ray &r, const ml::vec3 & boxPos,
-                                          const ml::vec3 &boxSize, RayCollision &collision );
+  [[nodiscard]] DLLATTRIB bool RayBoxIntersection(const Ray &r, const ml::vec3 &boxPos, const ml::vec3 &boxSize, RayCollision &collision);
 
-  [[nodiscard]] DLLATTRIB bool RayAABBIntersection( const Ray &r,
-                                          const ml::mat4 & worldTransform,
-                                          AABB & volume, RayCollision & collision);
+  [[nodiscard]] DLLATTRIB bool RayAABBIntersection(const Ray &r, const ml::mat4 &worldTransform, AABB &volume, RayCollision &collision);
 
-  [[nodiscard]] DLLATTRIB bool RayOBBIntersection(  const Ray &r, const ml::mat4 &transform,
-                                          OBB& volume, RayCollision &collision);
+  [[nodiscard]] DLLATTRIB bool RayOBBIntersection(const Ray &r, const ml::mat4 &transform, OBB &volume, RayCollision &collision);
 
-  [[nodiscard]] DLLATTRIB bool RayCapsuleIntersection(  const Ray &r, const ml::mat4 &worldTransform,
-                                                        Capsule& volume, RayCollision &collision);
-
+  [[nodiscard]] DLLATTRIB bool RayCapsuleIntersection(const Ray &r, const ml::mat4 &worldTransform, Capsule &volume, RayCollision &collision);
 
 public:
   DLLATTRIB explicit Physics(ECS::Admin &admin) : ECS::System<Components::Physics, Components::Transform>{admin} {}
-  [[nodiscard]] DLLATTRIB bool                  RayIntersection (const Ray &r, RayCollision& collision);
+  [[nodiscard]] DLLATTRIB bool RayIntersection(const Ray &r, RayCollision &collision);
 
+  DLLATTRIB void update2(float dt, std::uint64_t);
   DLLATTRIB void update(float dt, std::uint64_t) final;
 
   inline void printMeSomething() {

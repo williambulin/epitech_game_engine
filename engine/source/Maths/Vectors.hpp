@@ -44,6 +44,7 @@ public:
   [[nodiscard]] Vector<T, size> operator*(const Matrix<T, size, size> &v) const;
   [[nodiscard]] Vector<T, size> operator*(const float &v) const;
   [[nodiscard]] Vector<T, size> operator/(const Vector<T, size> &v) const;
+  [[nodiscard]] Vector<T, size> operator/(const float &v) const;
   [[nodiscard]] Vector<T, size> operator^(const Vector<T, size> &v) const;
   Vector<T, size> &             operator+=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   Vector<T, size> &             operator-=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
@@ -51,7 +52,7 @@ public:
   Vector<T, size> &             operator*=(const float &v);
   Vector<T, size> &             operator*=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   Vector<T, size> &             operator/=(const Vector<T, size> &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
-  Vector<T, size> &             operator/=(const float &v);  // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
+  Vector<T, size> &             operator/=(const float &v);            // This function return a reference to itself to be able to chain itself or with other but the return value may not be used.
   [[nodiscard]] Vector<T, size> lerp(const Vector<T, size> &_end, float percent) const;
   [[nodiscard]] T               length() const;
   [[nodiscard]] T               dot(const Vector<T, size> &b) const;
@@ -253,7 +254,7 @@ inline Vector<T, size> &Vector<T, size>::operator/=(const Vector<T, size> &v) {
 
 template <class T, uint32_t size>
 inline Vector<T, size> &Vector<T, size>::operator/=(const float &v) {
-  T *      this_data  = m_array.data();
+  T *this_data = m_array.data();
   for (int i = 0; i < size; ++i, ++this_data) {
     if (v == 0.0f)
       throw std::runtime_error{"try to divide by 0"};
@@ -280,6 +281,14 @@ Vector<T, size> Vector<T, size>::operator*(const float &v) const {
   Vector<T, size> ret{m_array};
   for (auto &data : ret.m_array)
     data *= v;
+  return ret;
+}
+
+template <class T, uint32_t size>
+Vector<T, size> Vector<T, size>::operator/(const float &v) const {
+  Vector<T, size> ret{m_array};
+  for (auto &data : ret.m_array)
+    data /= v;
   return ret;
 }
 
@@ -367,7 +376,7 @@ public:
   T &                      x;
   T &                      y;
   T &                      z;
-  [[nodiscard]] T getMaxElement() const;
+  [[nodiscard]] T          getMaxElement() const;
   [[nodiscard]] Vector3<T> cross(const Vector3<T> &b) const;
 };
 
@@ -384,14 +393,14 @@ Vector3<T> Vector3<T>::cross(const Vector3<T> &b) const {
 
 template <class T>
 T Vector3<T>::getMaxElement() const {
-    T v = x;
-    if (y > v) {
-        v = y;
-    }
-    if (z > v) {
-        v = z;
-    }
-    return v;
+  T v = x;
+  if (y > v) {
+    v = y;
+  }
+  if (z > v) {
+    v = z;
+  }
+  return v;
 }
 
 template <class T>

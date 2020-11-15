@@ -419,6 +419,15 @@ void Systems::Physics::integrateVelocity(float dt) {
 }
 
 void Systems::Physics::update(float dt, std::uint64_t) {
+  // collisionDections();
+  // collisionResolution();
+  // integrateVelocity(dt);
+  for (std::size_t i{0}; i < 5; ++i) {
+    update2(dt / 5.0f, 0);
+  }
+}
+
+void Systems::Physics::update2(float dt, std::uint64_t) {
   collisionDections();
   collisionResolution();
   integrateVelocity(dt);
@@ -472,7 +481,7 @@ bool Systems::Physics::RaySphereIntersection(const Ray &r, const ml::mat4 &world
   if (sphereDist > sphereRadius) {
     return false;
   }
-  float offset          = sqrt((sphereRadius * sphereRadius) - (sphereDist * sphereDist));
+  float offset = sqrt((sphereRadius * sphereRadius) - (sphereDist * sphereDist));
 
   if (sphereProj - (offset) > collision.rayDistance && collision.rayDistance > 0)
     return false;
