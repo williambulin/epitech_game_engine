@@ -8,6 +8,8 @@ void CollisionInfo::addContactPoint(const ml::vec3 &localA, const ml::vec3 &loca
 }
 
 bool Systems::Physics::collide(AABB &firstCollider, const ml::mat4 &modelMatrixFirstCollider, AABB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
+  Log logger{"PhysicsSystem"};
+  logger.Debug("Check collisions AABB/AABB");
   auto     firstPoints       = firstCollider.getPoints(modelMatrixFirstCollider, true);
   auto     secondPoints      = secondCollider.getPoints(modelMatrixSecondCollider, true);
   ml::vec3 minFirstCollider  = firstPoints.front();
@@ -44,12 +46,16 @@ bool Systems::Physics::collide(AABB &firstCollider, const ml::mat4 &modelMatrixF
     }
     // std::cout << "Collide AABB/AABB with penetration = " << penetration << std::endl;
     collisionInfo.addContactPoint(ml::vec3(0.0f, 0.0f, 0.0f), ml::vec3(0.0f, 0.0f, 0.0f), bestAxis, penetration);
+    logger.Debug("AABB/AABB collided with a normal vector : {{0}, {1}, {2}} and a penetration of {3}", bestAxis.x, bestAxis.y, bestAxis.z, penetration);
     return true;
   }
+  logger.Debug("AABB/AABB didn't collide");
   return false;
 }
 
 bool Systems::Physics::collide(const Sphere &firstCollider, const ml::mat4 &modelMatrixFirstCollider, const Sphere &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
+  Log logger{"PhysicsSystem"};
+  logger.Debug("Check collisions Sphere/Sphere");
   auto     firstCenter  = firstCollider.getPoints(modelMatrixFirstCollider);
   auto     secondCenter = secondCollider.getPoints(modelMatrixSecondCollider);
   float    radii        = firstCollider.getRadius() + secondCollider.getRadius();
@@ -63,12 +69,16 @@ bool Systems::Physics::collide(const Sphere &firstCollider, const ml::mat4 &mode
     ml::vec3 localA = normal * firstCollider.getRadius();
     ml::vec3 localB = (normal * -1) * secondCollider.getRadius();
     collisionInfo.addContactPoint(localA, localB, normal, penetration);
+    logger.Debug("Sphere/Sphere collided with a normal vector : {{0}, {1}, {2}} and a penetration of {3}", normal.x, normal.y, normal.z, penetration);
     return true;
   }
+  logger.Debug("Sphere/Sphere didn't collide");
   return false;
 }
 
 bool Systems::Physics::collide(AABB &firstCollider, const ml::mat4 &modelMatrixFirstCollider, const Sphere &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
+  Log logger{"PhysicsSystem"};
+  logger.Debug("Check collisions AABB/Sphere");
   auto     firstPoints       = firstCollider.getPoints(modelMatrixFirstCollider);
   auto     secondCenter      = secondCollider.getPoints(modelMatrixSecondCollider);
   ml::vec3 minFirstCollider  = firstPoints.front();
@@ -78,18 +88,17 @@ bool Systems::Physics::collide(AABB &firstCollider, const ml::mat4 &modelMatrixF
   ml::vec3 closestPointOnBox = delta.clamp((boxHalfSize * -1), boxHalfSize);
   ml::vec3 localPoint        = delta - closestPointOnBox;
   float    distance          = localPoint.length();
-  if (distance < secondCollider.getRadius()) {  // yes , we ’re colliding !
+  if (distance < secondCollider.getRadius()) {
     localPoint.normalize();
     ml::vec3 collisionNormal = localPoint;
     float    penetration     = (secondCollider.getRadius() - distance);
-    // std::cout << "Collide with Sphere/AABB penetration = " << penetration << std::endl;
-    // std::cout << "Collide with Sphere/AABB normal = " << collisionNormal.x << " | " << collisionNormal.y << " | " << collisionNormal.z << std::endl;
-    // empty
     ml::vec3 localA = ml::vec3(0.0f, 0.0f, 0.0f);
     ml::vec3 localB = (collisionNormal * -1) * secondCollider.getRadius();
     collisionInfo.addContactPoint(localA, localB, collisionNormal, penetration);
+    logger.Debug("AABB/Sphere collided with a normal vector : {{0}, {1}, {2}} and a penetration of {3}", collisionNormal.x, collisionNormal.y, collisionNormal.z, penetration);
     return true;
   }
+  logger.Debug("AABB/Sphere didn't collide");
   return false;
 }
 
@@ -149,12 +158,7 @@ bool queryEdgeCollisions(OBB &reference, OBB &incident, CollisionInfo &results) 
           return false;
         }
         if(distance > results.point.penetration) {
-        /*                         results.setPenetration(distance);
-                                results.setType(collisionType.ordinal());
-                                results.setEnterNormal(axis);
-                                results.setEdgeA(i);
-                                results.setEdgeB(j); */
-        results.addContactPoint(ml::vec3(0.0f, 0.0f, 0.0f), ml::vec3(0.0f, 0.0f, 0.0f), axis, distance);
+          results.addContactPoint(ml::vec3(0.0f, 0.0f, 0.0f), ml::vec3(0.0f, 0.0f, 0.0f), axis, distance);
         }
       }
     }
@@ -167,7 +171,6 @@ bool queryFaceCollisions(OBB &reference, OBB &incident, CollisionInfo &results) 
     ml::vec3 axis       = std::get<OBB::NORMAL>(reference.m_faces[i]);
     ml::vec3 planePoint = reference.getSupport(axis);
     float    distance   = axis.dot(planePoint);
-    //            Plane plane = new Plane(axis, planePoint);
 
     ml::vec3 negatedNormal = axis * -1.0f;
     ml::vec3 support       = incident.getSupport(negatedNormal);
@@ -179,15 +182,11 @@ bool queryFaceCollisions(OBB &reference, OBB &incident, CollisionInfo &results) 
     if(distance > results.point.penetration) {
       results.addContactPoint(ml::vec3(0.0f, 0.0f, 0.0f), ml::vec3(0.0f, 0.0f, 0.0f), axis, distance);
     }
-    // results.setPenetration(distance);
-    // results.setEnterNormal(axis);
-    // results.setReferenceFace(i);
   }
   return true;
 }
 
 bool Systems::Physics::collide(OBB &firstCollider, const ml::mat4 &modelMatrixFirstCollider, OBB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
-  std::cout << "obb check"<< std::endl;
   auto firstPoints  = firstCollider.getPoints(modelMatrixFirstCollider, true);
   auto secondPoints = secondCollider.getPoints(modelMatrixSecondCollider, true);
   if (!queryFaceCollisions(firstCollider, secondCollider, collisionInfo)) {
@@ -199,27 +198,6 @@ bool Systems::Physics::collide(OBB &firstCollider, const ml::mat4 &modelMatrixFi
   if (!queryEdgeCollisions(secondCollider, firstCollider, collisionInfo)) {
     return true;
   }
-
- /* if (results.getType() == Type.FACE_OF_A.ordinal()) {
-    getFaceContactPoints(island.getColliderA(), island.getColliderB(), results);
-  } else if (results.getType() == Type.FACE_OF_B.ordinal()) {
-    getFaceContactPoints(island.getColliderB(), island.getColliderA(), results);
-  } else {
-    getEdgeContactPoint(island.getColliderA(), island.getColliderB(), results);
-  }
-
-  ml::vec3 offset = new ml::vec3();
-  island.getColliderB().getPosition().sub(island.getColliderA().getPosition(), offset);
-  if (results.getEnterNormal().dot(offset) > 0) {
-    results.getEnterNormal().negate();
-  }
-
-  results.setCollided();
-
-  return results;
-}
-return true;
-*/
   return false;
 }
 
@@ -246,6 +224,8 @@ auto Systems::Physics::closestPointOnLineSegment(ml::vec3 A, ml::vec3 B, ml::vec
 }
 
 bool Systems::Physics::collide(Capsule &firstCollider, const ml::mat4 &modelMatrixFirstCollider, Capsule &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
+  Log logger{"PhysicsSystem"};
+  logger.Debug("Check collisions Capsule/Capsule");
   std::vector<ml::vec3> pointsFirstCollider{firstCollider.getPoints(modelMatrixFirstCollider)};
   std::vector<ml::vec3> pointsSecondCollider{secondCollider.getPoints(modelMatrixSecondCollider)};
   ml::vec3              a_Normal = pointsFirstCollider.front() - pointsFirstCollider.back();
@@ -294,12 +274,16 @@ bool Systems::Physics::collide(Capsule &firstCollider, const ml::mat4 &modelMatr
     ml::vec3 localA          = ml::vec3(0.0f, 0.0f, 0.0f);
     ml::vec3 localB          = ml::vec3(0.0f, 0.0f, 0.0f);
     collisionInfo.addContactPoint(localA, localB, collisionNormal, penetration);
+    logger.Debug("Capsule/Capsule collided with a normal vector : {{0}, {1}, {2}} and a penetration of {3}", collisionNormal.x, collisionNormal.y, collisionNormal.z, penetration);
+    logger.Debug("Capsule/Capsule didn't collide");
     return true;
   }
   return false;
 }
 
 bool Systems::Physics::collide(Capsule &firstCollider, const ml::mat4 &modelMatrixFirstCollider, const Sphere &secondCollider, const ml::mat4 &modelMatrixSecondCollider, CollisionInfo &collisionInfo) noexcept {
+  Log logger{"PhysicsSystem"};
+  logger.Debug("Check collisions Capsule/Sphere");
   std::vector<ml::vec3> pointsFirstCollider{firstCollider.getPoints(modelMatrixFirstCollider)};
   auto                  secondCenter{secondCollider.getPoints(modelMatrixSecondCollider)};
 
@@ -318,10 +302,13 @@ bool Systems::Physics::collide(Capsule &firstCollider, const ml::mat4 &modelMatr
   {0.0f, 0.0f, 0.0f, 1.0f},
   },
   };
+  logger.Debug("Send collision to Sphere/Sphere");
   return (collide(Sphere(bestA, firstCollider.getRadius()), matrix, Sphere(secondCenter, secondCollider.getRadius()), matrix, collisionInfo));
 }
 
 bool Systems::Physics::collide(AABB &secondCollider, const ml::mat4 &modelMatrixSecondCollider, Capsule &firstCollider, const ml::mat4 &modelMatrixFirstCollider, CollisionInfo &collisionInfo) noexcept {
+  Log logger{"PhysicsSystem"};
+  logger.Debug("Check collisions AABB/Capsule");
   std::vector<ml::vec3> pointsFirstCollider{firstCollider.getPoints(modelMatrixFirstCollider)};
   auto                  secondPoints{secondCollider.getPoints(modelMatrixSecondCollider)};
   auto                  secondCenter = Systems::Physics::getEntityWorldPosition(secondCollider, modelMatrixSecondCollider);
@@ -330,10 +317,7 @@ bool Systems::Physics::collide(AABB &secondCollider, const ml::mat4 &modelMatrix
   ml::vec3 a_LineEndOffset = a_Normal * firstCollider.getRadius();
   ml::vec3 a_A             = pointsFirstCollider.back() + a_LineEndOffset;
   ml::vec3 a_B             = pointsFirstCollider.front() - a_LineEndOffset;
-  //std::cout << " vec a_A = " << a_A.x << " | " << a_A.y << " | " << a_A.z << std::endl;
-  //std::cout << " vec a_B = " << a_B.x << " | " << a_B.y << " | " << a_B.z << std::endl;
   ml::vec3 bestA = Systems::Physics::closestPointOnLineSegment(a_A, a_B, secondCenter);
-  //std::cout << " bestA = " << bestA.x << " | " << bestA.y << " | " << bestA.z << std::endl;
   const ml::mat4 matrix{
   {
   {1.0f, 0.0f, 0.0f, 0.0f},
@@ -343,6 +327,7 @@ bool Systems::Physics::collide(AABB &secondCollider, const ml::mat4 &modelMatrix
   },
   };
   AABB aabb{AABB(secondPoints.front(), secondPoints.back())};
+  logger.Debug("Send collision to AABB/Sphere");
   return (collide(aabb, matrix, Sphere(bestA, firstCollider.getRadius()), matrix, collisionInfo));
 }
 
@@ -352,9 +337,11 @@ void Systems::Physics::collisionDections() {
     for (auto j = i + 1; j != entities.end(); j++) {
       auto &&[entityI, physicsI, transformI]{*i};
       auto &&[entityJ, physicsJ, transformJ]{*j};
-
-      if (entityI == entityJ)
+      m_logger.Debug("Testing collision with {0}, and {1}", entityI, entityJ);
+      if (entityI == entityJ) {
+        m_logger.Debug("Skip collisions because objects are equals.");
         continue;
+      }
 
       CollisionInfo info{
       .firstCollider  = entityI,
@@ -365,8 +352,10 @@ void Systems::Physics::collisionDections() {
         return checkCollisionExists(info, toCompare);
       });
 
-      if (it != m_collisions.end())
+      if (it != m_collisions.end()) {
+        m_logger.Debug("Skip collisions because a resolution is already active with this two colliders.");
         continue;
+      }
 
       if (physicsI.m_shape->m_shapeType == ShapeType::AABB && physicsJ.m_shape->m_shapeType == ShapeType::AABB) {
         if (collide(reinterpret_cast<AABB &>(*physicsI.m_shape), transformI.matrix, reinterpret_cast<AABB &>(*physicsJ.m_shape), transformJ.matrix, info) == true)
@@ -416,15 +405,10 @@ void Systems::Physics::collisionDections() {
 void Systems::Physics::collisionResolution() {
   for (auto i{m_collisions.begin()}; i != m_collisions.end();) {
     if (i->framesLeft == 2) {
-      // i->firstCollider->onCollisionBegin(i->secondCollider);
-      // i->secondCollider->onCollisionBegin(i->firstCollider);
       impulseResolveCollision(*i);
     }
     i->framesLeft = i->framesLeft - 1;
     if (i->framesLeft < 0) {
-      // TODO:
-      // i->firstCollider->onCollisionEnd(i->secondCollider);
-      // i->secondCollider->onCollisionEnd(i->firstCollider);
       i = m_collisions.erase(i);
     } else
       ++i;
@@ -432,6 +416,7 @@ void Systems::Physics::collisionResolution() {
 }
 
 void Systems::Physics::impulseResolveCollision(CollisionInfo &p) const {
+  m_logger.Debug("Resolve collisions between {0} and {1}", p.firstCollider, p.secondCollider);
   auto &&[physA, transformA]{m_admin.getComponents<Components::Physics, Components::Transform>(p.firstCollider)};
   auto &&[physB, transformB]{m_admin.getComponents<Components::Physics, Components::Transform>(p.secondCollider)};
 
@@ -475,17 +460,23 @@ void Systems::Physics::impulseResolveCollision(CollisionInfo &p) const {
 
   ml::vec3 fullImpulse = p.point.normal * j;
   if (!physA.getIsRigid()) {
+    ml::vec3 reverseImpulse = fullImpulse * -1;
+    m_logger.Debug("Apply linear impulse {{0}, {1}, {2}} to {3}", reverseImpulse.x, reverseImpulse.y, reverseImpulse.z, p.firstCollider);
     physA.applyLinearImpulse(fullImpulse * -1);
     if ((*physA.m_shape.get()).m_shapeType != ShapeType::CAPSULE) {
+    m_logger.Debug("Apply angular impulse {{0}, {1}, {2}} to {3}", reverseImpulse.x, reverseImpulse.y, reverseImpulse.z, p.firstCollider);
       physA.applyAngularImpulse(relativeA.cross(fullImpulse * -1));
     }
   }
   if (!physB.getIsRigid()) {
+    m_logger.Debug("Apply linear impulse {{0}, {1}, {2}} to {3}", fullImpulse.x, fullImpulse.y, fullImpulse.z, p.secondCollider);
     physB.applyLinearImpulse(fullImpulse);
     if ((*physB.m_shape.get()).m_shapeType != ShapeType::CAPSULE) {
+    m_logger.Debug("Apply angular impulse {{0}, {1}, {2}} to {3}", fullImpulse.x, fullImpulse.y, fullImpulse.z, p.secondCollider);
       physB.applyAngularImpulse(relativeB.cross(fullImpulse));
     }
   }
+  m_logger.Debug("Collision between {0} and {1} resolved", p.firstCollider, p.secondCollider);
 }
 
 void Systems::Physics::integrateVelocity(float dt) {
@@ -494,6 +485,7 @@ void Systems::Physics::integrateVelocity(float dt) {
 
   auto &entities{getItems()};
   for (auto &&[entity, physics, transform] : entities) {
+    m_logger.Debug("Resolve velocity for {0}", entity);
     ml::vec3 position{transform.matrix.getTranslation()};
     ml::vec3 linearVel{physics.getLinearVelocity()};
     position += linearVel * dt;
@@ -502,7 +494,7 @@ void Systems::Physics::integrateVelocity(float dt) {
     // Linear Damping
     linearVel = linearVel * frameDamping;
     physics.setLinearVelocity(linearVel);
-
+    m_logger.Debug("Set linear velocity to {{0}, {1}, {2}}", linearVel.x, linearVel.y, linearVel.z);
     // first implem angular
     Quaternion orientation{Quaternion::fromMatrix(transform.matrix.getRotation())};
     ml::vec3   angVel{physics.getAngularVelocity()};
@@ -515,6 +507,8 @@ void Systems::Physics::integrateVelocity(float dt) {
     // Damp the angular velocity too
     angVel = angVel * frameDamping;
     physics.setAngularVelocity(angVel);
+    m_logger.Debug("Set linear velocity to {{0}, {1}, {2}}", angVel.x, angVel.y, angVel.z);
+    m_logger.Debug("Velocity resolved for {0}", entity);
   }
 }
 
@@ -534,6 +528,9 @@ void Systems::Physics::update2(float dt, std::uint64_t) {
 }
 
 bool Systems::Physics::RayIntersection(const Ray &r, RayCollision &collision) {
+  ml::vec3 position = r.GetPosition();
+  ml::vec3 direction = r.GetDirection();
+  m_logger.Debug("Raycast from {{0}, {1}, {2}} to direction {{3}, {4}, {5}}", position.x, position.y, position.z, direction.x, direction.y, direction.z);
   auto &entities{getItems()};
   for (auto &&[entity, physics, transform] : entities) {
     switch (physics.m_shape->m_shapeType) {
@@ -559,8 +556,11 @@ bool Systems::Physics::RayIntersection(const Ray &r, RayCollision &collision) {
         break;
     }
   }
-  if (collision.rayDistance > 0.0f)
+  if (collision.rayDistance > 0.0f) {
+    m_logger.Debug("Raycast found object {0} at {{1}, {2}, {3}}", collision.node, collision.collidedAt.x, collision.collidedAt.y, collision.collidedAt.z);
     return true;
+  }
+  m_logger.Debug("Raycast didn't found anything.");
   return false;
 }
 
