@@ -20,7 +20,6 @@ AudioManager::~AudioManager() {
 }
 
 void AudioManager::createAudioGroup(const std::string &audioGroupName, const AudioGroup &audioGroup) noexcept {
-  Log log{"AudioGroupCreated"};
   log->log.Info("Audio Group {0} Created ", audioGroupName);
   m_AudioGroups.insert(std::pair<std::string, AudioGroup>{audioGroupName, audioGroup});
 }

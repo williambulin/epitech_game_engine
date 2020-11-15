@@ -41,4 +41,5 @@ public:
 private:
   int       m_currentId = 0;
   PaStream *m_stream    = nullptr;
+  Log log{"AudioGroupCreated"};
 };
