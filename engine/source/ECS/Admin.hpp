@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Entity.hpp"
-#include "TypeId.hpp"
-#include "ClassId.hpp"
+#include "SystemIdRegister.hpp"
+#include "ComponentIdRegister.hpp"
 #include "ISystem.hpp"
 
 #include <iostream>
@@ -29,7 +29,7 @@ public:
   using ComponentDestructor = std::function<void(void *)>;
   using ComponentPool       = std::pair<std::vector<ComponentType>, ComponentDestructor>;
   using ComponentPoolArray  = std::vector<ComponentPool>;
-  using SystemIdGenerator   = ClassId<ISystem>;
+  using SystemIdGenerator   = SystemIdRegister;
   using SystemKey           = std::size_t;
   using SystemArray         = std::map<SystemKey, std::unique_ptr<ISystem>>;
   using SystemIterator      = SystemArray::iterator;
@@ -151,7 +151,8 @@ inline std::vector<std::tuple<ECS::Admin::EntityIndex, Ts &...>> ECS::Admin::get
 
 template <typename T, typename... Ts>
 inline T &ECS::Admin::createComponent(EntityIndex entity, Ts &&...ts) {
-  auto &&[id, bitId]{TypeId::info<T>()};
+  auto  id{ComponentIdRegister::info<T>()};
+  auto  bitId{1 << id};
   auto &bitfield{getEntity(entity)};
 
   if (id >= m_maxId) {
@@ -178,7 +179,8 @@ inline T &ECS::Admin::createComponent(EntityIndex entity, Ts &&...ts) {
 
 template <typename T>
 inline void ECS::Admin::destroyComponent(EntityIndex entity) {
-  auto &&[id, bitId]{TypeId::info<T>()};
+  auto  id{ComponentIdRegister::info<T>()};
+  auto  bitId{1 << id};
   auto &bitfield{getEntity(entity)};
   bitfield &= ~bitId;
 }
@@ -186,8 +188,10 @@ inline void ECS::Admin::destroyComponent(EntityIndex entity) {
 template <typename T>
 inline bool ECS::Admin::hasComponent(EntityIndex entity) {
   auto &bitfield{getEntity(entity)};
-  auto  bitId{TypeId::info<T>().second};
-  return ((bitfield & bitId) == bitId);
+  // std::cout << "\t " << typeid(T).name() << " -> " << ECS::TypeId::info<T>() << ' ' << (1 << ECS::TypeId::info<T>()) << '\n';
+  auto id{ComponentIdRegister::info<T>()};
+  auto bitId{1 << id};
+  return ((bitfield & bitId));
 }
 
 template <typename... Ts>
@@ -200,7 +204,8 @@ inline T &ECS::Admin::getComponent(EntityIndex entity) {
   if (!hasComponent<T>(entity))
     throw std::runtime_error{std::string{"Couldn't get component "} + typeid(T).name()};
 
-  auto &&[id, bitId]{TypeId::info<T>()};
+  auto id{ComponentIdRegister::info<T>()};
+  auto bitId{1 << id};
   auto &&[pool, deleter]{m_componentPools[id]};
   return *static_cast<T *>(pool[entity]);
 }
