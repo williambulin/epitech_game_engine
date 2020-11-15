@@ -31,7 +31,7 @@ public:
   ContactPoint point{};
   ECS::Admin::EntityIndex  firstCollider{};
   ECS::Admin::EntityIndex  secondCollider{};
-  int          framesLeft{5};
+  int          framesLeft{2};
 
 public:
   DLLATTRIB void addContactPoint(const ml::vec3 &localA, const ml::vec3 &localB, const ml::vec3 &normal, float p);
