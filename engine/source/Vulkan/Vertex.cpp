@@ -28,6 +28,12 @@ auto Vertex::attributeDescriptions() -> std::vector<VkVertexInputAttributeDescri
   .format   = VK_FORMAT_R32G32_SFLOAT,
   .offset   = offsetof(Vertex, texturePosition),
   },
+  VkVertexInputAttributeDescription{
+  .location = 3,
+  .binding  = 0,
+  .format   = VK_FORMAT_R32G32B32_SFLOAT,
+  .offset   = offsetof(Vertex, normal),
+  },
   };
 }
 

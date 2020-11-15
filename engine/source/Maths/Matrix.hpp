@@ -303,11 +303,12 @@ public:
   explicit Matrix4(const std::vector<std::vector<T>> &array);
   Matrix4(const Matrix<T, 4, 4> &v);
   [[nodiscard]] static Matrix4<T> lookAt(const Vector<T, 3> &eye, const Vector<T, 3> &center, const Vector<T, 3> &up);
-  [[nodiscard]] static Matrix4<T> perspective(T angle, T ratio, T nnear, T ffar);
+  [[nodiscard]] static Matrix4<T> perspective(T fovy, T aspect, T zNear, T zFar);
   [[nodiscard]] Matrix4<T>        scale(T a, T b, T c);
   [[nodiscard]] static Matrix4<T> translate(const Vector3<T> &vec);
   [[nodiscard]] static Matrix4<T> perspectiveRH(T fovy, T aspect, T nnear, T ffar);
   [[nodiscard]] Vector3f          getTranslation() const;
+  [[nodiscard]] static Matrix4<T> rotation(T angle, Vector3<T> axis);
   [[nodiscard]] Matrix<T, 3, 3>   getRotation() const;
   void                            setTranslation(const Vector3<T> &vec);
   void                            setRotation(const Matrix<T, 3, 3> &matrix);
@@ -424,3 +425,17 @@ Matrix4<T> Matrix4<T>::perspectiveRH(T fovy, T aspect, T near, T far) {
 
 template <class T>
 Matrix4<T>::Matrix4(const Matrix<T, 4, 4> &v) : Matrix<T, 4, 4>(v) {}
+template <class T>
+Matrix4<T> Matrix4<T>::rotation(T angle, Vector3<T> axis) {
+  axis.normalize();
+  float s  = sinf(angle);
+  float c  = cosf(angle);
+  float oc = 1.0f - c;
+
+  return Matrix4<T>(std::array<std::array<T, 4>, 4>{
+  std::array<T, 4>{oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s, oc * axis.z * axis.x + axis.y * s, 0.0},
+  std::array<T, 4>{oc * axis.x * axis.y + axis.z * s, oc * axis.y * axis.y + c, oc * axis.y * axis.z - axis.x * s, 0.0},
+  std::array<T, 4>{oc * axis.z * axis.x - axis.y * s, oc * axis.y * axis.z + axis.x * s, oc * axis.z * axis.z + c, 0.0},
+  std::array<T, 4>{0.0, 0.0, 0.0, 1.0},
+  });
+}
