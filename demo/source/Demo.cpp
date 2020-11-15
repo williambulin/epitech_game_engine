@@ -178,7 +178,7 @@ public:
 
           if (m_camera.has_value()) {
             auto &&[camera, transform, physics]{m_admin->getComponents<Components::Camera, Components::Transform, Components::Physics>(m_camera.value())};
-            physics.applyLinearImpulse(ml::vec3{0.0f, 20.0f, 0.0f});
+            physics.applyLinearImpulse(ml::vec3{0.0f, 30.0f, 0.0f});
           }
         }
         break;
