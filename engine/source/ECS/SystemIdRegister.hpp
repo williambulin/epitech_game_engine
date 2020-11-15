@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <unordered_set>
 #include <iostream>
+#include <vector>
 #include <ranges>
 
 namespace ECS {
