@@ -81,6 +81,9 @@ private:
   [[nodiscard]] DLLATTRIB bool RayOBBIntersection(  const Ray &r, const ml::mat4 &transform,
                                           OBB& volume, RayCollision &collision);
 
+  [[nodiscard]] DLLATTRIB bool RayCapsuleIntersection(  const Ray &r, const ml::mat4 &worldTransform,
+                                                        Capsule& volume, RayCollision &collision);
+
 
 public:
   DLLATTRIB explicit Physics(ECS::Admin &admin) : ECS::System<Components::Physics, Components::Transform>{admin} {}
