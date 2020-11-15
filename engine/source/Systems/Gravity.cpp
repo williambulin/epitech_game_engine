@@ -3,7 +3,7 @@
 void Systems::Gravity::update(float dt, std::uint64_t) {
   auto &entities{getItems()};
   for (auto &&[entity, gravity, physics] : entities)
-    if (!physics.getIsRigid()) {
+    if (!physics.getIsRigid() && gravity.hasGravity) {
       auto tmp = physics.getLinearVelocity();
 
       if (tmp.y > 0) {
@@ -16,5 +16,4 @@ void Systems::Gravity::update(float dt, std::uint64_t) {
       } else
         tmp.y += -9.81f;
     }
-      //physics.applyLinearImpulse(ml::vec3{0.0f, -9.81f * dt, 0.0f});
 }
