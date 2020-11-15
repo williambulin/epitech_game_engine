@@ -591,7 +591,8 @@ bool Systems::Physics::RayCapsuleIntersection(const Ray &r, const ml::mat4 &worl
   float    len                = penetration_normal.length();
   penetration_normal.normalize();
   float penetration_depth = volume.getRadius() - len;
-  if (penetration_depth > 0 && (r.GetPosition() - r.GetPosition()).length() < collision.rayDistance) {
+  if (  penetration_depth > 0 && (Systems::Physics::getEntityWorldPosition(volume, worldTransform)
+        - r.GetPosition()).length() < collision.rayDistance || collision.rayDistance == 0) {
     collision.collidedAt  = Systems::Physics::getEntityWorldPosition(volume, worldTransform);
     collision.rayDistance = (r.GetPosition() - r.GetPosition()).length();
     return true;
