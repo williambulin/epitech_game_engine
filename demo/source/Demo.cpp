@@ -5,7 +5,6 @@
 #include "Components/Light.hpp"
 #include "Components/Camera.hpp"
 #include "Systems/Physics.hpp"
-#include "ECS/TypeId.hpp"
 
 #include <iostream>
 #include <chrono>
@@ -147,18 +146,6 @@ public:
     auto audio{m_audioManager->createAudioSource("../resources/some.wav")};
     audio->setVolume(100);
     audio->play();
-
-    std::cout << "Components::Physics -> " << ECS::TypeId::info<Components::Physics>() << ':' << (1 << ECS::TypeId::info<Components::Physics>()) << '\n';
-    std::cout << "Components::Transform -> " << ECS::TypeId::info<Components::Transform>() << ':' << (1 << ECS::TypeId::info<Components::Transform>()) << '\n';
-    std::cout << "Components::Model -> " << ECS::TypeId::info<Components::Model>() << ':' << (1 << ECS::TypeId::info<Components::Model>()) << '\n';
-    std::cout << "Components::Light -> " << ECS::TypeId::info<Components::Light>() << ':' << (1 << ECS::TypeId::info<Components::Light>()) << '\n';
-    std::cout << "Components::Camera -> " << ECS::TypeId::info<Components::Camera>() << ':' << (1 << ECS::TypeId::info<Components::Camera>()) << '\n';
-    std::cout << std::endl;
-    std::cout << "Components::Physics -> " << ECS::TypeId::info<Components::Physics>() << ':' << (1 << ECS::TypeId::info<Components::Physics>()) << '\n';
-    std::cout << "Components::Transform -> " << ECS::TypeId::info<Components::Transform>() << ':' << (1 << ECS::TypeId::info<Components::Transform>()) << '\n';
-    std::cout << "Components::Model -> " << ECS::TypeId::info<Components::Model>() << ':' << (1 << ECS::TypeId::info<Components::Model>()) << '\n';
-    std::cout << "Components::Light -> " << ECS::TypeId::info<Components::Light>() << ':' << (1 << ECS::TypeId::info<Components::Light>()) << '\n';
-    std::cout << "Components::Camera -> " << ECS::TypeId::info<Components::Camera>() << ':' << (1 << ECS::TypeId::info<Components::Camera>()) << '\n';
 
     ///////////////////////////////////////
     // Camera
