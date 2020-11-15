@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Physics/Shapes/Raycasting.hpp>
 #include "ECS/System.hpp"
 #include "Components/Transform.hpp"
 #include "Components/Physics.hpp"
@@ -9,6 +8,7 @@
 #include "Physics/Shapes/Sphere.hpp"
 #include "Physics/Shapes/OBB.hpp"
 #include "Physics/Shapes/Capsule.hpp"
+#include "Physics/Shapes/Raycasting.hpp"
 
 #include "Maths/Math.hpp"
 
