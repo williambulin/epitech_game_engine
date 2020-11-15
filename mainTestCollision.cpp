@@ -510,7 +510,7 @@ int main(int argc, char **argv) {
     auto &translate{admin.createComponent<Components::Transform>(entity)};
     translate.matrix.setTranslation(ml::vec3{-11.0f, -4.0f, 0.0f});
 
-    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<AABB>(ml::vec3(-1.0f, -1.0f, -6.0f), ml::vec3(1.0f, 1.0f, -4.0f)))};
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<Capsule>(ml::vec3(0.0f, 1.0f, 6.0f), ml::vec3(1.0f, 1.0f, -4.0f)))};
     physics.applyLinearImpulse(ml::vec3{17.0f, 0.0f, 0.0f});
     auto &colored{admin.createComponent<Colored>(entity)};
     colored.color = ml::vec3{1.0f, 0.0f, 0.0f};

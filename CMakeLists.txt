@@ -46,6 +46,7 @@ add_library(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Transform.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Gravity.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/Admin.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ClassId.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ComponentIdRegister.cpp
@@ -90,6 +91,8 @@ add_library(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Sphere.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/Shapes/Sphere.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/ShapeType.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Gravity.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Gravity.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Physics.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Physics.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Vulkan/Buffer.cpp
@@ -178,6 +181,7 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Movement.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Gravity.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Transform.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/Admin.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/SystemIdRegister.cpp
@@ -207,6 +211,8 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/ShapeType.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Physics.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Physics.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Gravity.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Gravity.hpp
   ${CMAKE_CURRENT_LIST_DIR}/mainTestCollision.cpp
 )
 
@@ -221,6 +227,7 @@ add_executable(
 
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Model.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Movement.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Gravity.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Transform.hpp
@@ -252,6 +259,8 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Physics/ShapeType.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Physics.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Physics.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Gravity.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Systems/Gravity.hpp
   ${CMAKE_CURRENT_LIST_DIR}/mainTestCollision2.cpp
 )
 
