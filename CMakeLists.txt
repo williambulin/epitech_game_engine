@@ -39,6 +39,7 @@ add_library(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Audio/main.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Camera/Camera.cpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Camera/Camera.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Camera.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Light.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Model.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Movement.hpp
@@ -47,10 +48,13 @@ add_library(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Transform.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/Admin.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ClassId.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ComponentIdRegister.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ComponentIdRegister.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/Entity.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ISystem.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/System.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/TypeId.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/SystemIdRegister.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/SystemIdRegister.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Keywords.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Library.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Platform.hpp
@@ -176,11 +180,13 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Transform.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/Admin.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ClassId.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/SystemIdRegister.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/SystemIdRegister.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/Entity.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ISystem.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/System.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/TypeId.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ComponentIdRegister.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ComponentIdRegister.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Keywords.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Platform.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Math.hpp
@@ -219,11 +225,13 @@ add_executable(
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Physics.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Components/Transform.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/Admin.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ClassId.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/SystemIdRegister.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/SystemIdRegister.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/Entity.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ISystem.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/System.hpp
-  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/TypeId.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ComponentIdRegister.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/engine/source/ECS/ComponentIdRegister.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Keywords.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Extension/Language/Platform.hpp
   ${CMAKE_CURRENT_LIST_DIR}/engine/source/Maths/Math.hpp
