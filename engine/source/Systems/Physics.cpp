@@ -237,10 +237,10 @@ bool Systems::Physics::collide(AABB &secondCollider, const ml::mat4 &modelMatrix
   ml::vec3 a_LineEndOffset = a_Normal * firstCollider.getRadius();
   ml::vec3 a_A             = pointsFirstCollider.back() + a_LineEndOffset;
   ml::vec3 a_B             = pointsFirstCollider.front() - a_LineEndOffset;
-  std::cout << " vec a_A = " << a_A.x << " | " << a_A.y << " | " << a_A.z << std::endl;
-  std::cout << " vec a_B = " << a_B.x << " | " << a_B.y << " | " << a_B.z << std::endl;
+  //std::cout << " vec a_A = " << a_A.x << " | " << a_A.y << " | " << a_A.z << std::endl;
+  //std::cout << " vec a_B = " << a_B.x << " | " << a_B.y << " | " << a_B.z << std::endl;
   ml::vec3 bestA = Systems::Physics::closestPointOnLineSegment(a_A, a_B, secondCenter);
-  std::cout << " bestA = " << bestA.x << " | " << bestA.y << " | " << bestA.z << std::endl;
+  //std::cout << " bestA = " << bestA.x << " | " << bestA.y << " | " << bestA.z << std::endl;
   const ml::mat4 matrix{
   {
   {1.0f, 0.0f, 0.0f, 0.0f},
