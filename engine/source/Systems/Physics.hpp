@@ -23,7 +23,7 @@ public:
   ml::vec3 localA{0.0f, 0.0f, 0.0f};  // where did the collision occur ...
   ml::vec3 localB{0.0f, 0.0f, 0.0f};  // in the frame of each object !
   ml::vec3 normal{0.0f, 0.0f, 0.0f};  // In world space too
-  float    penetration{0.0f};
+  float    penetration{-FLT_MAX};
 };
 
 class CollisionInfo final {

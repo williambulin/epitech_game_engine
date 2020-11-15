@@ -600,6 +600,30 @@ int main(int argc, char **argv) {
   }
  */
 
+  using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{-8.0f, 3.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<OBB>(ml::vec3(-1.0f, -1.0f, -6.0f), ml::vec3(1.0f, 1.0f, -4.0f)))};
+    physics.applyLinearImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
+    physics.applyAngularImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{1.0f, 0.0f, 0.0f};
+  }
+
+  using (auto entity{admin.createEntity()}) {
+    auto &translate{admin.createComponent<Components::Transform>(entity)};
+    translate.matrix.setTranslation(ml::vec3{-8.0f, 8.0f, 0.0f});
+
+    auto &physics{admin.createComponent<Components::Physics>(entity, std::make_unique<OBB>(ml::vec3(-1.0f, -1.0f, -6.0f), ml::vec3(1.0f, 1.0f, -4.0f)))};
+    physics.applyLinearImpulse(ml::vec3{0.0f, -11.0f, 0.0f});
+    physics.applyAngularImpulse(ml::vec3{0.0f, 0.0f, 0.0f});
+
+    auto &colored{admin.createComponent<Colored>(entity)};
+    colored.color = ml::vec3{0.0f, 1.0f, 0.0f};
+  }
+
   admin.createSystem<Systems::Physics>();
 
   glutInit(&argc, argv);             // Initialize GLUT
