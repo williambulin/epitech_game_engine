@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Maths/Math.hpp"
-#include "Extension/Libraries/glm.hpp"
 
 namespace Components {
   class Camera;
@@ -20,9 +19,9 @@ public:
   ml::vec3 angles{0.0f, 0.0f, 0.0f};
 
   [[nodiscard]] inline auto viewMatrix() -> ml::mat4 {
-    m_front.x = cos(glm::radians(angles.y)) * cos(glm::radians(angles.x));
-    m_front.y = sin(glm::radians(angles.x));
-    m_front.z = sin(glm::radians(angles.y)) * cos(glm::radians(angles.x));
+    m_front.x = cos(ml::radians(angles.y)) * cos(ml::radians(angles.x));
+    m_front.y = sin(ml::radians(angles.x));
+    m_front.z = sin(ml::radians(angles.y)) * cos(ml::radians(angles.x));
     m_front.normalize();
     m_right = m_front.cross(m_worldUp);
     m_right.normalize();
@@ -32,6 +31,6 @@ public:
   }
 
   [[nodiscard]] inline auto projectionMatrix(float aspectRatio) const -> ml::mat4 {
-    return Matrix4<float>::perspective(glm::radians(fov), aspectRatio, 0.001f, 1000.0f);
+    return Matrix4<float>::perspective(ml::radians(fov), aspectRatio, 0.01f, 500.0f);
   }
 };

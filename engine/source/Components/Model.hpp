@@ -16,8 +16,8 @@ public:
   std::unique_ptr<Vulkan::Model> m_model{nullptr};
 
 public:
-  DLLATTRIB explicit Model(Vulkan::Renderer &renderer, const std::string &modelPath, const std::string &texturePath) {
+  DLLATTRIB explicit Model(Vulkan::Renderer &renderer, const std::string &modelPath, const std::string &texturePath, const ml::vec3 &color = ml::vec3{1.0f, 1.0f, 1.0f}) {
     m_image = renderer.createImage(texturePath);
-    m_model = renderer.createModel(modelPath);
+    m_model = renderer.createModel(modelPath, color);
   }
 };

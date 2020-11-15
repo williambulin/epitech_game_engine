@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Extension/Libraries/glm.hpp"
 #include "Maths/Math.hpp"
 #include "Components/Light.hpp"
 

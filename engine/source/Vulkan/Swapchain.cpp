@@ -269,7 +269,7 @@ Vulkan::Swapchain::Swapchain(VkCommandPool commandPool, VkQueue graphicsQueue, H
   VkPushConstantRange pushConstantRange{
   .stageFlags = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
   .offset     = 0,
-  .size       = sizeof(glm::mat4),
+  .size       = sizeof(float),
   };
 
   VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{

@@ -125,7 +125,7 @@ auto Vulkan::Image::createImageView(VkImage image, VkFormat format, VkImageAspec
 }
 
 void Vulkan::Image::copyBufferToImage(VkBuffer buffer, VkImage image, std::uint32_t width, std::uint32_t height) {
-  using (auto commandBuffer{startSingleUseCommandBuffer()}) {
+  use(auto commandBuffer{startSingleUseCommandBuffer()}) {
     VkBufferImageCopy bufferImageCopy{
     .bufferOffset      = 0,
     .bufferRowLength   = 0,
@@ -148,7 +148,7 @@ void Vulkan::Image::copyBufferToImage(VkBuffer buffer, VkImage image, std::uint3
 }
 
 void Vulkan::Image::transitionLayout(VkImageLayout imageLayout, VkImageLayout newImageLayout) {
-  using (auto commandBuffer{startSingleUseCommandBuffer()}) {
+  use(auto commandBuffer{startSingleUseCommandBuffer()}) {
     VkImageMemoryBarrier imageMemoryBarrier{
     .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
     .srcAccessMask       = 0,
@@ -205,7 +205,7 @@ void Vulkan::Image::generateMipmaps(VkImage image, VkFormat format, std::int32_t
   if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT))
     throw std::runtime_error{"Format doesn't support linear filtering"};
 
-  using (auto commandBuffer{startSingleUseCommandBuffer()}) {
+  use(auto commandBuffer{startSingleUseCommandBuffer()}) {
     VkImageMemoryBarrier imageMemoryBarrier{
     .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
     .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
@@ -284,6 +284,8 @@ void Vulkan::Image::generateMipmaps(VkImage image, VkFormat format, std::int32_t
     endSingleUseCommandBuffer(commandBuffer);
   }
 }
+
+#undef max
 
 Vulkan::Image::Image(VkDevice device, VkPhysicalDevice physicalDevice, VkCommandPool commandPool, VkQueue graphicsQueue, const std::string &path) : m_device{device}, m_physicalDevice{physicalDevice}, m_format{VK_FORMAT_R8G8B8A8_SRGB}, m_commandPool{commandPool}, m_graphicsQueue{graphicsQueue} {
   int  imageWidth{0}, imageHeight{0}, imageChannels{0};
