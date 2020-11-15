@@ -31,7 +31,7 @@ private:
   };
 
   const std::vector<const char *> m_validationLayers{
-  "VK_LAYER_KHRONOS_validation",
+  "VK_LAYER_KHRONOS-validation",
   };
 
   ECS::Admin &     m_admin;

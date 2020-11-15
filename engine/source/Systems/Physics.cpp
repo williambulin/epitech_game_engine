@@ -439,20 +439,27 @@ void Systems::Physics::impulseResolveCollision(CollisionInfo &p) const {
 
   auto shapeA{(*physA.m_shape.get()).m_shapeType};
   auto shapeB{(*physB.m_shape.get()).m_shapeType};
-  bool shouldDo{false};
-  // AABB
-  shouldDo = shouldDo || (shapeA == ShapeType::AABB && shapeB == ShapeType::AABB);
+  bool shouldDo{true};
+  // // AABB
+  // shouldDo = shouldDo || (shapeA == ShapeType::AABB && shapeB == ShapeType::AABB);
 
-  // Sphere
-  shouldDo = shouldDo || (shapeA == ShapeType::SPHERE && shapeB == ShapeType::SPHERE);
+  // // Sphere
+  // shouldDo = shouldDo || (shapeA == ShapeType::SPHERE && shapeB == ShapeType::SPHERE);
 
-  // AABB / Sphere
-  shouldDo = shouldDo || (shapeA == ShapeType::AABB && shapeB == ShapeType::SPHERE);
-  shouldDo = shouldDo || (shapeA == ShapeType::SPHERE && shapeB == ShapeType::AABB);
+  // // CAPSULE
+  // shouldDo = shouldDo || (shapeA == ShapeType::CAPSULE && shapeB == ShapeType::CAPSULE);
 
-  // AABB / Capsule
-  shouldDo = shouldDo || (shapeA == ShapeType::AABB && shapeB == ShapeType::CAPSULE);
-  shouldDo = shouldDo || (shapeA == ShapeType::CAPSULE && shapeB == ShapeType::AABB);
+  // // AABB / Sphere
+  // shouldDo = shouldDo || (shapeA == ShapeType::AABB && shapeB == ShapeType::SPHERE);
+  // shouldDo = shouldDo || (shapeA == ShapeType::SPHERE && shapeB == ShapeType::AABB);
+
+  // // AABB / Capsule
+  // shouldDo = shouldDo || (shapeA == ShapeType::AABB && shapeB == ShapeType::CAPSULE);
+  // shouldDo = shouldDo || (shapeA == ShapeType::CAPSULE && shapeB == ShapeType::AABB);
+
+  // // Sphere / Capsule
+  // shouldDo = shouldDo || (shapeA == ShapeType::SPHERE && shapeB == ShapeType::CAPSULE);
+  // shouldDo = shouldDo || (shapeA == ShapeType::CAPSULE && shapeB == ShapeType::SPHERE);
 
   if (shouldDo) {
     relativeA = p.point.localA - getEntityWorldPositionAABB(*physA.m_shape.get(), transformA.matrix);
@@ -647,7 +654,6 @@ void Systems::Physics::setCallbackCollision(std::function<void(ECS::Admin::Entit
   m_callbackCollision = callbackCollision;
 }
 
-
 bool Systems::Physics::RayAABBIntersection(const Ray &r, const ml::mat4 &worldTransform, AABB &volume, RayCollision &collision) {
   ml::vec3 boxPos           = Systems::Physics::getEntityWorldPosition(volume, worldTransform);
   auto     firstPoints      = volume.getPoints(worldTransform);
@@ -715,7 +721,7 @@ bool Systems::Physics::RayCapsuleIntersection(const Ray &r, const ml::mat4 &worl
   float    len                = penetration_normal.length();
   penetration_normal.normalize();
   float penetration_depth = volume.getRadius() - len;
-  if ((penetration_depth > 0 && (Systems::Physics::getEntityWorldPosition(volume, worldTransform) - r.GetPosition()).length() < collision.rayDistance) || collision.rayDistance == 0) {
+  if (penetration_depth > 0 && ((Systems::Physics::getEntityWorldPosition(volume, worldTransform) - r.GetPosition()).length() < collision.rayDistance || collision.rayDistance == 0)) {
     collision.collidedAt  = Systems::Physics::getEntityWorldPosition(volume, worldTransform);
     collision.rayDistance = (Systems::Physics::getEntityWorldPosition(volume, worldTransform) - r.GetPosition()).length();
     return true;
